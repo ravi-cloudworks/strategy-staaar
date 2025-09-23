@@ -29,7 +29,7 @@
       {"text": "UNCLEAR SPACE", "icon": "question-circle"},
       {"text": "FOLLOWS OTHERS", "icon": "person-walking"},
       {"text": "DIFFERENT STORY", "icon": "book"},
-      {"text": "UNIQUE CLAIM", "icon": "star-fill"},
+      {"text": "UNIQUE CLAIM", "icon": "star"},
       {"text": "OWNS CONCEPT", "icon": "trophy"},
       {"text": "INVENTS CATEGORY", "icon": "plus-square"}
     ],
@@ -38,7 +38,7 @@
       {"text": "BASIC CLAIM", "icon": "chat-left"},
       {"text": "CLEAR BENEFIT", "icon": "check-circle"},
       {"text": "BOLD PROMISE", "icon": "exclamation-triangle"},
-      {"text": "GUARANTEE SHOWN", "icon": "shield-fill"},
+      {"text": "GUARANTEE SHOWN", "icon": "shield"},
       {"text": "TRANSFORMS LIFE", "icon": "magic"}
     ],
     [

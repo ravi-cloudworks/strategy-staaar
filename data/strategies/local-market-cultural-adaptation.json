@@ -38,7 +38,7 @@
       {"text": "IMPOSED VALUES", "icon": "arrow-down"},
       {"text": "NEUTRAL STANCE", "icon": "dash"},
       {"text": "RESPECTFUL APPROACH", "icon": "hand-thumbs-up"},
-      {"text": "SHARED VALUES", "icon": "people-fill"},
+      {"text": "SHARED VALUES", "icon": "people"},
       {"text": "CULTURAL CELEBRATION", "icon": "emoji-smile"},
       {"text": "TRANSFORMATIVE BRIDGE", "icon": "link-45deg"}
     ],
@@ -54,7 +54,7 @@
       {"text": "REJECTED OUTSIDER", "icon": "emoji-expressionless"},
       {"text": "TOLERATED FOREIGN", "icon": "pause-circle"},
       {"text": "ACCEPTED BRAND", "icon": "check-circle"},
-      {"text": "BELOVED CHOICE", "icon": "heart-fill"},
+      {"text": "BELOVED CHOICE", "icon": "heart"},
       {"text": "CULTURAL ICON", "icon": "star"},
       {"text": "NATIVE TREASURE", "icon": "diamond"}
     ]

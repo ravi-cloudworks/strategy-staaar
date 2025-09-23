@@ -35,8 +35,8 @@
     [
       {"text": "WEAK APPEAL", "icon": "volume-down"},
       {"text": "LOGICAL ARGUMENT", "icon": "diagram-2"},
-      {"text": "EMOTIONAL HOOK", "icon": "heart-fill"},
-      {"text": "SOCIAL PROOF", "icon": "people-fill"},
+      {"text": "EMOTIONAL HOOK", "icon": "heart"},
+      {"text": "SOCIAL PROOF", "icon": "people"},
       {"text": "FEAR/URGENCY", "icon": "exclamation-triangle"},
       {"text": "IDENTITY TRANSFORMATION", "icon": "arrow-up-circle"}
     ]

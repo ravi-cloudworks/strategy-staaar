@@ -20,7 +20,7 @@
       {"text": "BASIC DELIVERY", "icon": "truck"},
       {"text": "SOLID PERFORMANCE", "icon": "shield-check"},
       {"text": "STRONG DEMONSTRATION", "icon": "award"},
-      {"text": "MARKET LEADERSHIP", "icon": "trophy-fill"},
+      {"text": "MARKET LEADERSHIP", "icon": "trophy"},
       {"text": "INDUSTRY PIONEER", "icon": "rocket"}
     ],
     [
@@ -43,7 +43,7 @@
       {"text": "IGNORES CONTEXT", "icon": "eye-slash"},
       {"text": "BASIC SETTING", "icon": "gear"},
       {"text": "CULTURAL CUES", "icon": "people"},
-      {"text": "TREND SIGNALS", "icon": "reception-4"},
+      {"text": "TREND SIGNALS", "icon": "bar-chart"},
       {"text": "ZEITGEIST MOMENT", "icon": "lightning"},
       {"text": "DEFINES CULTURE", "icon": "compass"}
     ]

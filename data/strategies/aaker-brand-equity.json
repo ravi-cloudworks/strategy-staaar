@@ -36,8 +36,8 @@
       {"text": "SWITCHER", "icon": "arrow-left-right"},
       {"text": "SATISFIED USER", "icon": "person-check"},
       {"text": "LIKES BRAND", "icon": "hand-thumbs-up"},
-      {"text": "COMMITTED BUYER", "icon": "heart-fill"},
-      {"text": "DEVOTED FAN", "icon": "star-fill"},
+      {"text": "COMMITTED BUYER", "icon": "heart"},
+      {"text": "DEVOTED FAN", "icon": "star"},
       {"text": "LIFETIME ADVOCATE", "icon": "infinity"}
     ]
   ]

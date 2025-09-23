@@ -31,7 +31,7 @@
       {"text": "QUALITY EMPHASIS", "icon": "award"},
       {"text": "SOCIAL IMPACT", "icon": "activity"},
       {"text": "AUTHENTICITY", "icon": "person-check"},
-      {"text": "INCLUSIVITY", "icon": "people-fill"},
+      {"text": "INCLUSIVITY", "icon": "people"},
       {"text": "RADICAL CHANGE", "icon": "arrow-clockwise"}
     ],
     [
@@ -47,15 +47,15 @@
       {"text": "FRIEND GROUPS", "icon": "person-plus"},
       {"text": "COMMUNITY BELONGING", "icon": "house"},
       {"text": "TRIBAL IDENTITY", "icon": "shield"},
-      {"text": "VIRAL PARTICIPATION", "icon": "share-fill"},
+      {"text": "VIRAL PARTICIPATION", "icon": "share"},
       {"text": "CULTURAL CREATION", "icon": "pencil"}
     ],
     [
       {"text": "TRADITIONAL BUYING", "icon": "bag"},
       {"text": "RESEARCH HEAVY", "icon": "search"},
       {"text": "PEER INFLUENCED", "icon": "chat-square"},
-      {"text": "IMPULSE DRIVEN", "icon": "lightning-fill"},
-      {"text": "VALUES ALIGNED", "icon": "heart-fill"},
+      {"text": "IMPULSE DRIVEN", "icon": "lightning"},
+      {"text": "VALUES ALIGNED", "icon": "heart"},
       {"text": "IDENTITY EXPRESSION", "icon": "gem"}
     ]
   ]

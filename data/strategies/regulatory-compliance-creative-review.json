@@ -22,7 +22,7 @@
       {"text": "HIDDEN TERMS", "icon": "eye-slash"},
       {"text": "BURIED FINE PRINT", "icon": "search"},
       {"text": "BASIC DISCLOSURE", "icon": "info"},
-      {"text": "CLEAR TRANSPARENCY", "icon": "eye-fill"},
+      {"text": "CLEAR TRANSPARENCY", "icon": "eye"},
       {"text": "PROMINENT DISPLAY", "icon": "megaphone"},
       {"text": "EXEMPLARY OPENNESS", "icon": "sun"}
     ],
@@ -39,19 +39,19 @@
       {"text": "QUESTIONABLE TARGETING", "icon": "question"},
       {"text": "APPROPRIATE AUDIENCE", "icon": "people"},
       {"text": "PROTECTIVE MEASURES", "icon": "shield-slash"},
-      {"text": "ENHANCED SAFEGUARDS", "icon": "shield-fill"},
+      {"text": "ENHANCED SAFEGUARDS", "icon": "shield"},
       {"text": "EXEMPLARY PROTECTION", "icon": "trophy"}
     ],
     [
       {"text": "FALSE COMPARISONS", "icon": "x-octagon"},
-      {"text": "MISLEADING IMPLICATIONS", "icon": "exclamation-circle-fill"},
+      {"text": "MISLEADING IMPLICATIONS", "icon": "exclamation-circle"},
       {"text": "FAIR COMPARISONS", "icon": "scales"},
-      {"text": "HONEST POSITIONING", "icon": "check-circle-fill"},
+      {"text": "HONEST POSITIONING", "icon": "check-circle"},
       {"text": "TRANSPARENT ADVANTAGES", "icon": "binoculars"},
       {"text": "REGULATORY PERFECT", "icon": "star"}
     ],
     [
-      {"text": "CERTAIN REJECTION", "icon": "x-circle-fill"},
+      {"text": "CERTAIN REJECTION", "icon": "x-circle"},
       {"text": "HIGH RISK", "icon": "exclamation-diamond"},
       {"text": "MODERATE CONCERN", "icon": "exclamation-square"},
       {"text": "LIKELY APPROVAL", "icon": "check-square"},

@@ -11,8 +11,8 @@
     [
       {"text": "UNCLEAR PURPOSE", "icon": "question"},
       {"text": "SURFACE MISSION", "icon": "file-text"},
-      {"text": "EMOTIONAL CONNECTION", "icon": "person-hearts"},
-      {"text": "AUTHENTIC BELIEF", "icon": "heart-fill"},
+      {"text": "EMOTIONAL CONNECTION", "icon": "emoji-heart-eyes"},
+      {"text": "AUTHENTIC BELIEF", "icon": "heart-pulse"},
       {"text": "TRANSFORMATIONAL VISION", "icon": "eye"},
       {"text": "MOVEMENT CREATION", "icon": "people"}
     ],
@@ -37,8 +37,8 @@
       {"text": "TRANSACTIONAL PURCHASE", "icon": "cart"},
       {"text": "REPEAT CUSTOMER", "icon": "arrow-repeat"},
       {"text": "BRAND ADVOCATE", "icon": "megaphone"},
-      {"text": "COMMUNITY BUILDER", "icon": "people-fill"},
-      {"text": "CULTURAL INFLUENCER", "icon": "star-fill"}
+      {"text": "COMMUNITY BUILDER", "icon": "people"},
+      {"text": "CULTURAL INFLUENCER", "icon": "star"}
     ]
   ]
 }

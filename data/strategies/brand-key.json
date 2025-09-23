@@ -13,15 +13,15 @@
       {"text": "COPIES OTHERS", "icon": "copy"},
       {"text": "SIMILAR PRODUCTS", "icon": "diagram-2"},
       {"text": "DIFFERENT CLAIMS", "icon": "chat"},
-      {"text": "UNIQUE ANGLE", "icon": "triangle-fill"},
+      {"text": "UNIQUE ANGLE", "icon": "triangle"},
       {"text": "BREAKS RULES", "icon": "exclamation-triangle"},
       {"text": "CREATES NEW SPACE", "icon": "plus-square"}
     ],
     [
       {"text": "MASS MARKET", "icon": "globe"},
-      {"text": "BROAD SEGMENT", "icon": "people-fill"},
+      {"text": "BROAD SEGMENT", "icon": "people"},
       {"text": "DEFINED GROUP", "icon": "person-check"},
-      {"text": "NICHE COMMUNITY", "icon": "circle-fill"},
+      {"text": "NICHE COMMUNITY", "icon": "circle"},
       {"text": "MICRO-TRIBE", "icon": "gem"},
       {"text": "INDIVIDUAL FOCUS", "icon": "person"}
     ],
@@ -30,7 +30,7 @@
       {"text": "STATED WANT", "icon": "chat-dots"},
       {"text": "HIDDEN TENSION", "icon": "eye-slash"},
       {"text": "UNMET DESIRE", "icon": "heart"},
-      {"text": "EMOTIONAL TRUTH", "icon": "heart-fill"},
+      {"text": "EMOTIONAL TRUTH", "icon": "heart"},
       {"text": "CULTURAL SHIFT", "icon": "graph-up"}
     ],
     [
@@ -45,9 +45,9 @@
       {"text": "WEAK SUPPORT", "icon": "dash"},
       {"text": "BASIC EVIDENCE", "icon": "file-text"},
       {"text": "CREDIBLE DEMO", "icon": "play-circle"},
-      {"text": "COMPELLING PROOF", "icon": "shield-fill"},
+      {"text": "COMPELLING PROOF", "icon": "shield"},
       {"text": "UNDENIABLE TRUTH", "icon": "check-all"},
-      {"text": "REVOLUTIONARY FACT", "icon": "star-fill"}
+      {"text": "REVOLUTIONARY FACT", "icon": "star"}
     ]
   ]
 }

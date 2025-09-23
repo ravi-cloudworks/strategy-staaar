@@ -35,7 +35,7 @@
       {"text": "TRIBAL EXILE", "icon": "dash-circle"}
     ],
     [
-      {"text": "GENERAL AUDIENCE", "icon": "people-fill"},
+      {"text": "GENERAL AUDIENCE", "icon": "people"},
       {"text": "DEMOGRAPHIC FOCUS", "icon": "person"},
       {"text": "EMOTIONAL STATE", "icon": "activity"},
       {"text": "DESPERATION EXPLOITATION", "icon": "exclamation-octagon"},
@@ -47,7 +47,7 @@
       {"text": "PATTERN RECOGNITION", "icon": "arrow-repeat"},
       {"text": "MENTAL SHORTCUTS", "icon": "arrow-right-circle"},
       {"text": "BIAS EXPLOITATION", "icon": "triangle"},
-      {"text": "COGNITIVE HIJACKING", "icon": "lightning-fill"},
+      {"text": "COGNITIVE HIJACKING", "icon": "lightning"},
       {"text": "REALITY DISTORTION", "icon": "mask"}
     ],
     [

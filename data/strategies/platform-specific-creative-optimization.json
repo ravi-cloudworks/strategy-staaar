@@ -20,7 +20,7 @@
     ],
     [
       {"text": "POOR QUALITY", "icon": "x-square"},
-      {"text": "BASIC FILTER", "icon": "camera-fill"},
+      {"text": "BASIC FILTER", "icon": "camera"},
       {"text": "BRAND CONSISTENT", "icon": "palette"},
       {"text": "HIGHLY STYLIZED", "icon": "stars"},
       {"text": "ASPIRATIONAL BEAUTY", "icon": "gem"},
@@ -31,15 +31,15 @@
       {"text": "BASIC RETENTION", "icon": "graph-down"},
       {"text": "HOLDS ATTENTION", "icon": "eye"},
       {"text": "INCREASES ENGAGEMENT", "icon": "graph-up"},
-      {"text": "BINGE-WORTHY", "icon": "play-circle-fill"},
+      {"text": "BINGE-WORTHY", "icon": "play-circle"},
       {"text": "ADDICTIVE CONTENT", "icon": "arrow-clockwise"}
     ],
     [
       {"text": "IGNORED", "icon": "eye-slash"},
-      {"text": "PASSIVE VIEWING", "icon": "eye-fill"},
+      {"text": "PASSIVE VIEWING", "icon": "eye"},
       {"text": "LIKE/REACT", "icon": "hand-thumbs-up"},
       {"text": "COMMENT SPARK", "icon": "chat"},
-      {"text": "SHARE TRIGGER", "icon": "share-fill"},
+      {"text": "SHARE TRIGGER", "icon": "share"},
       {"text": "VIRAL SPREAD", "icon": "lightning-charge"}
     ],
     [

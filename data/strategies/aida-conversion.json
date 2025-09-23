@@ -10,7 +10,7 @@
   "data": [
     [
       {"text": "IGNORED COMPLETELY", "icon": "eye-slash"},
-      {"text": "BRIEF GLANCE", "icon": "eye-fill"},
+      {"text": "BRIEF GLANCE", "icon": "eye"},
       {"text": "FOCUSED LOOK", "icon": "search"},
       {"text": "CAPTIVATED GAZE", "icon": "person-heart"},
       {"text": "MESMERIZED STARE", "icon": "stars"},
@@ -21,14 +21,14 @@
       {"text": "MILD INTRIGUE", "icon": "question-circle"},
       {"text": "GENUINE INTEREST", "icon": "lightbulb"},
       {"text": "STRONG ENGAGEMENT", "icon": "cursor"},
-      {"text": "DEEP FASCINATION", "icon": "star-fill"},
+      {"text": "DEEP FASCINATION", "icon": "star"},
       {"text": "CONSUMING PASSION", "icon": "fire"}
     ],
     [
       {"text": "NO WANT", "icon": "x-circle"},
       {"text": "SLIGHT APPEAL", "icon": "caret-up"},
       {"text": "MODERATE WANT", "icon": "heart"},
-      {"text": "STRONG CRAVING", "icon": "heart-fill"},
+      {"text": "STRONG CRAVING", "icon": "heart"},
       {"text": "INTENSE LONGING", "icon": "emoji-heart-eyes"},
       {"text": "DESPERATE NEED", "icon": "exclamation-triangle"}
     ],

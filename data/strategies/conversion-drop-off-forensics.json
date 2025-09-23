@@ -15,14 +15,14 @@
       {"text": "BRIEF PAUSE", "icon": "pause"},
       {"text": "STOPS SCROLLING", "icon": "hand-index"},
       {"text": "LEANS FORWARD", "icon": "cursor"},
-      {"text": "FULL FOCUS", "icon": "eye-fill"},
+      {"text": "FULL FOCUS", "icon": "eye"},
       {"text": "MESMERIZED", "icon": "star"}
     ],
     [
       {"text": "LOSES INTEREST", "icon": "arrow-down"},
       {"text": "MILD CURIOSITY", "icon": "question"},
       {"text": "WANTS TO KNOW MORE", "icon": "search"},
-      {"text": "ACTIVELY ENGAGED", "icon": "heart-fill"},
+      {"text": "ACTIVELY ENGAGED", "icon": "heart"},
       {"text": "DEEPLY INVESTED", "icon": "chat-left-heart"},
       {"text": "OBSESSIVELY INTERESTED", "icon": "fire"}
     ],
@@ -39,7 +39,7 @@
       {"text": "SKEPTICAL", "icon": "eye-slash"},
       {"text": "NEUTRAL", "icon": "dash"},
       {"text": "BELIEVABLE", "icon": "check2"},
-      {"text": "TRUSTED SOURCE", "icon": "shield-fill"},
+      {"text": "TRUSTED SOURCE", "icon": "shield"},
       {"text": "ABSOLUTE FAITH", "icon": "award"}
     ],
     [

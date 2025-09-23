@@ -15,14 +15,14 @@
       {"text": "SUSPECT ENGAGEMENT", "icon": "question-circle"},
       {"text": "REAL AUDIENCE", "icon": "people"},
       {"text": "ENGAGED COMMUNITY", "icon": "activity"},
-      {"text": "DEVOTED FANS", "icon": "star-fill"},
+      {"text": "DEVOTED FANS", "icon": "star"},
       {"text": "CULT FOLLOWING", "icon": "crown"}
     ],
     [
       {"text": "COMPLETE MISMATCH", "icon": "x-octagon"},
       {"text": "FORCED FIT", "icon": "exclamation-circle"},
       {"text": "REASONABLE MATCH", "icon": "check"},
-      {"text": "NATURAL ALIGNMENT", "icon": "heart-fill"},
+      {"text": "NATURAL ALIGNMENT", "icon": "heart"},
       {"text": "PERFECT SYNERGY", "icon": "stars"},
       {"text": "BRAND SOULMATE", "icon": "hearts"}
     ],
@@ -38,7 +38,7 @@
       {"text": "LIKES ONLY", "icon": "heart"},
       {"text": "BASIC COMMENTS", "icon": "chat"},
       {"text": "MEANINGFUL DISCUSSION", "icon": "chat-dots"},
-      {"text": "COMMUNITY BUILDING", "icon": "people-fill"},
+      {"text": "COMMUNITY BUILDING", "icon": "people"},
       {"text": "LIFE-CHANGING IMPACT", "icon": "lightning"},
       {"text": "MOVEMENT CREATION", "icon": "flag"}
     ],

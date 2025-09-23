@@ -12,7 +12,7 @@
   "data": [
     [
       {"text": "NAIVE SIMPLICITY", "icon": "emoji-smile"},
-      {"text": "PURE INTENTION", "icon": "heart-fill"},
+      {"text": "PURE INTENTION", "icon": "heart"},
       {"text": "HOPEFUL OPTIMISM", "icon": "sun"},
       {"text": "MORAL CLARITY", "icon": "check-circle"},
       {"text": "CHILDLIKE WONDER", "icon": "star"},
@@ -52,11 +52,11 @@
     ],
     [
       {"text": "SIMPLE TRICKS", "icon": "wand2"},
-      {"text": "IMPRESSIVE SKILLS", "icon": "star-fill"},
+      {"text": "IMPRESSIVE SKILLS", "icon": "star"},
       {"text": "TRANSFORMS REALITY", "icon": "magic"},
       {"text": "MAKES IMPOSSIBLE", "icon": "lightning"},
       {"text": "BENDS UNIVERSE", "icon": "infinity"},
-      {"text": "OMNIPOTENT POWER", "icon": "lightning-fill"}
+      {"text": "OMNIPOTENT POWER", "icon": "lightning"}
     ]
   ]
 }
