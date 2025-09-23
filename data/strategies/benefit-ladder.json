@@ -1,0 +1,44 @@
+{
+  "title": "Benefit Ladder Analysis",
+  "description": "Emotional progression check",
+  "headers": [
+    {"text": "PRODUCT FEATURES", "icon": "list"},
+    {"text": "FUNCTIONAL BENEFITS", "icon": "gear"},
+    {"text": "EMOTIONAL BENEFITS", "icon": "heart"},
+    {"text": "SELF-EXPRESSIVE BENEFITS", "icon": "person-badge"}
+  ],
+  "data": [
+    [
+      {"text": "BASIC SPECS", "icon": "list-ul"},
+      {"text": "STANDARD FEATURES", "icon": "tools"},
+      {"text": "ENHANCED ATTRIBUTES", "icon": "plus-circle"},
+      {"text": "UNIQUE ELEMENTS", "icon": "star"},
+      {"text": "BREAKTHROUGH INNOVATION", "icon": "rocket"},
+      {"text": "IMPOSSIBLE MADE REAL", "icon": "magic"}
+    ],
+    [
+      {"text": "WORKS AS EXPECTED", "icon": "check"},
+      {"text": "SLIGHT IMPROVEMENT", "icon": "arrow-up"},
+      {"text": "NOTICEABLE UPGRADE", "icon": "ladder"},
+      {"text": "SIGNIFICANT ADVANTAGE", "icon": "award"},
+      {"text": "DRAMATIC DIFFERENCE", "icon": "lightning-fill"},
+      {"text": "LIFE TRANSFORMATION", "icon": "arrow-up-circle"}
+    ],
+    [
+      {"text": "NO FEELING", "icon": "emoji-neutral"},
+      {"text": "MILD SATISFACTION", "icon": "emoji-smile"},
+      {"text": "POSITIVE EMOTION", "icon": "emoji-laughing"},
+      {"text": "STRONG CONNECTION", "icon": "emoji-heart-eyes"},
+      {"text": "DEEP FULFILLMENT", "icon": "chat-heart"},
+      {"text": "TRANSCENDENT EXPERIENCE", "icon": "star-fill"}
+    ],
+    [
+      {"text": "SAYS NOTHING", "icon": "circle"},
+      {"text": "SUBTLE SIGNAL", "icon": "dot"},
+      {"text": "CLEAR STATEMENT", "icon": "chat"},
+      {"text": "BOLD DECLARATION", "icon": "megaphone"},
+      {"text": "IDENTITY BADGE", "icon": "person-check"},
+      {"text": "SOUL EXPRESSION", "icon": "person-heart"}
+    ]
+  ]
+}

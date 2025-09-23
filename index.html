@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategy Staaar - Dashboard</title>
+    
+    <!-- External Libraries -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://unpkg.com/@supabase/supabase-js"></script>
+    
+    <!-- Core Styles -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/table.css">
+    <link rel="stylesheet" href="css/modals.css">
+</head>
+<body>
+    <!-- Modern Header -->
+    <header class="modern-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <h1 class="logo">STRATEGY ⇨ STAAAR</h1>
+                <span class="logo-tagline">PRO</span>
+            </div>
+            <nav class="header-nav">
+                <a href="#" class="nav-link">Features</a>
+                <a href="#" class="nav-link">Templates</a>
+                <a href="#" class="nav-link">Export</a>
+                <a href="#" class="nav-link active">Dashboard</a>
+                <div class="user-profile" id="userProfile" style="display: none;">
+                    <div class="profile-dropdown">
+                        <button class="profile-btn" id="profileBtn">
+                            <img id="profileImage" src="" alt="Profile" class="profile-img">
+                            <span id="profileName"></span>
+                            <i class="bi bi-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu" id="dropdownMenu">
+                            <div class="dropdown-item" id="profileInfo">
+                                <div class="profile-email" id="profileEmail"></div>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item logout-btn" id="logoutBtn">
+                                <i class="bi bi-box-arrow-right"></i>
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Left Panel: 3-Step Revenue Generator -->
+        <div class="left-panel-card">
+            <div class="revenue-steps">
+                <h3 class="revenue-title">Turn your strategy into a STAAAR <br> Strategy that <em>Adds</em>, <em>Assures</em> & <em>Accelerates</em> Your Revenue in minutes not months</h3>
+
+                <!-- Step 1: Strategy Selection -->
+                <div class="step-card">
+                    <div class="step-header">
+                        <span class="step-number">1</span>
+                        <h3>What do advertisers & agencies search for?</h3>
+                        <div class="step-description">Pick what's in demand with a ready-made list in seconds — no more endless guessing.<br><br> This <em>adds</em> to your income today because you deliver exactly what advertisers, agencies, achievers (Startup Founders) repeat buy.</div>
+                    </div>
+                    <div class="step-content">
+                        <button class="step-btn" id="selectAgencyBtn">
+                            <i class="bi bi-building"></i>
+                            Choose a STAAARs
+                        </button>
+                        <div class="selected-display">
+                            <div class="selected-label">Selected:</div>
+                            <div class="selected-name">Loading...</div>
+                            <div class="selected-details">Loading strategy data...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Video & Insights -->
+                <div class="step-card">
+                    <div class="step-header">
+                        <span class="step-number">2</span>
+                        <h3>What insight do you have that AI can't?</h3>
+                        <div class="step-description">Shine with personal, unique, actionable insights that create wins or prevent losses — not found in generic AI. Build with click-and-drag in minutes, no more discount pressure or undervaluing your work. <br><br>This <em>assures</em> your income because you bring what AI can't.</div>
+                    </div>
+                    <div class="step-content">
+                        <div class="video-container">
+                            <video id="videoPlayer" controls>
+                                <source src="" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+
+                        <button id="openVideoModal" class="file-input-label">
+                            <i class="bi bi-play-circle"></i>
+                            Load Anchor Video File
+                        </button>
+
+                        <div class="row-selector" id="dynamicRowSelector">
+                            <!-- Row buttons populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Customization & Export -->
+                <div class="step-card">
+                    <div class="step-header">
+                        <span class="step-number">3</span>
+                        <h3>How will you deliver it so they'll pay?</h3>
+                        <div class="step-description">Match your buyer's brand, customize instantly with colors, and hand over work they can use in minutes — no more chasing invoices.<br><br> This <em>accelerates</em> your income by giving agencies and brands ready-to-use value.</div>
+                    </div>
+                    <div class="step-content">
+                        <button class="step-btn" id="colorCustomizeBtn">
+                            <i class="bi bi-palette"></i>
+                            Customize Colors
+                        </button>
+
+                        <button class="step-btn primary" id="downloadBtn">
+                            <i class="bi bi-coin"></i>
+                            Turn Your Strategy to Income Now
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Toast Container -->
+                <div class="toast-container" id="toastContainer"></div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Strategy Table -->
+        <div class="map-section">
+            <!-- Floating Title Card -->
+            <div class="floating-title-card">
+                <h1 class="main-title">Loading...</h1>
+                <p class="subtitle">Loading strategy data...</p>
+            </div>
+
+            <table class="insight-table" id="insightTable">
+                <tr>
+                    <td colspan="8" style="text-align: center; padding: 40px; color: #64748b;">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                            <i class="bi bi-hourglass-split" style="font-size: 24px; color: #3b82f6; animation: pulse 2s infinite;"></i>
+                            <div style="font-size: 14px; font-weight: 500;">Loading strategy content...</div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Containers -->
+    <div class="modal-overlay" id="strategyModal">
+        <!-- Strategy selection modal content -->
+    </div>
+
+    <div class="crop-modal" id="videoModal">
+        <!-- Video selection modal content -->
+    </div>
+
+    <div class="crop-modal" id="colorModal">
+        <!-- Color customization modal content -->
+    </div>
+
+    <div class="crop-modal" id="cropModal">
+        <!-- Image cropping modal content -->
+    </div>
+
+    <div class="crop-modal" id="downloadModal">
+        <!-- Download/presentation modal content -->
+    </div>
+
+    <div class="crop-modal" id="staaaarLoadingModal">
+        <!-- Loading modal content -->
+    </div>
+
+    <!-- Footer -->
+    <footer class="modern-footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <div class="footer-logo">
+                    <span class="logo">STRATEGY STAAAR</span>
+                    <span class="logo-tagline">Pro</span>
+                </div>
+                <p class="footer-description">AI has taken over much of the generic brand strategy and frameworks. Now, freelancers need to shift their focus — turning their strategy knowledge and skills into strategy that agencies, advertisers, and achievers repeat-buy.</p>
+            </div>
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h4>Product</h4>
+                    <a href="#">Features</a>
+                    <a href="#">Templates</a>
+                    <a href="#">Export Options</a>
+                    <a href="#">Integrations</a>
+                </div>
+                <div class="footer-column">
+                    <h4>Resources</h4>
+                    <a href="#">Documentation</a>
+                    <a href="#">Tutorials</a>
+                    <a href="#">Best Practices</a>
+                    <a href="#">Support</a>
+                </div>
+                <div class="footer-column">
+                    <h4>Company</h4>
+                    <a href="#">About</a>
+                    <a href="#">Contact</a>
+                    <a href="#">Privacy</a>
+                    <a href="#">Terms</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="footer-bottom-content">
+                <p>&copy; 2024 Strategy Staaar Pro. All rights reserved.</p>
+                <div class="footer-social">
+                    <span>Built with care for strategists</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Core Scripts -->
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/strategy-loader.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

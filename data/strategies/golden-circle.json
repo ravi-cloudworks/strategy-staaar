@@ -1,0 +1,44 @@
+{
+  "title": "Golden Circle Analysis",
+  "description": "Purpose communication check",
+  "headers": [
+    {"text": "WHY (PURPOSE)", "icon": "question-circle"},
+    {"text": "HOW (PROCESS)", "icon": "gear"},
+    {"text": "WHAT (PRODUCT)", "icon": "basket"},
+    {"text": "OUTCOME (IMPACT)", "icon": "bullseye"}
+  ],
+  "data": [
+    [
+      {"text": "UNCLEAR PURPOSE", "icon": "question"},
+      {"text": "SURFACE MISSION", "icon": "file-text"},
+      {"text": "EMOTIONAL CONNECTION", "icon": "person-hearts"},
+      {"text": "AUTHENTIC BELIEF", "icon": "heart-fill"},
+      {"text": "TRANSFORMATIONAL VISION", "icon": "eye"},
+      {"text": "MOVEMENT CREATION", "icon": "people"}
+    ],
+    [
+      {"text": "GENERIC METHODS", "icon": "wrench"},
+      {"text": "BORROWED TACTICS", "icon": "copy"},
+      {"text": "DIFFERENTIATED APPROACH", "icon": "arrow-clockwise"},
+      {"text": "UNIQUE METHODOLOGY", "icon": "star"},
+      {"text": "PROPRIETARY SYSTEM", "icon": "shield-check"},
+      {"text": "INDUSTRY DISRUPTION", "icon": "lightning"}
+    ],
+    [
+      {"text": "COMMODITY OFFERING", "icon": "grid"},
+      {"text": "FEATURE-FOCUSED", "icon": "list-ul"},
+      {"text": "BENEFIT-DRIVEN", "icon": "arrow-up"},
+      {"text": "SOLUTION-ORIENTED", "icon": "lightbulb"},
+      {"text": "ECOSYSTEM CREATOR", "icon": "diagram-3"},
+      {"text": "CATEGORY DEFINER", "icon": "gem"}
+    ],
+    [
+      {"text": "NO ENGAGEMENT", "icon": "dash"},
+      {"text": "TRANSACTIONAL PURCHASE", "icon": "cart"},
+      {"text": "REPEAT CUSTOMER", "icon": "arrow-repeat"},
+      {"text": "BRAND ADVOCATE", "icon": "megaphone"},
+      {"text": "COMMUNITY BUILDER", "icon": "people-fill"},
+      {"text": "CULTURAL INFLUENCER", "icon": "star-fill"}
+    ]
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "title": "Brand Key Analysis",
+  "description": "Campaign alignment check",
+  "headers": [
+    {"text": "COMPETITIVE CONTEXT", "icon": "graph-up"},
+    {"text": "TARGET AUDIENCE", "icon": "people"},
+    {"text": "CONSUMER INSIGHT", "icon": "lightbulb"},
+    {"text": "BRAND BENEFIT", "icon": "award"},
+    {"text": "REASON TO BELIEVE", "icon": "shield-check"}
+  ],
+  "data": [
+    [
+      {"text": "COPIES OTHERS", "icon": "copy"},
+      {"text": "SIMILAR PRODUCTS", "icon": "diagram-2"},
+      {"text": "DIFFERENT CLAIMS", "icon": "chat"},
+      {"text": "UNIQUE ANGLE", "icon": "triangle-fill"},
+      {"text": "BREAKS RULES", "icon": "exclamation-triangle"},
+      {"text": "CREATES NEW SPACE", "icon": "plus-square"}
+    ],
+    [
+      {"text": "MASS MARKET", "icon": "globe"},
+      {"text": "BROAD SEGMENT", "icon": "people-fill"},
+      {"text": "DEFINED GROUP", "icon": "person-check"},
+      {"text": "NICHE COMMUNITY", "icon": "circle-fill"},
+      {"text": "MICRO-TRIBE", "icon": "gem"},
+      {"text": "INDIVIDUAL FOCUS", "icon": "person"}
+    ],
+    [
+      {"text": "OBVIOUS NEED", "icon": "lightbulb"},
+      {"text": "STATED WANT", "icon": "chat-dots"},
+      {"text": "HIDDEN TENSION", "icon": "eye-slash"},
+      {"text": "UNMET DESIRE", "icon": "heart"},
+      {"text": "EMOTIONAL TRUTH", "icon": "heart-fill"},
+      {"text": "CULTURAL SHIFT", "icon": "graph-up"}
+    ],
+    [
+      {"text": "FUNCTIONAL ONLY", "icon": "gear"},
+      {"text": "RATIONAL PLUS", "icon": "calculator"},
+      {"text": "EMOTIONAL CORE", "icon": "emoji-heart-eyes"},
+      {"text": "TRANSFORMATIONAL", "icon": "arrow-up-circle"},
+      {"text": "SELF-EXPRESSIVE", "icon": "person-badge"},
+      {"text": "LIFE-CHANGING", "icon": "lightning"}
+    ],
+    [
+      {"text": "WEAK SUPPORT", "icon": "dash"},
+      {"text": "BASIC EVIDENCE", "icon": "file-text"},
+      {"text": "CREDIBLE DEMO", "icon": "play-circle"},
+      {"text": "COMPELLING PROOF", "icon": "shield-fill"},
+      {"text": "UNDENIABLE TRUTH", "icon": "check-all"},
+      {"text": "REVOLUTIONARY FACT", "icon": "star-fill"}
+    ]
+  ]
+}

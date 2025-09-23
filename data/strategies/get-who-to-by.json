@@ -1,0 +1,44 @@
+{
+  "title": "GET/WHO/TO/BY Analysis",
+  "description": "Campaign clarity check",
+  "headers": [
+    {"text": "GET (OBJECTIVE)", "icon": "bullseye"},
+    {"text": "WHO (TARGET)", "icon": "person"},
+    {"text": "TO (BEHAVIOR)", "icon": "arrow-right"},
+    {"text": "BY (METHOD)", "icon": "gear"}
+  ],
+  "data": [
+    [
+      {"text": "NO CLEAR GOAL", "icon": "question-circle"},
+      {"text": "WEAK INTENT", "icon": "dash"},
+      {"text": "OBVIOUS ASK", "icon": "chat-dots"},
+      {"text": "COMPELLING CASE", "icon": "check-circle"},
+      {"text": "IRRESISTIBLE OFFER", "icon": "star"},
+      {"text": "IMPOSSIBLE TO REFUSE", "icon": "trophy"}
+    ],
+    [
+      {"text": "GENERIC PERSON", "icon": "person-dash"},
+      {"text": "BROAD DEMOGRAPHIC", "icon": "people"},
+      {"text": "SPECIFIC TYPE", "icon": "person-badge"},
+      {"text": "CLEAR PERSONA", "icon": "person-heart"},
+      {"text": "EXACT INDIVIDUAL", "icon": "person-check"},
+      {"text": "PERSONAL MIRROR", "icon": "person-arms-up"}
+    ],
+    [
+      {"text": "NO MOTIVATION", "icon": "emoji-expressionless"},
+      {"text": "MILD NUDGE", "icon": "caret-right"},
+      {"text": "CLEAR CUE", "icon": "arrow-up"},
+      {"text": "STRONG PROMPT", "icon": "exclamation-circle"},
+      {"text": "URGENT SIGNAL", "icon": "bell"},
+      {"text": "COMPULSIVE TRIGGER", "icon": "lightning"}
+    ],
+    [
+      {"text": "WEAK APPEAL", "icon": "volume-down"},
+      {"text": "LOGICAL ARGUMENT", "icon": "diagram-2"},
+      {"text": "EMOTIONAL HOOK", "icon": "heart-fill"},
+      {"text": "SOCIAL PROOF", "icon": "people-fill"},
+      {"text": "FEAR/URGENCY", "icon": "exclamation-triangle"},
+      {"text": "IDENTITY TRANSFORMATION", "icon": "arrow-up-circle"}
+    ]
+  ]
+}

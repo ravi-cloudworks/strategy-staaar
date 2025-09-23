@@ -1,0 +1,44 @@
+{
+  "title": "Aaker Brand Equity Analysis",
+  "description": "Academic brand measurement",
+  "headers": [
+    {"text": "BRAND AWARENESS", "icon": "eye"},
+    {"text": "BRAND ASSOCIATIONS", "icon": "link-45deg"},
+    {"text": "PERCEIVED QUALITY", "icon": "award"},
+    {"text": "BRAND LOYALTY", "icon": "heart"}
+  ],
+  "data": [
+    [
+      {"text": "UNAWARE", "icon": "eye-slash"},
+      {"text": "NOTICES BRIEFLY", "icon": "eye"},
+      {"text": "RECOGNIZES NAME", "icon": "bookmark"},
+      {"text": "RECALLS INSTANTLY", "icon": "lightbulb"},
+      {"text": "DOMINATES MIND", "icon": "bullseye"},
+      {"text": "ONLY CHOICE", "icon": "star"}
+    ],
+    [
+      {"text": "NO CONNECTIONS", "icon": "dash-circle"},
+      {"text": "SINGLE ATTRIBUTE", "icon": "circle"},
+      {"text": "FEW QUALITIES", "icon": "list"},
+      {"text": "MULTIPLE TRAITS", "icon": "grid"},
+      {"text": "RICH STORY", "icon": "book"},
+      {"text": "COMPLETE WORLDVIEW", "icon": "globe"}
+    ],
+    [
+      {"text": "POOR QUALITY", "icon": "x-circle"},
+      {"text": "BELOW AVERAGE", "icon": "arrow-down"},
+      {"text": "MEETS STANDARDS", "icon": "check"},
+      {"text": "ABOVE AVERAGE", "icon": "arrow-up-circle"},
+      {"text": "PREMIUM TIER", "icon": "shield-check"},
+      {"text": "LUXURY STANDARD", "icon": "gem"}
+    ],
+    [
+      {"text": "SWITCHER", "icon": "arrow-left-right"},
+      {"text": "SATISFIED USER", "icon": "person-check"},
+      {"text": "LIKES BRAND", "icon": "hand-thumbs-up"},
+      {"text": "COMMITTED BUYER", "icon": "heart-fill"},
+      {"text": "DEVOTED FAN", "icon": "star-fill"},
+      {"text": "LIFETIME ADVOCATE", "icon": "infinity"}
+    ]
+  ]
+}
