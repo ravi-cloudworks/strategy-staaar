@@ -558,18 +558,18 @@
 
 /* McKinsey-Style Presentation Modal */
 .presentation-container {
-    width: 98vw;
+    width: 100vw;
     max-width: none;
-    /* Full screen mode for maximum space */
-    height: 95vh;
+    /* True fullscreen mode */
+    height: 100vh;
     max-height: none;
     display: flex;
     flex-direction: column;
     background: #ffffff;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    border-radius: 8px;
+    border-radius: 0; /* Remove border radius for fullscreen */
     overflow: hidden;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    box-shadow: none; /* Remove shadow for fullscreen */
 }
 
 .presentation-header {

@@ -104,6 +104,11 @@ export class VideoModal {
             videoPlayer.src = url;
             this.close();
             Utils.showStatus(`Video "${file.name}" loaded successfully!`, 'success');
+
+            // Update download button state when video is uploaded
+            if (window.mainApp && window.mainApp.updateDownloadButtonState) {
+                setTimeout(() => window.mainApp.updateDownloadButtonState(), 200);
+            }
         }
     }
 
@@ -405,6 +410,11 @@ export class VideoModal {
             videoPlayer.src = video.path;
             this.close();
             Utils.showStatus(`Video "${video.brand} - ${video.campaign}" loaded successfully!`, 'success');
+
+            // Update download button state when video is loaded
+            if (window.mainApp && window.mainApp.updateDownloadButtonState) {
+                setTimeout(() => window.mainApp.updateDownloadButtonState(), 200);
+            }
         };
 
         videoItem.addEventListener('click', loadVideoHandler);

@@ -211,6 +211,11 @@ export class CropModal {
 
             console.log(`✅ Applied EXACT PAN rectangle crop for row ${rowIndex}`);
 
+            // Update download button state when image is cropped
+            if (window.mainApp && window.mainApp.updateDownloadButtonState) {
+                setTimeout(() => window.mainApp.updateDownloadButtonState(), 100);
+            }
+
             // Show success message after the operation completes
             Utils.showStatus('Focus area applied - rectangle crop generated!', 'success');
         }).catch(error => {

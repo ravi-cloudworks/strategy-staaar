@@ -3,6 +3,7 @@ class StrategyLoader {
     constructor() {
         this.STRATEGY_PRESETS = [];
         this.currentStrategy = null;
+        this.populateRowButtonsTimeout = null; // Debouncing timeout
     }
 
     async init() {
@@ -61,8 +62,6 @@ class StrategyLoader {
         // Show loading state
         Utils.showStatus('Loading strategy...', 'info');
 
-        // Update the selected display
-        this.updateSelectedDisplay(strategy);
 
         // Update the floating title card
         this.updateTitleCard(strategy);
@@ -81,13 +80,6 @@ class StrategyLoader {
         }
     }
 
-    updateSelectedDisplay(strategy) {
-        const nameElement = document.querySelector('.selected-name');
-        const detailsElement = document.querySelector('.selected-details');
-
-        if (nameElement) nameElement.textContent = strategy.name;
-        if (detailsElement) detailsElement.textContent = strategy.description;
-    }
 
     updateTitleCard(strategy) {
         const mainTitleElement = document.querySelector('.main-title');
@@ -153,11 +145,6 @@ class StrategyLoader {
                 const td = document.createElement('td');
                 td.className = 'text-cell';
 
-                // Add header info as tooltip
-                const header = content.headers[cellIndex];
-                if (header && typeof header === 'object') {
-                    td.title = header.text;
-                }
 
                 console.log(`🔍 DEBUG: Row ${rowIndex}, Cell ${cellIndex} - Rendering icon: bi-${cell.icon} for text: ${cell.text}`);
                 
@@ -174,10 +161,25 @@ class StrategyLoader {
             table.appendChild(tr);
         });
 
-        // Update Step 2 row buttons after table is updated
-        setTimeout(() => {
+        // Update Step 2 row buttons after table is updated (with debouncing)
+        this.debouncedPopulateRowButtons();
+
+        // Update download button state when table is updated (strategy changed)
+        if (window.mainApp && window.mainApp.updateDownloadButtonState) {
+            setTimeout(() => window.mainApp.updateDownloadButtonState(), 200);
+        }
+    }
+
+    debouncedPopulateRowButtons() {
+        // Clear previous timeout
+        if (this.populateRowButtonsTimeout) {
+            clearTimeout(this.populateRowButtonsTimeout);
+        }
+
+        // Set new timeout with longer delay to ensure table is fully rendered
+        this.populateRowButtonsTimeout = setTimeout(() => {
             this.populateRowButtons();
-        }, 100);
+        }, 500);
     }
 
     populateRowButtons() {
@@ -187,9 +189,15 @@ class StrategyLoader {
         // Clear existing buttons
         rowSelector.innerHTML = '';
 
-        // Get all rows from the table
-        const tableRows = document.querySelectorAll('tr[data-row]');
+        // Get all rows from the current strategy table only
+        const table = document.querySelector('.insight-table');
+        if (!table) {
+            console.log('⚠️ No insight table found for row buttons');
+            return;
+        }
+        const tableRows = table.querySelectorAll('tr[data-row]');
         console.log(`🔧 Populating ${tableRows.length} row buttons for Step 2`);
+        console.log('🔍 Table rows found:', Array.from(tableRows).map((row, i) => `${i}: ${row.dataset.row}`));
 
         tableRows.forEach((row, index) => {
             const categoryCell = row.querySelector('.category-cell');
@@ -238,7 +246,6 @@ class StrategyLoader {
             console.log('🔍 DEBUG: First strategy on page load:', firstStrategy);
 
             // Update displays
-            this.updateSelectedDisplay(firstStrategy);
             this.updateTitleCard(firstStrategy);
 
             // Load and display the first strategy content

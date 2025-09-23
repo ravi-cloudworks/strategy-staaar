@@ -10,7 +10,7 @@ body {
     background: #ffffff;
     color: #2d3748;
     line-height: 1.6;
-    font-size: 16px;
+    font-size: 14.4px; /* Reduced by 10% from 16px */
 }
 
 /* Header Section */
@@ -39,7 +39,7 @@ body {
 }
 
 .logo {
-    font-size: 22px;
+    font-size: 20px; /* Reduced by 10% from 22px */
     font-weight: 700;
     color: #1a202c;
     text-decoration: none;
@@ -176,7 +176,7 @@ body {
 }
 
 .main-title {
-    font-size: 32px;
+    font-size: 29px; /* Reduced by 10% from 32px */
     font-weight: 800;
     color: #0f172a;
     margin: 0 0 12px 0;

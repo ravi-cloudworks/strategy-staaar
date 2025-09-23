@@ -1,22 +1,17 @@
 // Strategy Selection Modal
 export class StrategyModal {
     constructor() {
-        console.log('🏗️ StrategyModal constructor called');
         this.modal = null;
         try {
             this.init();
-            console.log('✅ StrategyModal initialized successfully');
         } catch (error) {
-            console.error('❌ Error in StrategyModal constructor:', error);
             throw error;
         }
     }
 
     init() {
-        console.log('🔧 StrategyModal init() called');
         this.createModalHTML();
         this.setupEventListeners();
-        console.log('✅ StrategyModal init() completed');
     }
 
     createModalHTML() {
@@ -35,7 +30,7 @@ export class StrategyModal {
         modal.innerHTML = `
             <div class="modal-container">
                 <div class="modal-header">
-                    <h2><i class="bi bi-clipboard-data"></i> Select Your STAAAR — that advertisers, agencies and achievers repeat buy.</h2>
+                    <h2><i class="bi bi-clipboard-data"></i> Choose Your STAAAR — that advertisers, agencies and achievers repeat buy.</h2>
                     <button class="modal-close" id="closeStrategyModal">
                         <i class="bi bi-x"></i>
                     </button>
@@ -43,7 +38,6 @@ export class StrategyModal {
 
                 <div class="modal-tabs">
                     <button class="tab-btn active" data-tab="presets"><i class="bi bi-grid-3x3-gap"></i> Presets</button>
-                    <button class="tab-btn" data-tab="custom"><i class="bi bi-file-earmark-plus"></i> Bring Your Own Strategy</button>
                 </div>
 
                 <div class="tab-content active" id="presets-tab">
@@ -56,33 +50,6 @@ export class StrategyModal {
                     <!-- Strategy Cards -->
                     <div class="strategy-grid" id="strategyGrid">
                         <!-- Cards will be populated by JavaScript -->
-                    </div>
-                </div>
-
-                <div class="tab-content" id="custom-tab">
-                    <div class="custom-strategy-section">
-                        <h3>Paste your CSV strategy below:</h3>
-                        <p class="format-hint">
-                            <strong>Format:</strong> Title, Description<br>
-                            <strong>Rows 2-7:</strong> icon_name, text_value (repeat for each column)
-                        </p>
-
-                        <textarea id="csvInput" placeholder="TikTok Trend Tracking,Track viral content trends for agencies
-TrendingUp,Trending Now,Activity,Viral Content,Star,Top Trends,Crown,Market Leader
-Eye,Watching Trends,Users,Community Pulse,Heart,Engagement,Search,Discovery
-Target,Precise Targeting,Zap,Rapid Response,Trophy,Achievement,Gem,Premium
-DollarSign,Revenue Impact,BarChart3,Growth Metrics,Award,Success,Rocket,Scale
-Calendar,Content Planning,Clock,Time Optimization,Bell,Alerts,Shield,Protection
-Rocket,Scale Success,Crown,Market Leadership,Gem,Innovation,Infinity,Unlimited"></textarea>
-
-                        <div class="csv-info">
-                            <p><strong>Requirements:</strong> Min 4×7, Max 6×7 | First row: headers | Rows 2-7: icon,text pairs</p>
-                        </div>
-
-                        <div class="csv-actions">
-                            <button class="btn-secondary" id="cancelCustom">Cancel</button>
-                            <button class="btn-primary" id="validateCsv">Validate & Preview</button>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -186,16 +153,12 @@ Rocket,Scale Success,Crown,Market Leadership,Gem,Innovation,Infinity,Unlimited">
     setupEventListeners() {
         // Close modal
         document.addEventListener('click', (e) => {
-            if (e.target.id === 'closeStrategyModal') {
+            console.log('🔍 Modal click detected:', e.target);
+            console.log('🔍 Target ID:', e.target.id);
+            console.log('🔍 Closest closeStrategyModal:', e.target.closest('#closeStrategyModal'));
+            if (e.target.id === 'closeStrategyModal' || e.target.closest('#closeStrategyModal')) {
+                console.log('✅ Close button clicked, calling this.close()');
                 this.close();
-            }
-        });
-
-        // Tab switching
-        document.addEventListener('click', (e) => {
-            if (e.target.matches('.tab-btn')) {
-                const tabName = e.target.dataset.tab;
-                this.switchTab(tabName);
             }
         });
 
@@ -210,15 +173,6 @@ Rocket,Scale Success,Crown,Market Leadership,Gem,Innovation,Infinity,Unlimited">
         document.addEventListener('click', (e) => {
             if (e.target.id === 'clearFilters') {
                 this.clearFilters();
-            }
-        });
-
-        // CSV functionality
-        document.addEventListener('click', (e) => {
-            if (e.target.id === 'validateCsv') {
-                this.validateCustomStrategy();
-            } else if (e.target.id === 'cancelCustom') {
-                this.cancelCustomStrategy();
             }
         });
 
@@ -239,18 +193,6 @@ Rocket,Scale Success,Crown,Market Leadership,Gem,Innovation,Infinity,Unlimited">
         this.modal.classList.remove('show');
     }
 
-    switchTab(tabName) {
-        // Update tab buttons
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.tab === tabName);
-        });
-
-        // Update tab content
-        document.querySelectorAll('.tab-content').forEach(content => {
-            content.classList.remove('active');
-        });
-        document.getElementById(tabName + '-tab').classList.add('active');
-    }
 
     async populateStrategyGrid() {
         const grid = document.getElementById('strategyGrid');
@@ -411,45 +353,4 @@ Rocket,Scale Success,Crown,Market Leadership,Gem,Innovation,Infinity,Unlimited">
         this.applyFilters();
     }
 
-    validateCustomStrategy() {
-        const csvText = document.getElementById('csvInput').value.trim();
-        if (!csvText) {
-            Utils.showStatus('Please paste your CSV data', 'error');
-            return;
-        }
-
-        try {
-            const result = window.strategyLoader.parseCustomStrategy(csvText);
-            if (result.valid) {
-                // Update the insight table
-                window.strategyLoader.updateInsightTable(result.content);
-
-                // Update selected display
-                window.strategyLoader.updateSelectedDisplay({
-                    name: result.name,
-                    description: result.description
-                });
-
-                // Update title card
-                window.strategyLoader.updateTitleCard({
-                    name: result.name,
-                    description: result.description
-                });
-
-                // Close modal
-                this.close();
-
-                Utils.showStatus('Custom strategy loaded successfully!', 'success');
-            } else {
-                Utils.showStatus(result.error, 'error');
-            }
-        } catch (error) {
-            Utils.showStatus('Invalid CSV format. Please check your data.', 'error');
-        }
-    }
-
-    cancelCustomStrategy() {
-        document.getElementById('csvInput').value = '';
-        this.close();
-    }
 }

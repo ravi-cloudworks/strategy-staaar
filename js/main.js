@@ -57,6 +57,8 @@ class MainApp {
         // Step 3: Download
         const downloadBtn = document.getElementById('downloadBtn');
         if (downloadBtn) {
+            // Initially disable the button
+            this.updateDownloadButtonState();
             downloadBtn.addEventListener('click', () => this.openDownloadModal());
         }
 
@@ -65,6 +67,7 @@ class MainApp {
         if (videoPlayer) {
             videoPlayer.addEventListener('loadedmetadata', () => {
                 console.log('✅ Video loaded and ready for capture');
+                this.updateDownloadButtonState(); // Check if ready for download
             });
         }
     }
@@ -281,6 +284,10 @@ class MainApp {
         this.imageConnections[imageKey] = 0;
         this.updateConnectionVisuals(this.selectedRow, 0);
 
+        // Initialize selectedColumns global variable for presentation tick logic
+        if (!window.selectedColumns) window.selectedColumns = {};
+        window.selectedColumns[this.selectedRow] = 2; // Column 2 is first text column (0=header, 1=image)
+
         Utils.showStatus('Frame captured! Hover over image to see controls: FIT | FOCUS | MOVE', 'success');
     }
 
@@ -299,6 +306,9 @@ class MainApp {
         // Apply FIT styling by default
         img.classList.add('fit-complete');
         img.style.objectFit = 'contain';
+
+        // Update download button state when image is added
+        setTimeout(() => this.updateDownloadButtonState(), 100);
         img.style.objectPosition = 'center center';
 
         // Add control buttons
@@ -596,6 +606,10 @@ class MainApp {
         // Update connection mapping
         this.imageConnections[imageKey] = newTextColumnIndex;
         this.updateConnectionVisuals(rowIndex, newTextColumnIndex);
+
+        // Update selectedColumns global variable for presentation tick logic
+        if (!window.selectedColumns) window.selectedColumns = {};
+        window.selectedColumns[rowIndex] = newTextColumnIndex + 2; // +2 because: 0=header, 1=image column
     }
 
     updateConnectionVisuals(rowIndex, textColumnIndex) {
@@ -664,6 +678,40 @@ class MainApp {
 
     getCurrentStrategy() {
         return window.strategyLoader.getCurrentStrategy();
+    }
+
+    updateDownloadButtonState() {
+        const downloadBtn = document.getElementById('downloadBtn');
+        if (!downloadBtn) return;
+
+        const isReady = this.isReadyForDownload();
+
+        if (isReady) {
+            downloadBtn.disabled = false;
+            downloadBtn.style.opacity = '1';
+            downloadBtn.style.cursor = 'pointer';
+            downloadBtn.title = '';
+        } else {
+            downloadBtn.disabled = true;
+            downloadBtn.style.opacity = '0.5';
+            downloadBtn.style.cursor = 'not-allowed';
+            downloadBtn.title = 'Please load a video and fill all image boxes first';
+        }
+    }
+
+    isReadyForDownload() {
+        // Check if video is loaded
+        const videoPlayer = document.getElementById('videoPlayer');
+        const videoReady = videoPlayer && videoPlayer.src && videoPlayer.readyState >= 2;
+
+        // Check if all image boxes are filled
+        const imageBoxes = document.querySelectorAll('.image-placeholder');
+        const allImagesFilled = Array.from(imageBoxes).every(box => {
+            const img = box.querySelector('img');
+            return img && img.src && !img.src.includes('data:image/svg+xml'); // Exclude placeholder SVGs
+        });
+
+        return videoReady && allImagesFilled;
     }
 }
 

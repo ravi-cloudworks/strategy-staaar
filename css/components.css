@@ -7,7 +7,7 @@
 }
 
 .revenue-title {
-    font-size: 16px;
+    font-size: 14.4px; /* Reduced by 10% from 16px */
     font-weight: 600;
     color: #1f2937;
     margin: 0 0 12px 0;
@@ -80,12 +80,12 @@
 .step-btn {
     width: 100%;
     padding: 14px 20px;
-    background: #ffffff;
-    border: 1px solid #e1e5e9;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Same as Load Anchor Video */
+    border: none; /* Remove border since we have gradient */
     border-radius: 8px;
     font-size: 14px;
     font-weight: 500;
-    color: #374151;
+    color: white; /* White text for gradient background */
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
@@ -97,10 +97,9 @@
 }
 
 .step-btn:hover {
-    background: #f8fafc;
-    border-color: #667eea;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%); /* Same as Load Anchor Video hover */
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .step-btn.primary {
@@ -189,7 +188,7 @@ video {
 /* Row Selector */
 .row-selector {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr); /* Changed from 3 to 2 columns */
     gap: 4px;
     margin-top: 6px;
 }
@@ -316,7 +315,7 @@ video {
     position: fixed;
     top: 20px;
     right: 20px;
-    z-index: 9999;
+    z-index: 999999; /* Maximum z-index to ensure visibility above everything */
     pointer-events: none;
 }
 
@@ -327,6 +326,7 @@ video {
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     padding: 16px 20px;
     margin-bottom: 12px;
+    pointer-events: auto; /* Allow interaction with individual toasts */
     max-width: 400px;
     min-width: 300px;
     font-size: 14px;

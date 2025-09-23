@@ -6,6 +6,7 @@ export class DownloadModal {
         this.slides = [];
         this.videoData = null;
         this.tableData = null;
+        this.isClosing = false; // Flag to prevent fullscreen event loops
         this.init();
     }
 
@@ -110,6 +111,33 @@ export class DownloadModal {
             if (e.key === 'ArrowRight') this.nextSlide();
             if (e.key === 'Escape') this.close();
         });
+
+        // Listen for fullscreen change events
+        this.setupFullscreenListeners();
+    }
+
+    setupFullscreenListeners() {
+        // Listen for fullscreen change events (cross-browser)
+        const fullscreenEvents = [
+            'fullscreenchange',
+            'webkitfullscreenchange', // Safari
+            'mozfullscreenchange',    // Firefox
+            'msfullscreenchange'      // IE/Edge
+        ];
+
+        fullscreenEvents.forEach(event => {
+            document.addEventListener(event, () => {
+                // If fullscreen was exited and modal is still open, close the modal
+                const isFullscreen = !!(document.fullscreenElement ||
+                                       document.webkitFullscreenElement ||
+                                       document.mozFullScreenElement ||
+                                       document.msFullscreenElement);
+
+                if (!isFullscreen && this.modal.classList.contains('show') && !this.isClosing) {
+                    this.close();
+                }
+            });
+        });
     }
 
     open() {
@@ -118,10 +146,50 @@ export class DownloadModal {
         this.generateSlides();
         this.currentSlide = 0;
         this.showSlide(0);
+
+        // Enter fullscreen mode
+        this.enterFullscreen();
+    }
+
+    enterFullscreen() {
+        const elem = document.documentElement;
+
+        // Cross-browser fullscreen support
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) { // Safari
+            elem.webkitRequestFullscreen();
+        } else if (elem.mozRequestFullScreen) { // Firefox
+            elem.mozRequestFullScreen();
+        } else if (elem.msRequestFullscreen) { // IE/Edge
+            elem.msRequestFullscreen();
+        }
+    }
+
+    exitFullscreen() {
+        // Cross-browser exit fullscreen
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) { // Safari
+            document.webkitExitFullscreen();
+        } else if (document.mozCancelFullScreen) { // Firefox
+            document.mozCancelFullScreen();
+        } else if (document.msExitFullscreen) { // IE/Edge
+            document.msExitFullscreen();
+        }
     }
 
     close() {
+        this.isClosing = true; // Set flag to prevent event loop
         this.modal.classList.remove('show');
+
+        // Exit fullscreen mode
+        this.exitFullscreen();
+
+        // Reset flag after a short delay
+        setTimeout(() => {
+            this.isClosing = false;
+        }, 100);
     }
 
     collectData() {
@@ -406,7 +474,7 @@ export class DownloadModal {
         if (!this.videoData) {
             return {
                 type: 'video-play',
-                title: 'Reference Campaign Video',
+                title: 'Campaign Video',
                 content: '<div class="no-video">No video data available</div>'
             };
         }
@@ -415,7 +483,7 @@ export class DownloadModal {
 
         return {
             type: 'video-play',
-            title: 'Reference Campaign Video',
+            title: 'Campaign Video',
             content: `
                 <div class="video-play-slide">
                     <div class="video-player-container ${isVertical ? 'vertical-video-container' : 'horizontal-video-container'}">
@@ -1147,7 +1215,7 @@ export class DownloadModal {
                             <!-- Y-axis label -->
                             <div class="y-axis-label">
                                 <span>Impact</span>
-                                <div class="axis-arrow">↑</div>
+                                <div class="axis-arrow">➙</div>
                             </div>
 
                             <!-- Matrix grid -->

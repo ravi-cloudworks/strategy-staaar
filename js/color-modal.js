@@ -3,6 +3,7 @@ export class ColorModal {
     constructor() {
         this.modal = null;
         this.selectedColorRow = null;
+        this.populateCategoryButtonsTimeout = null; // Debouncing timeout
         this.init();
     }
 
@@ -224,12 +225,24 @@ export class ColorModal {
 
     open() {
         this.modal.classList.add('show');
-        this.populateCategoryButtons();
+        this.debouncedPopulateCategoryButtons();
         this.initializeContentColors();
     }
 
     close() {
         this.modal.classList.remove('show');
+    }
+
+    debouncedPopulateCategoryButtons() {
+        // Clear previous timeout
+        if (this.populateCategoryButtonsTimeout) {
+            clearTimeout(this.populateCategoryButtonsTimeout);
+        }
+
+        // Set new timeout
+        this.populateCategoryButtonsTimeout = setTimeout(() => {
+            this.populateCategoryButtons();
+        }, 300);
     }
 
     populateCategoryButtons() {

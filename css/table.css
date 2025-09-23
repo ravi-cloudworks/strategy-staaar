@@ -16,7 +16,7 @@
     text-align: center;
     padding: 16px 8px;
     border-radius: 10px;
-    font-size: 13px;
+    font-size: 11.7px; /* Reduced by 10% from 13px */
     width: 130px;
     min-height: 85px;
     vertical-align: middle;
@@ -61,7 +61,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 18px; /* Reduced by 10% from 20px */
     color: #94a3b8;
     position: relative;
     overflow: hidden;
@@ -118,7 +118,7 @@
     color: #1d1d1f;
     border: 1px solid rgba(0, 0, 0, 0.1);
     padding: 3px;
-    font-size: 10px;
+    font-size: 9px; /* Reduced by 10% from 10px */
     border-radius: 4px;
     cursor: pointer;
     font-weight: 500;
@@ -157,7 +157,7 @@
     background: #ffffff;
     padding: 12px 6px;
     border-radius: 10px;
-    font-size: 12px;
+    font-size: 10.8px; /* Reduced by 10% from 12px */
     text-align: center;
     font-weight: 600;
     color: #1e293b;
@@ -252,12 +252,12 @@
 /* Responsive Table */
 @media (max-width: 768px) {
     .insight-table {
-        font-size: 10px;
+        font-size: 9px; /* Reduced by 10% from 10px */
         border-spacing: 4px;
     }
     
     .category-cell {
-        font-size: 10px;
+        font-size: 9px; /* Reduced by 10% from 10px */
         padding: 8px 4px;
         min-height: 60px;
     }
