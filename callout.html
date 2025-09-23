@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated Image Callouts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Arial', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        .container {
+            position: relative;
+            max-width: 1200px;
+            width: 95%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .content-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            min-height: 500px;
+        }
+
+        .image-container {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+        }
+
+        .main-image {
+            width: 600px;
+            height: 400px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .callouts-container {
+            position: relative;
+            width: 400px;
+            height: 500px;
+        }
+
+        .callout {
+            position: absolute;
+            max-width: 280px;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 10;
+            animation: continuousFloat 4s ease-in-out infinite;
+        }
+
+        .callout.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* LinkedIn Style Comment */
+        .linkedin-comment {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-left: 4px solid #0077b5;
+            top: 10%;
+            left: 0;
+            animation-delay: 0.5s;
+        }
+
+        .linkedin-comment::before {
+            content: '';
+            position: absolute;
+            right: -8px;
+            top: 20px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid #fff;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+        }
+
+        .linkedin-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .linkedin-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #0077b5, #00a0dc);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .linkedin-name {
+            font-weight: 600;
+            color: #000;
+            font-size: 14px;
+        }
+
+        /* Instagram Style Comment */
+        .instagram-comment {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            border-radius: 20px;
+            padding: 16px;
+            color: white;
+            box-shadow: 0 8px 20px rgba(188, 24, 136, 0.3);
+            top: 35%;
+            right: 0;
+            animation-delay: 1.2s;
+        }
+
+        .instagram-comment::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 20px;
+            width: 0;
+            height: 0;
+            border-right: 8px solid #bc1888;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+        }
+
+        .instagram-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .instagram-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #bc1888;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        /* TikTok Style Comment */
+        .tiktok-comment {
+            background: #000;
+            border-radius: 16px;
+            padding: 12px 16px;
+            color: white;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+            border: 1px solid #333;
+            top: 60%;
+            left: 0;
+            animation-delay: 1.8s;
+        }
+
+        .tiktok-comment::before {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: 18px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid #000;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+        }
+
+        .tiktok-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .tiktok-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff0050, #ff4081);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .tiktok-username {
+            color: #fe2c55;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Personal/Discord Style Comment */
+        .personal-comment {
+            background: #5865F2;
+            border-radius: 8px 18px 18px 8px;
+            padding: 14px;
+            color: white;
+            box-shadow: 0 4px 14px rgba(88, 101, 242, 0.3);
+            top: 85%;
+            right: 0;
+            animation-delay: 2.4s;
+        }
+
+        .personal-comment::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 16px;
+            width: 0;
+            height: 0;
+            border-right: 8px solid #5865F2;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+        }
+
+        .personal-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .personal-avatar {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #7289DA;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        .callout h3 {
+            font-size: 14px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .callout p {
+            font-size: 13px;
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        .username {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .comment-text {
+            font-size: 13px;
+            line-height: 1.4;
+            margin-top: 4px;
+        }
+
+        .control-panel {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            margin: 0 10px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .pulse-dot {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            opacity: 0;
+            animation: pulse 2s infinite;
+        }
+
+        .pulse-dot.active {
+            opacity: 1;
+        }
+
+        .dot-1 {
+            top: 25%;
+            left: 15%;
+            animation-delay: 0.3s;
+        }
+
+        .dot-2 {
+            top: 45%;
+            right: 20%;
+            background: #4ecdc4;
+            animation-delay: 0.8s;
+        }
+
+        .dot-3 {
+            bottom: 30%;
+            left: 25%;
+            background: #45b7d1;
+            animation-delay: 1.3s;
+        }
+
+        .dot-4 {
+            top: 65%;
+            right: 10%;
+            background: #f093fb;
+            animation-delay: 1.8s;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.8);
+                box-shadow: 0 0 0 0 currentColor;
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(0.8);
+                box-shadow: 0 0 0 20px transparent;
+            }
+        }
+
+        @keyframes continuousFloat {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            25% {
+                transform: translateY(-5px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            75% {
+                transform: translateY(-3px);
+            }
+        }
+
+        .title {
+            text-align: center;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Interactive Image Callouts</h1>
+        <p class="subtitle">Watch the animated callouts describe different parts of this beautiful landscape</p>
+        
+        <div class="content-wrapper">
+            <div class="callouts-container">
+                <!-- LinkedIn Style Comment -->
+                <div class="callout linkedin-comment">
+                    <div class="linkedin-header">
+                        <div class="linkedin-avatar">SJ</div>
+                        <span class="linkedin-name">Sarah Johnson</span>
+                        <span class="username">• Marketing Director</span>
+                    </div>
+                    <div class="comment-text">Absolutely stunning! The snow-capped peaks remind me of our team retreat last winter. Nature truly inspires the best ideas. 🏔️ #inspiration</div>
+                </div>
+
+                <!-- Instagram Style Comment -->
+                <div class="callout instagram-comment">
+                    <div class="instagram-header">
+                        <div class="instagram-avatar">🌟</div>
+                        <span style="font-size: 12px; font-weight: 600;">adventure_seeker_99</span>
+                    </div>
+                    <div class="comment-text">This view is EVERYTHING! 😍✨ Adding this to my bucket list right now. Who's ready for an epic mountain adventure? #wanderlust #mountains</div>
+                </div>
+
+                <!-- TikTok Style Comment -->
+                <div class="callout tiktok-comment">
+                    <div class="tiktok-header">
+                        <div class="tiktok-avatar">MK</div>
+                        <span class="tiktok-username">@mikethehiker</span>
+                    </div>
+                    <div class="comment-text">POV: You're looking at the most peaceful place on Earth 🎵 *chill music plays* This is where I'd build my dream cabin</div>
+                </div>
+
+                <!-- Personal/Discord Style Comment -->
+                <div class="callout personal-comment">
+                    <div class="personal-header">
+                        <div class="personal-avatar">AC</div>
+                        <span style="font-size: 12px; font-weight: 600; opacity: 0.9;">Alex Chen</span>
+                    </div>
+                    <div class="comment-text">Dude, this looks exactly like that spot we found last summer! The reflection in the lake is incredible 💙</div>
+                </div>
+            </div>
+
+            <div class="image-container">
+                <!-- Using a beautiful landscape image -->
+                <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" 
+                     alt="Beautiful Mountain Landscape" class="main-image">
+            </div>
+        </div>
+        
+        <div class="control-panel">
+            <button class="btn" onclick="startAnimation()">▶️ Start Animation</button>
+            <button class="btn" onclick="resetAnimation()">🔄 Reset</button>
+            <button class="btn" onclick="togglePause()">⏸️ Pause/Resume</button>
+        </div>
+    </div>
+
+    <script>
+        let animationState = 'stopped';
+        let animationTimeouts = [];
+
+        const callouts = document.querySelectorAll('.callout');
+
+        function startAnimation() {
+            if (animationState === 'playing') return;
+            
+            resetAnimation();
+            animationState = 'playing';
+            
+            // Show callouts with staggered timing and keep them visible
+            callouts.forEach((callout, index) => {
+                const timeout = setTimeout(() => {
+                    if (animationState === 'playing') {
+                        callout.classList.add('active');
+                        
+                        // Add bounce effect on appear
+                        setTimeout(() => {
+                            if (callout.classList.contains('active')) {
+                                callout.style.transform = 'translateY(-5px) scale(1.05)';
+                                setTimeout(() => {
+                                    if (callout.classList.contains('active')) {
+                                        callout.style.transform = '';
+                                    }
+                                }, 200);
+                            }
+                        }, 100);
+                    }
+                }, index * 600);
+                
+                animationTimeouts.push(timeout);
+            });
+        }
+
+        function resetAnimation() {
+            animationState = 'stopped';
+            
+            // Clear all timeouts
+            animationTimeouts.forEach(timeout => clearTimeout(timeout));
+            animationTimeouts = [];
+            
+            // Hide all callouts
+            callouts.forEach(callout => {
+                callout.classList.remove('active');
+                callout.style.transform = '';
+            });
+        }
+
+        function togglePause() {
+            if (animationState === 'playing') {
+                animationState = 'paused';
+                animationTimeouts.forEach(timeout => clearTimeout(timeout));
+                animationTimeouts = [];
+            } else if (animationState === 'paused') {
+                animationState = 'playing';
+                // Resume showing any remaining hidden callouts
+                callouts.forEach((callout, index) => {
+                    if (!callout.classList.contains('active')) {
+                        const timeout = setTimeout(() => {
+                            if (animationState === 'playing') {
+                                callout.classList.add('active');
+                            }
+                        }, index * 200);
+                        animationTimeouts.push(timeout);
+                    }
+                });
+            }
+        }
+
+        // Add click interactions for individual callouts
+        callouts.forEach((callout, index) => {
+            callout.addEventListener('click', () => {
+                // Pulse effect on click
+                callout.style.transform = 'translateY(-10px) scale(1.08)';
+                setTimeout(() => {
+                    callout.style.transform = '';
+                }, 300);
+            });
+        });
+
+        // Add hover effects for the main image
+        const mainImage = document.querySelector('.main-image');
+        mainImage.addEventListener('mouseenter', () => {
+            mainImage.style.transform = 'scale(1.05)';
+        });
+
+        mainImage.addEventListener('mouseleave', () => {
+            mainImage.style.transform = 'scale(1)';
+        });
+
+        // Auto-start animation when page loads
+        window.addEventListener('load', () => {
+            setTimeout(startAnimation, 800);
+        });
+    </script>
+</body>
+</html>

@@ -1049,8 +1049,8 @@
                 provider: "linkedin_oidc",
                 options: {
                     scopes: "openid profile email",
-                    redirectTo: window.location.hostname === 'localhost'
-                        ? 'http://localhost:3000/index.html'
+                    redirectTo: (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+                        ? 'http://localhost:1967/index.html'
                         : 'https://ravi-cloudworks.github.io/strategy-staaar/index.html',
                     // Force re-authentication every hour for beta tracking
                     sessionTimeout: 3600,
