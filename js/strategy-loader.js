@@ -32,21 +32,17 @@ class StrategyLoader {
     }
 
     async loadStrategyContent(strategyId) {
-        console.log('🔍 DEBUG: Loading strategy content for ID:', strategyId);
 
         try {
             const strategy = this.STRATEGY_PRESETS.find(s => s.id === strategyId);
             if (!strategy) throw new Error('Strategy not found');
 
-            console.log('🔍 DEBUG: Strategy found:', strategy);
-            console.log('🔍 DEBUG: Loading file:', `./data/strategies/${strategy.file}`);
 
             const response = await fetch(`./data/strategies/${strategy.file}`);
             if (!response.ok) throw new Error('Failed to load strategy content');
 
             const content = await response.json();
 
-            console.log('🔍 DEBUG: Loaded content:', content);
             return content;
         } catch (error) {
             console.error('Error loading strategy content:', error);
@@ -90,7 +86,6 @@ class StrategyLoader {
     }
 
     updateInsightTable(content) {
-        console.log('🔍 DEBUG: updateInsightTable called with content:', content);
 
         const table = document.querySelector('.insight-table');
         if (!table) return;
@@ -98,8 +93,6 @@ class StrategyLoader {
         // Clear existing content
         table.innerHTML = '';
 
-        console.log('🔍 DEBUG: About to render table with headers:', content.headers);
-        console.log('🔍 DEBUG: About to render table with data rows:', content.data?.length);
 
         // Create rows that match the original table structure
         content.data.forEach((row, rowIndex) => {
@@ -112,10 +105,8 @@ class StrategyLoader {
 
             // Use the header for this row if available
             const header = content.headers[rowIndex];
-            console.log(`🔍 DEBUG: Row ${rowIndex} - Header:`, header);
             
             if (header && typeof header === 'object' && header.icon) {
-                console.log(`🔍 DEBUG: Row ${rowIndex} - Rendering icon: bi-${header.icon} for text: ${header.text}`);
                 categoryCell.innerHTML = `
                     <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; height: 100%; padding: 6px;">
                         <i class="bi bi-${header.icon}" style="font-size: 24px; color: white; display: block; margin-bottom: 6px;"></i>
@@ -141,12 +132,10 @@ class StrategyLoader {
 
             // Add text cells for each data column
             row.forEach((cell, cellIndex) => {
-                console.log(`🔍 DEBUG: Row ${rowIndex}, Cell ${cellIndex} - Cell data:`, cell);
                 const td = document.createElement('td');
                 td.className = 'text-cell';
 
 
-                console.log(`🔍 DEBUG: Row ${rowIndex}, Cell ${cellIndex} - Rendering icon: bi-${cell.icon} for text: ${cell.text}`);
                 
                 td.innerHTML = `
                     <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; height: 100%; padding: 6px;">
@@ -239,11 +228,9 @@ class StrategyLoader {
     }
 
     async initializePageWithFirstStrategy() {
-        console.log('🔍 DEBUG: initializePageWithFirstStrategy called');
         
         if (this.STRATEGY_PRESETS && this.STRATEGY_PRESETS.length > 0) {
             const firstStrategy = this.STRATEGY_PRESETS[0];
-            console.log('🔍 DEBUG: First strategy on page load:', firstStrategy);
 
             // Update displays
             this.updateTitleCard(firstStrategy);

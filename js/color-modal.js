@@ -224,6 +224,7 @@ export class ColorModal {
     }
 
     open() {
+        console.log('🎨 ===== COLOR MODAL OPENING =====');
         this.modal.classList.add('show');
         this.debouncedPopulateCategoryButtons();
         this.initializeContentColors();
@@ -234,13 +235,17 @@ export class ColorModal {
     }
 
     debouncedPopulateCategoryButtons() {
+        console.log('⏱️ Debounced populate category buttons called');
+
         // Clear previous timeout
         if (this.populateCategoryButtonsTimeout) {
+            console.log('🔄 Clearing previous timeout');
             clearTimeout(this.populateCategoryButtonsTimeout);
         }
 
         // Set new timeout
         this.populateCategoryButtonsTimeout = setTimeout(() => {
+            console.log('⚡ Executing populateCategoryButtons after timeout');
             this.populateCategoryButtons();
         }, 300);
     }
@@ -249,11 +254,41 @@ export class ColorModal {
         const categoryButtonsContainer = document.getElementById('dynamicCategoryButtons');
         if (!categoryButtonsContainer) return;
 
-        // Clear existing buttons
+        console.log('🔧 Populating category buttons...');
+        console.log('📊 Container before clear:', categoryButtonsContainer.children.length);
+
+        // Clear existing buttons completely
         categoryButtonsContainer.innerHTML = '';
 
-        // Get all rows from the table
-        const tableRows = document.querySelectorAll('tr[data-row]');
+        console.log('📊 Container after clear:', categoryButtonsContainer.children.length);
+
+        // Get all insight tables and find the original/main one (not presentation replicas)
+        const allInsightTables = document.querySelectorAll('.insight-table');
+        console.log('🔍 Found insight tables:', allInsightTables.length);
+
+        // Find the main table (not a replica used in presentations)
+        let mainTable = null;
+        for (const table of allInsightTables) {
+            if (!table.classList.contains('exact-index-replica')) {
+                mainTable = table;
+                console.log('✅ Using main insight table (not replica)');
+                break;
+            }
+        }
+
+        // Fallback to first table if no main table found
+        if (!mainTable && allInsightTables.length > 0) {
+            mainTable = allInsightTables[0];
+            console.log('⚠️ Using first available table as fallback');
+        }
+
+        const tableRows = mainTable ? mainTable.querySelectorAll('tr[data-row]') : [];
+
+        console.log('📑 Found table rows:', tableRows.length);
+        console.log('🔍 Main table element:', mainTable);
+        console.log('📊 Tables breakdown:', Array.from(allInsightTables).map((t, i) =>
+            `${i+1}: ${t.classList.contains('exact-index-replica') ? 'replica' : 'main'} (${t.querySelectorAll('tr[data-row]').length} rows)`
+        ).join(', '));
 
         if (tableRows.length === 0) {
             categoryButtonsContainer.innerHTML = '<p style="text-align: center; color: #64748b; font-style: italic; padding: 20px;">No table data available. Please generate a table first.</p>';
@@ -334,7 +369,10 @@ export class ColorModal {
             });
 
             categoryButtonsContainer.appendChild(button);
+            console.log(`✅ Added button ${index + 1}: "${categoryText}"`);
         });
+
+        console.log(`📊 Final button count in container: ${categoryButtonsContainer.children.length}`);
 
         // Adjust grid layout based on number of rows
         const numRows = tableRows.length;

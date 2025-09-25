@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>UK Map with Connected Floating Callouts</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+  <style>
+    body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    #map { width: 100vw; height: 100vh; }
+
+    /* Floating callouts */
+    .floating-callout {
+      position: absolute;
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      max-width: 320px;
+      font-size: 13px;
+      border-left: 4px solid #3b82f6;
+      z-index: 1000;
+      cursor: move;
+      opacity: 0;
+      transform: translateY(30px) scale(0.7) rotate(5deg);
+      animation-fill-mode: both;
+    }
+
+    .edit-hint {
+      font-size: 10px;
+      color: #9ca3af;
+      margin-top: 4px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .floating-callout:hover .edit-hint {
+      opacity: 1;
+    }
+  </style>
+  <script>
+    // Setup template switcher functionality
+    function setupTemplateButton(callout, pinInfo) {
+      const templateBtn = callout.querySelector('.template-btn');
+      
+      const templates = [
+        {
+          name: 'default',
+          class: 'template-default',
+          badge: '',
+          icon: '💬',
+          title: 'Customer Feedback',
+          content: 'Great product! Really loving the features and user experience.'
+        },
+        {
+          name: 'executive',
+          class: 'template-executive',
+          badge: 'badge-executive',
+          icon: '📊',
+          title: 'Executive Summary',
+          content: 'Strategic analysis shows <strong>exceptional market potential</strong> with sustainable growth opportunities.'
+        },
+        {
+          name: 'analytics',
+          class: 'template-analytics',
+          badge: 'badge-analytics',
+          icon: '📈',
+          title: 'Live Analytics',
+          content: '<strong>Performance Metrics:</strong> 98.7% satisfaction rate<br><strong>Conversion:</strong> +24% this quarter'
+        },
+        {
+          name: 'technical',
+          class: 'template-technical',
+          badge: 'badge-technical',
+          icon: '⚡',
+          title: '$ system_analysis.exe',
+          content: '<div style="color: #00ff88;">STATUS:</div>Performance: OPTIMAL [9.8/10]<br/>Load balancing: ACTIVE<br/>Uptime: 99.99%'
+        },
+        {
+          name: 'research',
+          class: 'template-research',
+          badge: 'badge-research',
+          icon: '🔬',
+          title: 'Research Findings',
+          content: 'This analysis demonstrates <strong>significant positive correlation</strong> with user engagement metrics.<div style="font-style: italic; font-size: 11px; margin-top: 8px; color: #6c757d;">(Research Institute, 2024)</div>'
+        }
+      ];
+      
+      let currentTemplateIndex = 0;
+      
+      templateBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        
+        // Cycle to next template
+        currentTemplateIndex = (currentTemplateIndex + 1) % templates.length;
+        const newTemplate = templates[currentTemplateIndex];
+        
+        console.log('🎨 Switching to template:', newTemplate.name);
+        
+        // Remove old template classes
+        templates.forEach(t => callout.classList.remove(t.class));
+        
+        // Add new template class
+        callout.classList.add(newTemplate.class);
+        callout.setAttribute('data-template', newTemplate.name);
+        
+        // Update content
+        const title = callout.querySelector('.editable-title');
+        const body = callout.querySelector('.editable-body');
+        const hint = callout.querySelector('.edit-hint');
+        
+        if (title) title.textContent = newTemplate.title;
+        if (body) body.innerHTML = newTemplate.content;
+        
+        // Update hint based on template
+        if (hint) {
+          switch(newTemplate.name) {
+            case 'executive':
+              hint.textContent = '📊 Executive Template • Click to edit';
+              break;
+            case 'analytics':
+              hint.textContent = '📈 Analytics Template • Click to edit';
+              break;
+            case 'technical':
+              hint.textContent = '⚡ Technical Template • Click to edit';
+              break;
+            case 'research':
+              hint.textContent = '🔬 Research Template • Click to edit';
+              break;
+            default:
+              hint.textContent = '💡 Click to edit • Drag to move';
+          }
+        }
+        
+        // Add template switch animation
+        callout.style.transform = 'scale(0.95) rotate(5deg)';
+        setTimeout(() => {
+          callout.style.transform = '';
+        }, 200);
+        
+        console.log('✅ Template switched successfully');
+      });
+      
+      // Prevent template button from triggering drag
+      templateBtn.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+      });
+    }
+
+    .delete-btn {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      width: 20px;
+      height: 20px;
+      background: #ef4444;
+      color: white;
+      border: 2px solid white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1001;
+      user-select: none;
+    }
+
+    .template-btn {
+      position: absolute;
+      top: -8px;
+      right: 15px;
+      width: 20px;
+      height: 20px;
+      background: #3b82f6;
+      color: white;
+      border: 2px solid white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: bold;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1001;
+      user-select: none;
+    }
+
+    .floating-callout:hover .delete-btn,
+    .floating-callout:hover .template-btn {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .template-btn:hover {
+      background: #2563eb;
+      transform: scale(1.2) rotate(180deg);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+    }
+
+    .delete-btn:hover {
+      background: #dc2626;
+      transform: scale(1.2) rotate(90deg);
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
+    }
+
+    .delete-btn:active {
+      transform: scale(0.9);
+    }
+
+    .floating-callout.show {
+      animation: lottiePopup 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+    }
+
+    .floating-callout.active {
+      opacity: 0.95;
+      animation: gentleFloat 4s ease-in-out infinite;
+    }
+
+    @keyframes lottiePopup {
+      0% {
+        opacity: 0;
+        transform: translateY(30px) scale(0.7) rotate(5deg);
+      }
+      50% {
+        opacity: 0.8;
+        transform: translateY(-10px) scale(1.1) rotate(-2deg);
+      }
+      70% {
+        opacity: 1;
+        transform: translateY(5px) scale(0.95) rotate(1deg);
+      }
+      100% {
+        opacity: 0.95;
+        transform: translateY(0px) scale(1) rotate(0deg);
+      }
+    }
+
+    @keyframes gentleFloat {
+      0%, 100% { transform: translateY(0px) scale(1) rotate(0deg); }
+      50% { transform: translateY(-8px) scale(1) rotate(0deg); }
+    }
+
+    .floating-callout:hover {
+      opacity: 1;
+      transform: scale(1.02);
+      z-index: 1001;
+      animation-play-state: paused;
+    }
+
+    /* Editable elements */
+    .editable-title {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #1f2937;
+      font-size: 14px;
+      border: 1px solid transparent;
+      padding: 2px 4px;
+      border-radius: 3px;
+      cursor: text;
+      min-height: 18px;
+    }
+
+    .editable-title:hover {
+      background: #f9fafb;
+      border-color: #d1d5db;
+    }
+
+    .editable-title:focus {
+      outline: none;
+      background: #f9fafb;
+      border-color: #3b82f6;
+    }
+
+    .thumbs-selector {
+      margin-bottom: 8px;
+      display: flex;
+      gap: 3px;
+    }
+
+    .thumb {
+      font-size: 20px;
+      cursor: pointer;
+      color: #d1d5db;
+      transition: all 0.3s ease;
+      padding: 3px;
+      user-select: none;
+      display: inline-block;
+      text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+      transform: scale(1);
+    }
+
+    .thumb.active {
+      color: #fbbf24;
+      text-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
+      animation: thumbBounce 0.4s ease-out;
+    }
+
+    .thumb:hover {
+      color: #f59e0b;
+      transform: scale(1.3);
+      text-shadow: 0 0 10px rgba(245, 158, 11, 0.8);
+    }
+
+    @keyframes thumbBounce {
+      0% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.4) rotate(-15deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+
+    .editable-body {
+      border: 1px solid transparent;
+      padding: 4px;
+      border-radius: 3px;
+      cursor: text;
+      min-height: 40px;
+      line-height: 1.4;
+    }
+
+    .editable-body:hover {
+      background: #f9fafb;
+      border-color: #d1d5db;
+    }
+
+    .editable-body:focus {
+      outline: none;
+      background: #f9fafb;
+      border-color: #3b82f6;
+    }
+
+    /* Template Styles */
+    .template-default {
+      background: white;
+      color: #333;
+      border-left: 4px solid #3b82f6;
+    }
+
+    .template-executive {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 8px;
+      border-left: none;
+    }
+
+    .template-analytics {
+      background: #fff;
+      color: #333;
+      border-left: 4px solid #ff6b35;
+      border-radius: 12px;
+    }
+
+    .template-technical {
+      background: #1a1a1a;
+      color: #e0e0e0;
+      border-radius: 6px;
+      border: 1px solid #333;
+      border-left: 3px solid #00ff88;
+      font-family: 'Courier New', monospace;
+    }
+
+    .template-research {
+      background: #f8f9fa;
+      color: #333;
+      border-radius: 10px;
+      border: 2px solid #e9ecef;
+      border-left: 4px solid #28a745;
+    }
+
+    /* Template-specific badges */
+    .badge-executive {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    .badge-analytics {
+      background: #ff6b35;
+      color: white;
+    }
+
+    .badge-technical {
+      background: #00ff88;
+      color: #000;
+    }
+
+    .badge-research {
+      background: #28a745;
+      color: white;
+    }
+
+    /* Connecting lines */
+    .connect-line {
+      position: absolute;
+      height: 2px;
+      background: linear-gradient(90deg, #3b82f6, rgba(59, 130, 246, 0.3), #3b82f6);
+      z-index: 999;
+      pointer-events: none;
+      animation: lineFlow 3s ease-in-out infinite;
+    }
+
+    @keyframes lineFlow {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; }
+    }
+
+    /* Pin mode button */
+    .pin-toggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 1000;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .pin-toggle.active { background: #10b981; }
+
+    .clear-btn {
+      position: absolute;
+      top: 60px;
+      right: 10px;
+      z-index: 1000;
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <button class="pin-toggle" id="toggleBtn" onclick="togglePinMode()">📍 Click to Add Pins</button>
+  <button class="clear-btn" onclick="clearCustomPins()">🗑️ Clear</button>
+
+  <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+  <script>
+    let isPinMode = false;
+    let pinData = [];
+
+    // Initialize map
+    const map = new maplibregl.Map({
+      container: 'map',
+      style: {
+        "version": 8,
+        "sources": {
+          "osm": {
+            "type": "raster",
+            "tiles": ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+            "tileSize": 256
+          }
+        },
+        "layers": [{"id": "osm", "type": "raster", "source": "osm"}]
+      },
+      center: [-1.5, 54],
+      zoom: 6
+    });
+
+    map.addControl(new maplibregl.NavigationControl());
+
+    const feedbacks = [
+      "Great product! Really loving the features 😍",
+      "Excellent customer service, highly recommend! ⭐⭐⭐⭐⭐",
+      "Good value for money. Works as expected ✅",
+      "Amazing quality! Will definitely buy again 🚀",
+      "Fast delivery and great packaging 📦",
+      "User-friendly interface, easy to use 👍",
+      "Outstanding performance! 5 stars ⭐⭐⭐⭐⭐"
+    ];
+
+    // Create pin with floating callout
+    function createPin(coords, feedbackText, title = "💬 Customer Feedback", rating = 4, isDemo = false) {
+      // Create marker
+      const marker = new maplibregl.Marker({ color: 'red' })
+        .setLngLat(coords)
+        .addTo(map);
+
+      // Create floating callout with editable content
+      const callout = document.createElement('div');
+      callout.className = 'floating-callout template-default';
+      callout.setAttribute('data-template', 'default');
+      callout.innerHTML = `
+        <div class="delete-btn" title="Delete this callout">×</div>
+        <div class="template-btn" title="Change template">⚡</div>
+        <div class="editable-title" contenteditable="true">${title}</div>
+        <div class="thumbs-selector">
+          <span class="thumb ${1 <= rating ? 'active' : ''}" data-rating="1">★</span>
+          <span class="thumb ${2 <= rating ? 'active' : ''}" data-rating="2">★</span>
+          <span class="thumb ${3 <= rating ? 'active' : ''}" data-rating="3">★</span>
+          <span class="thumb ${4 <= rating ? 'active' : ''}" data-rating="4">★</span>
+          <span class="thumb ${5 <= rating ? 'active' : ''}" data-rating="5">★</span>
+        </div>
+        <div class="editable-body" contenteditable="true">${feedbackText}</div>
+        <div class="edit-hint">💡 Click to edit • Drag to move</div>
+      `;
+
+      // Create connecting line
+      const line = document.createElement('div');
+      line.className = 'connect-line';
+
+      // Add to DOM
+      document.body.appendChild(callout);
+      document.body.appendChild(line);
+
+      // Create pinInfo object first
+      const pinInfo = {
+        marker,
+        callout,
+        line,
+        coords: [...coords],
+        isDemo,
+        manuallyPositioned: false,
+        rating: rating
+      };
+
+      // Now setup functionality with pinInfo available
+      setupThumbsRating(callout);
+      setupDeleteButton(callout, pinInfo);
+      setupTemplateButton(callout, pinInfo);
+
+      // Position callout near pin
+      positionCallout(marker, callout);
+
+      // Trigger Lottie-like popup animation
+      setTimeout(() => {
+        callout.classList.add('show');
+        setTimeout(() => {
+          callout.classList.add('active');
+        }, 800);
+      }, 100);
+
+      // Add to pinData array
+      pinData.push(pinInfo);
+
+      // Draw connecting line
+      drawLine(pinInfo);
+
+      // Make callout draggable
+      makeDraggable(callout, pinInfo);
+
+      return pinInfo;
+    }
+
+    // Position callout near pin
+    function positionCallout(marker, callout) {
+      const markerEl = marker.getElement();
+      const markerRect = markerEl.getBoundingClientRect();
+      
+      // Position callout to the right of pin with some offset
+      let left = markerRect.left + 50;
+      let top = markerRect.top - 60;
+
+      // Keep within screen bounds
+      if (left + 300 > window.innerWidth) left = markerRect.left - 320;
+      if (top < 20) top = 20;
+      if (top + 150 > window.innerHeight) top = window.innerHeight - 170;
+
+      callout.style.left = left + 'px';
+      callout.style.top = top + 'px';
+    }
+
+    // Draw line between pin and callout
+    function drawLine(pinInfo) {
+      const { marker, callout, line } = pinInfo;
+      const markerEl = marker.getElement();
+      
+      const markerRect = markerEl.getBoundingClientRect();
+      const calloutRect = callout.getBoundingClientRect();
+      
+      const x1 = markerRect.left + markerRect.width / 2;
+      const y1 = markerRect.top + markerRect.height / 2;
+      const x2 = calloutRect.left;
+      const y2 = calloutRect.top + calloutRect.height / 2;
+      
+      const length = Math.sqrt((x2-x1)**2 + (y2-y1)**2);
+      const angle = Math.atan2(y2-y1, x2-x1) * 180 / Math.PI;
+      
+      line.style.left = x1 + 'px';
+      line.style.top = y1 + 'px';
+      line.style.width = length + 'px';
+      line.style.transform = `rotate(${angle}deg)`;
+      line.style.transformOrigin = '0 50%';
+    }
+
+    // Setup rating functionality (now with stars)
+    function setupThumbsRating(callout) {
+      const thumbs = callout.querySelectorAll('.thumb');
+      console.log('Setting up stars:', thumbs.length);
+      
+      thumbs.forEach((thumb, index) => {
+        thumb.addEventListener('click', (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          
+          const clickedRating = parseInt(thumb.getAttribute('data-rating'));
+          console.log('★ Star clicked, rating:', clickedRating);
+          
+          // Update all stars in this callout
+          thumbs.forEach((t) => {
+            const thumbRating = parseInt(t.getAttribute('data-rating'));
+            
+            if (thumbRating <= clickedRating) {
+              // Active stars - golden and glowing
+              t.classList.add('active');
+              t.style.color = '#fbbf24';
+              t.style.textShadow = '0 0 8px rgba(251, 191, 36, 0.6)';
+              console.log(`★ Star ${thumbRating} set to ACTIVE (golden)`);
+            } else {
+              // Inactive stars - stay gray
+              t.classList.remove('active');
+              t.style.color = '#d1d5db';
+              t.style.textShadow = '1px 1px 1px rgba(0,0,0,0.1)';
+              console.log(`☆ Star ${thumbRating} set to INACTIVE (gray)`);
+            }
+          });
+          
+          console.log('✅ All stars updated!');
+        });
+        
+        thumb.addEventListener('mousedown', (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+        });
+      });
+    }
+
+    // Setup delete button functionality
+    function setupDeleteButton(callout, pinInfo) {
+      const deleteBtn = callout.querySelector('.delete-btn');
+      
+      deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        
+        console.log('🗑️ Deleting callout');
+        
+        // Add delete animation
+        callout.style.animation = 'none';
+        callout.style.transform = 'scale(0.8) rotate(10deg)';
+        callout.style.opacity = '0';
+        
+        // Remove from pinData array
+        const index = pinData.indexOf(pinInfo);
+        if (index > -1) {
+          pinData.splice(index, 1);
+        }
+        
+        // Remove elements after animation
+        setTimeout(() => {
+          pinInfo.marker.remove();
+          callout.remove();
+          pinInfo.line.remove();
+          console.log('✅ Callout deleted successfully');
+        }, 300);
+      });
+      
+      // Prevent delete button from triggering drag
+      deleteBtn.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+      });
+    }
+    function makeDraggable(callout, pinInfo) {
+      let isDragging = false;
+      let startX, startY;
+      let dragStarted = false;
+
+      callout.addEventListener('mousedown', (e) => {
+        // Don't start drag if clicking on editable elements or thumbs
+        if (e.target.contentEditable === 'true' || 
+            e.target.classList.contains('thumb') ||
+            e.target.closest('.thumbs-selector') ||
+            e.target.closest('.editable-title') ||
+            e.target.closest('.editable-body')) {
+          console.log('Clicked on editable element, not dragging');
+          return;
+        }
+
+        console.log('Starting drag mode');
+        isDragging = true;
+        dragStarted = false;
+        startX = e.clientX - callout.offsetLeft;
+        startY = e.clientY - callout.offsetTop;
+        e.preventDefault();
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        
+        if (!dragStarted) {
+          const moveDistance = Math.abs(e.clientX - (startX + callout.offsetLeft)) + 
+                               Math.abs(e.clientY - (startY + callout.offsetTop));
+          if (moveDistance > 5) {
+            dragStarted = true;
+            callout.style.animationPlayState = 'paused';
+            console.log('Drag started');
+          } else {
+            return;
+          }
+        }
+        
+        const newX = e.clientX - startX;
+        const newY = e.clientY - startY;
+        
+        const maxX = window.innerWidth - callout.offsetWidth;
+        const maxY = window.innerHeight - callout.offsetHeight;
+        
+        callout.style.left = Math.max(0, Math.min(newX, maxX)) + 'px';
+        callout.style.top = Math.max(0, Math.min(newY, maxY)) + 'px';
+        
+        pinInfo.manuallyPositioned = true;
+        drawLine(pinInfo);
+      });
+
+      document.addEventListener('mouseup', () => {
+        if (isDragging && dragStarted) {
+          callout.style.animationPlayState = 'running';
+          console.log('Drag ended');
+        }
+        isDragging = false;
+        dragStarted = false;
+      });
+    }
+
+    // Update all lines when map moves
+    function updateAllLines() {
+      pinData.forEach(pinInfo => {
+        // Only reposition callouts that haven't been manually moved
+        if (!pinInfo.manuallyPositioned) {
+          positionCallout(pinInfo.marker, pinInfo.callout);
+        }
+        drawLine(pinInfo);
+      });
+    }
+
+    // Handle map click
+    map.on('click', (e) => {
+      if (!isPinMode) return;
+      
+      const coords = e.lngLat;
+      const randomFeedback = feedbacks[Math.floor(Math.random() * feedbacks.length)];
+      const randomRating = Math.floor(Math.random() * 2) + 4; // 4-5 stars
+      
+      createPin([coords.lng, coords.lat], randomFeedback, "💬 Customer Feedback", randomRating);
+    });
+
+    // Map event handlers
+    map.on('move', updateAllLines);
+    map.on('zoom', updateAllLines);
+
+    // Toggle pin mode
+    function togglePinMode() {
+      isPinMode = !isPinMode;
+      const btn = document.getElementById('toggleBtn');
+      
+      if (isPinMode) {
+        btn.textContent = '📍 Pin Mode ON - Click Map';
+        btn.classList.add('active');
+      } else {
+        btn.textContent = '📍 Click to Add Pins';
+        btn.classList.remove('active');
+      }
+    }
+
+    // Clear custom pins
+    function clearCustomPins() {
+      pinData = pinData.filter(pinInfo => {
+        if (!pinInfo.isDemo) {
+          pinInfo.marker.remove();
+          pinInfo.callout.remove();
+          pinInfo.line.remove();
+          return false;
+        }
+        return true;
+      });
+    }
+
+    // Add demo pins on load
+    map.on('load', () => {
+      setTimeout(() => {
+        createPin([-0.1276, 51.5074], "Amazing fintech integration! Perfect for our London office. The API response times are incredible.", "🏙️ London Tech Hub", 5, true);
+        createPin([-2.2426, 53.4808], "Solid industrial-grade quality. Built to last like our Manchester mills!", "⚒️ Manchester Industry", 4, true);
+        createPin([-3.1883, 55.9533], "Exceptional Highland quality! Weather tested in tough Scottish conditions.", "🏴󠁧󠁢󠁳󠁣󠁴󠁿 Edinburgh Innovation", 5, true);
+      }, 500);
+    });
+  </script>
+</body>
+</html>

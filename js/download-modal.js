@@ -1,4 +1,6 @@
 // McKinsey-Style Presentation Download Modal
+import { HtmlGenerator } from './html-generator.js';
+
 export class DownloadModal {
     constructor() {
         this.modal = null;
@@ -7,6 +9,7 @@ export class DownloadModal {
         this.videoData = null;
         this.tableData = null;
         this.isClosing = false; // Flag to prevent fullscreen event loops
+        this.htmlGenerator = new HtmlGenerator();
         this.init();
     }
 
@@ -71,9 +74,9 @@ export class DownloadModal {
                             Next
                             <i class="bi bi-chevron-right"></i>
                         </button>
-                        <button class="nav-btn primary" id="downloadPPT">
+                        <button class="nav-btn primary" id="downloadHTML">
                             <i class="bi bi-download"></i>
-                            Download PowerPoint
+                            Download HTML Presentation
                         </button>
                     </div>
                 </div>
@@ -98,9 +101,9 @@ export class DownloadModal {
             this.nextSlide();
         });
 
-        // Download PowerPoint
-        document.getElementById('downloadPPT').addEventListener('click', () => {
-            this.downloadPowerPoint();
+        // Download HTML Presentation
+        document.getElementById('downloadHTML').addEventListener('click', () => {
+            this.downloadHtmlPresentation();
         });
 
         // Keyboard navigation
@@ -167,9 +170,21 @@ export class DownloadModal {
     }
 
     exitFullscreen() {
+        // Check if document is actually in fullscreen mode first
+        const isFullscreen = document.fullscreenElement ||
+                            document.webkitFullscreenElement ||
+                            document.mozFullScreenElement ||
+                            document.msFullscreenElement;
+
+        if (!isFullscreen) {
+            return; // Not in fullscreen mode, nothing to exit
+        }
+
         // Cross-browser exit fullscreen
         if (document.exitFullscreen) {
-            document.exitFullscreen();
+            document.exitFullscreen().catch(() => {
+                // Ignore errors when exiting fullscreen
+            });
         } else if (document.webkitExitFullscreen) { // Safari
             document.webkitExitFullscreen();
         } else if (document.mozCancelFullScreen) { // Firefox
@@ -181,6 +196,31 @@ export class DownloadModal {
 
     close() {
         this.isClosing = true; // Set flag to prevent event loop
+
+        // Hide and destroy all callouts when closing modal
+        if (typeof window.hideAllCallouts === 'function') {
+            window.hideAllCallouts();
+        }
+
+        // Also destroy all callout systems to fully clean up
+        if (window.calloutSystems) {
+            Object.values(window.calloutSystems).forEach(system => {
+                if (system && typeof system.destroy === 'function') {
+                    system.destroy();
+                }
+            });
+            window.calloutSystems = {}; // Clear the systems registry
+        }
+
+        // Pause all videos when closing
+        const allVideos = this.modal.querySelectorAll('video');
+        allVideos.forEach(video => {
+            if (!video.paused) {
+                video.pause();
+                video.currentTime = 0;
+            }
+        });
+
         this.modal.classList.remove('show');
 
         // Exit fullscreen mode
@@ -405,7 +445,7 @@ export class DownloadModal {
             this.createVideoPlaySlide(),       // Actual video playback
             this.createTableSlide(),           // Exact table from index.html
             ...this.createRowSlides(),         // Each row with large image + column list
-            this.createMcKinsey2x2Slide(),     // McKinsey 2x2 matrix
+            // McKinsey 2x2 matrix now available as optional page
             this.createThankYouSlide()         // Thank you slide
         ];
 
@@ -666,7 +706,7 @@ export class DownloadModal {
 
             // Find the actual selected column from the table interface
             // This should detect which column was actually clicked/selected in index.html
-            const chosenColumnIndex = this.getActualSelectedColumn(rowIndex);
+            const chosenColumnIndex = this.getActualSelectedColumnForSlide(rowIndex, 2);
 
             // Reverse the order (bottom to top) and generate HTML
             allColumns.reverse().forEach((column, verticalIndex) => {
@@ -687,8 +727,8 @@ export class DownloadModal {
             // Fallback to extracted data - show only the 5 data columns (skip header and image)
             const row = this.tableData.rows[rowIndex];
 
-            // Find the actual selected column from the table interface
-            const chosenColumnIndex = this.getActualSelectedColumn(rowIndex);
+            // Find the actual selected column from the table interface (same method as STAAAR Framework slide)
+            const chosenColumnIndex = this.getActualSelectedColumnForSlide(rowIndex, 2);
 
             // Show only data columns (skip header column 0 and image column 1)
             const dataColumns = row.slice(2); // Skip first two columns (header and image)
@@ -802,9 +842,8 @@ export class DownloadModal {
         return fallbackSelection;
     }
 
-    // Separate method ONLY for slide 3 - reads actual connections from index.html
-    getActualSelectedColumnForSlide3(rowIndex) {
-        console.log(`\n🔍 ===== DEBUG SLIDE 3 ROW ${rowIndex} =====`);
+    // Method for STAAAR Framework slide - reads actual connections from index.html
+    getActualSelectedColumnForSlide(rowIndex, slideIndex = 2) {
 
         // Method 1: Check the actual table row in the DOM for REAL connections
         const table = document.querySelector('.insight-table');
@@ -816,7 +855,6 @@ export class DownloadModal {
 
             if (targetRow) {
                 const cells = targetRow.querySelectorAll('td');
-                console.log(`🔍 INDEX.HTML Row ${rowIndex}: Found ${cells.length} cells`);
 
                 // Debug: Show all cell contents and their indices
                 for (let i = 0; i < cells.length; i++) {
@@ -828,39 +866,37 @@ export class DownloadModal {
                     const computedStyle = window.getComputedStyle(cell);
                     const hasComputedGreen = computedStyle.borderColor?.includes('rgb(16, 185, 129)');
 
-                    console.log(`📍 INDEX.HTML Column ${i}: "${text}" | Image: ${hasImage} | GreenBorder: ${hasGreenBorder} | ComputedGreen: ${hasComputedGreen}`);
                 }
 
-                // Look for images that have been moved from the image column (column 1)
-                let imageLocation = -1;
+                // Look for the green highlighted column (the actual connection)
+                let connectedLocation = -1;
                 let connectedText = '';
 
-                // Check each cell for images
+                // Check each cell for green highlighting (ComputedGreen)
                 for (let i = 0; i < cells.length; i++) {
                     const cell = cells[i];
-                    const img = cell.querySelector('img');
+                    const computedStyle = window.getComputedStyle(cell);
+                    const hasComputedGreen = computedStyle.borderColor?.includes('rgb(16, 185, 129)');
 
-                    if (img && !img.src.includes('data:image/svg+xml')) { // Skip placeholder images
-                        imageLocation = i;
+                    if (hasComputedGreen && i >= 2) { // Skip header (0) and image (1) columns
+                        connectedLocation = i;
                         connectedText = cell.textContent.trim();
-                        console.log(`📸 INDEX.HTML: Found real image in column ${i} with text: "${connectedText}"`);
                         break;
                     }
                 }
 
-                // If we found an image in a text column, that's our connection
-                if (imageLocation > 0) { // Column 0=header, 1+=text columns
-                    console.log(`✅ INDEX.HTML CONNECTION: Image in column ${imageLocation} with text "${connectedText}"`);
+                // If we found a green highlighted column, that's our connection
+                if (connectedLocation > 0) {
 
-                    // CORRECTED: Index.html structure has no separate image column!
-                    // Column 1 = first text cell, column 2 = second text cell, etc.
-                    // Direct mapping: imageLocation = slide3Index
-                    const slide3Index = imageLocation;
+                    // Convert table column to slide cell index
+                    // The table has: header(0), image(1), then text columns(2,3,4,5,6)
+                    // The slide cell indices need to map to the actual data columns
+                    const slide3Index = connectedLocation;
 
-                    console.log(`🔄 CORRECTED CONVERSION: Image in column ${imageLocation} → Slide3Index ${slide3Index}`);
+                    console.log(`🔄 CORRECTED CONVERSION: Connected column ${connectedLocation} → Slide3Index ${slide3Index}`);
                     console.log(`🎯 SLIDE 3 SHOULD CONNECT: Text cell index ${slide3Index}`);
 
-                    return slide3Index; // Direct mapping since no image column separation
+                    return slide3Index;
                 }
 
                 // Look for visual styling indicators (green borders, backgrounds, etc.)
@@ -876,7 +912,6 @@ export class DownloadModal {
 
                     if (hasGreenBorder || hasGreenBackground) {
                         const styledText = cell.textContent.trim();
-                        console.log(`🎨 INDEX.HTML: Found green styling in column ${i} with text "${styledText}"`);
 
                         // CORRECTED conversion: Index.html has no image column!
                         // Column 1 = first text cell, Column 2 = second text cell, etc.
@@ -894,12 +929,10 @@ export class DownloadModal {
 
         // Method 2: Check for stored selection data in global variables
         if (window.selectedColumns && typeof window.selectedColumns[rowIndex] !== 'undefined') {
-            console.log(`💾 INDEX.HTML: Found stored selection: ${window.selectedColumns[rowIndex]}`);
             return window.selectedColumns[rowIndex];
         }
 
         // Last resort: Return null to indicate no connection found
-        console.log(`❌ INDEX.HTML: No connection found for row ${rowIndex}`);
         return null;
     }
 
@@ -969,8 +1002,8 @@ export class DownloadModal {
             }
             html += `</td>`;
 
-            // Get connection info for this row - use slide 3 specific method
-            const selectedColumn = this.getActualSelectedColumnForSlide3(rowIndex);
+            // Get connection info for this row - use STAAAR Framework slide method
+            const selectedColumn = this.getActualSelectedColumnForSlide(rowIndex, 2);
             const rowKey = `row-${rowIndex}`;
             const croppedImage = window.croppedImages && window.croppedImages[rowKey];
             const originalImage = row.find(cell => cell.image);
@@ -1006,8 +1039,7 @@ export class DownloadModal {
                     connectedCellIndex = selectedColumn - 1; // Convert to 0-based index
                 }
 
-                console.log(`\n🎨 ===== SLIDE 3 GENERATION ROW ${rowIndex} =====`);
-                console.log(`📊 SLIDE 3 Row ${rowIndex}:`, {
+                console.log(`📊 STAAAR Framework Row ${rowIndex}:`, {
                     selectedColumn,
                     connectedCellIndex,
                     hasImage: !!hasImage,
@@ -1015,18 +1047,16 @@ export class DownloadModal {
                 });
 
                 // Debug: Show all available text cells
-                console.log(`📝 SLIDE 3 AVAILABLE TEXT CELLS:`);
                 rowData.forEach((cell, idx) => {
-                    console.log(`   Cell ${idx}: "${cell.text}" (will be at slide3 index ${idx + 1})`);
+                    console.log(`   Cell ${idx}: "${cell.text}" (will be at slide index ${idx + 1})`);
                 });
 
                 // Add text cells with image cell inserted before connected text
                 rowData.forEach((cell, cellIndex) => {
                     const willConnect = cellIndex === connectedCellIndex;
-                    console.log(`🔧 SLIDE 3 Processing cell ${cellIndex}: "${cell.text}" | Connected: ${willConnect}`);
+                    console.log(`🔧 STAAAR Framework Processing cell ${cellIndex}: "${cell.text}" | Connected: ${willConnect}`);
 
                     if (cellIndex === connectedCellIndex && hasImage) {
-                        console.log(`✅ SLIDE 3 CONNECTING: Image + Text "${cell.text}" at cell index ${cellIndex}`);
 
                         // FIRST: Insert image cell before this connected text cell
                         html += `<td class="image-cell-connected" style="width: 120px; height: 120px; padding: 0; border: 3px solid #10b981; border-radius: 12px; background: rgba(16, 185, 129, 0.05); vertical-align: middle; text-align: center; box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3); overflow: hidden;">`;
@@ -1100,16 +1130,429 @@ export class DownloadModal {
             indicator.textContent = index + 1;
             indicator.addEventListener('click', () => this.showSlide(index));
             container.appendChild(indicator);
+
+            // Add "+" button between slides (except after the last slide)
+            if (index < this.slides.length - 1) {
+                const addButton = document.createElement('button');
+                addButton.className = 'add-slide-btn';
+                addButton.innerHTML = '+';
+                addButton.title = 'Insert optional page';
+                addButton.style.cssText = `
+                    background: transparent;
+                    border: 2px dashed #64748b;
+                    color: #64748b;
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    margin: 0 4px;
+                    cursor: pointer;
+                    font-size: 16px;
+                    font-weight: bold;
+                    opacity: 0;
+                    transition: all 0.2s ease;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                `;
+
+                // Show on hover of the container area
+                addButton.addEventListener('mouseenter', () => {
+                    addButton.style.opacity = '1';
+                    addButton.style.borderColor = '#10b981';
+                    addButton.style.color = '#10b981';
+                });
+
+                addButton.addEventListener('mouseleave', () => {
+                    addButton.style.opacity = '0';
+                    addButton.style.borderColor = '#64748b';
+                    addButton.style.color = '#64748b';
+                });
+
+                addButton.addEventListener('click', () => this.showOptionalPagesModal(index + 1));
+                container.appendChild(addButton);
+            }
         });
+
+        // Add hover effect to show + buttons when hovering over the indicator container
+        container.addEventListener('mouseenter', () => {
+            const addButtons = container.querySelectorAll('.add-slide-btn');
+            addButtons.forEach(btn => btn.style.opacity = '0.6');
+        });
+
+        container.addEventListener('mouseleave', () => {
+            const addButtons = container.querySelectorAll('.add-slide-btn');
+            addButtons.forEach(btn => btn.style.opacity = '0');
+        });
+    }
+
+    showOptionalPagesModal(insertIndex) {
+        console.log(`Opening optional pages modal to insert at position ${insertIndex}`);
+
+        // Create modal overlay
+        const modalOverlay = document.createElement('div');
+        modalOverlay.className = 'optional-pages-modal-overlay';
+        modalOverlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        `;
+
+        // Create modal content
+        const modalContent = document.createElement('div');
+        modalContent.className = 'optional-pages-modal-content';
+        modalContent.style.cssText = `
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        `;
+
+        modalContent.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: #1f2937; font-size: 20px; font-weight: 600;">
+                    Insert Optional Page
+                </h3>
+                <button class="close-modal-btn" style="
+                    background: none;
+                    border: none;
+                    font-size: 24px;
+                    cursor: pointer;
+                    color: #6b7280;
+                    padding: 4px;
+                    line-height: 1;
+                ">×</button>
+            </div>
+
+            <p style="color: #6b7280; margin-bottom: 24px; font-size: 14px;">
+                Choose an optional page to insert at position ${insertIndex}
+            </p>
+
+            <div class="optional-pages-grid" style="
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 16px;
+            ">
+                <div class="optional-page-card" data-type="strategy-matrix" style="
+                    border: 2px solid #e5e7eb;
+                    border-radius: 8px;
+                    padding: 20px;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    background: #f9fafb;
+                ">
+                    <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                        <div style="
+                            width: 40px;
+                            height: 40px;
+                            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                            border-radius: 8px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin-right: 12px;
+                        ">
+                            <span style="color: white; font-weight: bold; font-size: 18px;">📊</span>
+                        </div>
+                        <h4 style="margin: 0; color: #1f2937; font-size: 16px; font-weight: 600;">
+                            Strategy Priority Matrix
+                        </h4>
+                    </div>
+                    <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.4;">
+                        McKinsey 2x2 matrix for strategic decision making and priority assessment
+                    </p>
+                    <button class="insert-page-btn" style="
+                        margin-top: 16px;
+                        background: #3b82f6;
+                        color: white;
+                        border: none;
+                        padding: 8px 16px;
+                        border-radius: 6px;
+                        font-size: 14px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        width: 100%;
+                        transition: background 0.2s ease;
+                    ">
+                        Insert Page
+                    </button>
+                </div>
+
+                <div class="optional-page-card" data-type="survey-insights-map" style="
+                    border: 2px solid #e5e7eb;
+                    border-radius: 8px;
+                    padding: 20px;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    background: #f9fafb;
+                ">
+                    <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                        <div style="
+                            width: 40px;
+                            height: 40px;
+                            background: linear-gradient(135deg, #10b981, #059669);
+                            border-radius: 8px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin-right: 12px;
+                        ">
+                            <span style="color: white; font-weight: bold; font-size: 18px;">🗺️</span>
+                        </div>
+                        <h4 style="margin: 0; color: #1f2937; font-size: 16px; font-weight: 600;">
+                            Survey Insights (Map)
+                        </h4>
+                    </div>
+                    <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.4;">
+                        Interactive map with pins and callouts for geographic survey data
+                    </p>
+                    <button class="insert-page-btn" style="
+                        margin-top: 16px;
+                        background: #10b981;
+                        color: white;
+                        border: none;
+                        padding: 8px 16px;
+                        border-radius: 6px;
+                        font-size: 14px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        width: 100%;
+                        transition: background 0.2s ease;
+                    ">
+                        Insert Page
+                    </button>
+                </div>
+
+                <div class="optional-page-card" data-type="survey-insights-image" style="
+                    border: 2px solid #e5e7eb;
+                    border-radius: 8px;
+                    padding: 20px;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    background: #f9fafb;
+                ">
+                    <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                        <div style="
+                            width: 40px;
+                            height: 40px;
+                            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+                            border-radius: 8px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin-right: 12px;
+                        ">
+                            <span style="color: white; font-weight: bold; font-size: 18px;">🖼️</span>
+                        </div>
+                        <h4 style="margin: 0; color: #1f2937; font-size: 16px; font-weight: 600;">
+                            Survey Insights (Image)
+                        </h4>
+                    </div>
+                    <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.4;">
+                        Background image annotations with draggable callouts and templates
+                    </p>
+                    <button class="insert-page-btn" style="
+                        margin-top: 16px;
+                        background: #8b5cf6;
+                        color: white;
+                        border: none;
+                        padding: 8px 16px;
+                        border-radius: 6px;
+                        font-size: 14px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        width: 100%;
+                        transition: background 0.2s ease;
+                    ">
+                        Insert Page
+                    </button>
+                </div>
+            </div>
+        `;
+
+        modalOverlay.appendChild(modalContent);
+        document.body.appendChild(modalOverlay);
+
+        // Add event listeners
+        modalOverlay.querySelector('.close-modal-btn').addEventListener('click', () => {
+            this.closeOptionalPagesModal(modalOverlay);
+        });
+
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                this.closeOptionalPagesModal(modalOverlay);
+            }
+        });
+
+        // Add hover effects and click handlers for cards
+        const cards = modalOverlay.querySelectorAll('.optional-page-card');
+        cards.forEach(card => {
+            const button = card.querySelector('.insert-page-btn');
+            const type = card.getAttribute('data-type');
+
+            // Hover effects
+            card.addEventListener('mouseenter', () => {
+                let borderColor;
+                if (type === 'strategy-matrix') {
+                    borderColor = '#3b82f6';
+                } else if (type === 'survey-insights-map') {
+                    borderColor = '#10b981';
+                } else if (type === 'survey-insights-image') {
+                    borderColor = '#8b5cf6';
+                } else {
+                    borderColor = '#6b7280';
+                }
+
+                card.style.borderColor = borderColor;
+                card.style.backgroundColor = '#ffffff';
+                card.style.transform = 'translateY(-2px)';
+                card.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.1)';
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.borderColor = '#e5e7eb';
+                card.style.backgroundColor = '#f9fafb';
+                card.style.transform = 'translateY(0)';
+                card.style.boxShadow = 'none';
+            });
+
+            // Button click handler
+            button.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.insertOptionalPage(type, insertIndex);
+                this.closeOptionalPagesModal(modalOverlay);
+            });
+        });
+
+        // Animate modal in
+        setTimeout(() => {
+            modalOverlay.style.opacity = '1';
+            modalContent.style.transform = 'scale(1)';
+        }, 10);
+    }
+
+    closeOptionalPagesModal(modalOverlay) {
+        modalOverlay.style.opacity = '0';
+        modalOverlay.querySelector('.optional-pages-modal-content').style.transform = 'scale(0.9)';
+
+        setTimeout(() => {
+            if (modalOverlay.parentNode) {
+                modalOverlay.parentNode.removeChild(modalOverlay);
+            }
+        }, 300);
+    }
+
+    insertOptionalPage(type, insertIndex) {
+        console.log(`Inserting ${type} page at position ${insertIndex}`);
+
+        let newSlide;
+
+        if (type === 'strategy-matrix') {
+            newSlide = this.createMcKinsey2x2Slide();
+        } else if (type === 'survey-insights-map') {
+            newSlide = this.createSurveyInsightsSlide('map');
+        } else if (type === 'survey-insights-image') {
+            newSlide = this.createSurveyInsightsSlide('image');
+        } else {
+            console.error('Unknown page type:', type);
+            return;
+        }
+
+        // Insert the slide at the specified position
+        this.slides.splice(insertIndex, 0, newSlide);
+
+        // Re-render slides and update indicators
+        this.renderSlides();
+        this.updateSlideIndicators();
+
+        // Load callout system script if it's a survey insights slide
+        if (type.startsWith('survey-insights')) {
+            this.loadCalloutSystemScript(() => {
+                // Auto-initialize the callout system after script loads
+                const mode = type.split('-')[2]; // 'map' or 'image'
+                const containerId = `calloutContainer-${mode}`;
+                console.log(`🚀 Auto-initializing callout system: mode=${mode}, container=${containerId}`);
+
+                // Initialize immediately after script loads
+                setTimeout(() => {
+                    if (window.initializeCalloutSystem) {
+                        window.initializeCalloutSystem(mode, containerId);
+                        console.log('✅ Survey callout system auto-initialized');
+                    } else {
+                        console.error('❌ initializeCalloutSystem not available');
+                    }
+                }, 100);
+            });
+        }
+
+        // Show the newly inserted slide
+        this.showSlide(insertIndex);
+
+        console.log(`Successfully inserted ${type} page at position ${insertIndex}`);
+    }
+
+    loadCalloutSystemScript(callback = null) {
+        // Check if script is already loaded
+        if (window.initializeCalloutSystem) {
+            if (callback) callback();
+            return;
+        }
+
+        console.log('Loading callout system script...');
+
+        const script = document.createElement('script');
+        script.src = './js/survey-callout-system.js';
+        script.onload = () => {
+            console.log('Callout system script loaded successfully');
+            if (callback) callback();
+        };
+        script.onerror = () => {
+            console.error('Failed to load callout system script');
+        };
+
+        document.head.appendChild(script);
     }
 
     showSlide(index) {
         if (index < 0 || index >= this.slides.length) return;
 
-        // Update slide visibility
+        // Hide all callouts when switching slides
+        if (typeof window.hideAllCallouts === 'function') {
+            window.hideAllCallouts();
+        }
+
+        // Pause videos in slides that are being hidden
         const slides = document.querySelectorAll('.slide');
         slides.forEach((slide, i) => {
-            slide.classList.toggle('active', i === index);
+            const isBecomingActive = i === index;
+            slide.classList.toggle('active', isBecomingActive);
+
+            // Handle video playback
+            const video = slide.querySelector('video');
+            if (video) {
+                if (!isBecomingActive && !video.paused) {
+                    video.pause();
+                    console.log('Paused video in slide', i);
+                }
+                // Optional: Reset video to beginning when leaving
+                if (!isBecomingActive) {
+                    video.currentTime = 0;
+                }
+            }
         });
 
         // Update indicators
@@ -1130,6 +1573,13 @@ export class DownloadModal {
         document.getElementById('currentSlideNum').textContent = index + 1;
 
         this.currentSlide = index;
+
+        // Show callouts for the current slide if it has them
+        setTimeout(() => {
+            if (typeof window.showCalloutsForSlide === 'function') {
+                window.showCalloutsForSlide(index);
+            }
+        }, 100);
     }
 
     previousSlide() {
@@ -1140,50 +1590,53 @@ export class DownloadModal {
         this.showSlide(this.currentSlide + 1);
     }
 
-    async downloadPowerPoint() {
+    async downloadHtmlPresentation() {
         try {
-            Utils.showStatus('Generating PowerPoint presentation...', 'info');
+            Utils.showStatus('Generating HTML presentation...', 'info');
 
             // Collect all slide data including user inputs
             const presentationData = this.collectPresentationData();
 
-            // Here you would integrate with a PowerPoint generation library
-            // For now, we'll create a comprehensive data export
-            await this.generatePresentationData(presentationData);
+            // Generate self-contained HTML file
+            const filename = await this.htmlGenerator.generateSelfContainedHtml(presentationData);
 
-            Utils.showStatus('PowerPoint presentation ready for download!', 'success');
+            Utils.showStatus(`HTML presentation "${filename}" downloaded successfully!`, 'success');
         } catch (error) {
-            console.error('Error generating PowerPoint:', error);
-            Utils.showStatus('Error generating presentation', 'error');
+            console.error('Error generating HTML presentation:', error);
+            Utils.showStatus('Error generating presentation. Please try again.', 'error');
         }
     }
 
     collectPresentationData() {
         const slides = document.querySelectorAll('.slide');
         const presentationData = {
-            title: this.strategyData.title,
-            subtitle: this.strategyData.subtitle,
+            strategy: this.strategyData,
             video: this.videoData,
             table: this.tableData,
             slides: []
         };
 
-        slides.forEach((slide, index) => {
-            const slideData = {
-                title: this.slides[index].title,
-                type: this.slides[index].type,
-                notes: '',
-                content: {}
-            };
+        // Use the original this.slides data instead of DOM slides
+        this.slides.forEach((slideData, index) => {
+            if (slideData && slideData.content) {
+                const cleanedSlideData = {
+                    title: slideData.title,
+                    type: slideData.type,
+                    content: slideData.content,
+                    userInputs: {}
+                };
 
-            // Collect text areas from each slide
-            const textAreas = slide.querySelectorAll('textarea');
-            textAreas.forEach(textarea => {
-                const className = textarea.className;
-                slideData.content[className] = textarea.value;
-            });
+                // Collect text areas from corresponding DOM slide if it exists
+                if (slides[index]) {
+                    const textAreas = slides[index].querySelectorAll('textarea');
+                    textAreas.forEach(textarea => {
+                        const className = textarea.className;
+                        cleanedSlideData.userInputs[className] = textarea.value;
+                    });
+                }
 
-            presentationData.slides.push(slideData);
+                presentationData.slides.push(cleanedSlideData);
+            }
         });
 
         return presentationData;
@@ -1242,6 +1695,115 @@ export class DownloadModal {
                             <div class="x-axis-label">
                                 <span>Effort</span>
                                 <div class="axis-arrow">→</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `
+        };
+    }
+
+    createSurveyInsightsSlide(mode = 'map') {
+        const isMapMode = mode === 'map';
+        const title = isMapMode ? 'Survey Insights (Map)' : 'Survey Insights (Image)';
+        const description = isMapMode ?
+            'Interactive map with pins and callouts for geographic survey data' :
+            'Background image annotations with draggable callouts and templates';
+        const icon = isMapMode ? '🗺️' : '🖼️';
+        const placeholder = isMapMode ?
+            'Map-based visualization with interactive pins and callouts' :
+            'Image-based annotations with draggable callouts and templates';
+
+        return {
+            type: `survey-insights-${mode}`,
+            title: title,
+            content: `
+                <div class="survey-insights-slide">
+                    <div class="insights-container">
+                        <div class="insights-header">
+                            <h2>${title}</h2>
+                            <p>${description}</p>
+                        </div>
+
+                        <div class="insights-content">
+                            <!-- Survey container that will be automatically initialized -->
+                            <div class="callout-container" id="calloutContainer-${mode}" style="
+                                width: 100%;
+                                height: ${mode === 'map' ? '500px' : '580px'};
+                                aspect-ratio: ${mode === 'map' ? '16/9' : 'auto'};
+                                max-width: ${mode === 'map' ? '1200px' : '100%'};
+                                background: #f8fafc;
+                                border-radius: 12px;
+                                border: 1px solid #e2e8f0;
+                                position: relative;
+                                margin: 20px auto;
+                                overflow: hidden;
+                            ">
+                                <!-- Container will be populated by survey callout system -->
+                            </div>
+
+                            <div class="insights-summary" style="
+                                display: grid;
+                                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                                gap: 16px;
+                                margin-top: 20px;
+                            ">
+                                <div class="insight-card" style="
+                                    background: white;
+                                    padding: 16px;
+                                    border-radius: 8px;
+                                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                                    border-left: 4px solid #10b981;
+                                ">
+                                    <h4 style="margin: 0 0 8px 0; color: #1f2937; font-size: 14px;">Key Findings</h4>
+                                    <textarea placeholder="Enter survey key findings..." style="
+                                        width: 100%;
+                                        height: 60px;
+                                        border: 1px solid #d1d5db;
+                                        border-radius: 4px;
+                                        padding: 8px;
+                                        resize: vertical;
+                                        font-size: 12px;
+                                    "></textarea>
+                                </div>
+
+                                <div class="insight-card" style="
+                                    background: white;
+                                    padding: 16px;
+                                    border-radius: 8px;
+                                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                                    border-left: 4px solid #3b82f6;
+                                ">
+                                    <h4 style="margin: 0 0 8px 0; color: #1f2937; font-size: 14px;">Insights Summary</h4>
+                                    <textarea placeholder="Summarize key insights..." style="
+                                        width: 100%;
+                                        height: 60px;
+                                        border: 1px solid #d1d5db;
+                                        border-radius: 4px;
+                                        padding: 8px;
+                                        resize: vertical;
+                                        font-size: 12px;
+                                    "></textarea>
+                                </div>
+
+                                <div class="insight-card" style="
+                                    background: white;
+                                    padding: 16px;
+                                    border-radius: 8px;
+                                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                                    border-left: 4px solid #f59e0b;
+                                ">
+                                    <h4 style="margin: 0 0 8px 0; color: #1f2937; font-size: 14px;">Recommendations</h4>
+                                    <textarea placeholder="List recommendations..." style="
+                                        width: 100%;
+                                        height: 60px;
+                                        border: 1px solid #d1d5db;
+                                        border-radius: 4px;
+                                        padding: 8px;
+                                        resize: vertical;
+                                        font-size: 12px;
+                                    "></textarea>
+                                </div>
                             </div>
                         </div>
                     </div>
