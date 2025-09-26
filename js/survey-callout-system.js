@@ -6,10 +6,6 @@
 
 class SurveyCalloutSystem {
     constructor(mode, containerId) {
-        console.log(`🔧 ===== SURVEY CALLOUT SYSTEM CONSTRUCTOR =====`);
-        console.log(`📋 Mode: ${mode}`);
-        console.log(`📦 Container ID: ${containerId}`);
-
         this.mode = mode; // 'map' or 'image'
         this.containerId = containerId;
         this.container = document.getElementById(containerId);
@@ -18,9 +14,9 @@ class SurveyCalloutSystem {
         this.map = null;
         this.isImageView = mode === 'image';
         this.pinCounter = 0; // Track pin numbers
+        this.selectedImageSrc = null; // Track the currently selected background image
 
-        console.log(`🔍 Container found:`, this.container);
-        console.log(`🗺️ Is image view:`, this.isImageView);
+        console.log(`🔧 CREATED callout system: ${containerId} (mode: ${mode})`);
 
         this.feedbacks = [
             "Great product! Really loving the features 😍",
@@ -118,6 +114,9 @@ class SurveyCalloutSystem {
         // Use images from the presentation slides
         const slideImages = this.extractImagesFromSlides();
         const defaultImage = slideImages.length > 0 ? slideImages[0] : 'https://images.unsplash.com/photo-1486312338219-ce68ba2129d9?w=800&h=450&fit=crop';
+
+        // Store the initial/default image
+        this.selectedImageSrc = defaultImage;
 
         const backgroundImage = document.createElement('img');
         backgroundImage.src = defaultImage;
@@ -274,11 +273,8 @@ class SurveyCalloutSystem {
         // Extract images from the presentation slides (table data)
         const imageOptions = this.extractImagesFromSlides();
 
-        console.log(`🖼️ Creating 2x2 selector with ${imageOptions.length} images`);
-
         if (imageOptions.length === 0) {
             // Fallback to generic images if no images found in slides
-            console.log('⚠️ Using fallback images');
             imageOptions.push(
                 'https://images.unsplash.com/photo-1486312338219-ce68ba2129d9?w=800&h=450&fit=crop',
                 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800&h=450&fit=crop',
@@ -331,6 +327,9 @@ class SurveyCalloutSystem {
                 // Update background image
                 backgroundImage.src = imageSrc;
 
+                // Store the selected image source for persistence
+                this.selectedImageSrc = imageSrc;
+
                 // Update selected state
                 gridContainer.querySelectorAll('.image-option').forEach(opt => {
                     opt.classList.remove('selected');
@@ -345,7 +344,7 @@ class SurveyCalloutSystem {
                 imageOption.style.boxShadow = '0 4px 8px rgba(16, 185, 129, 0.3)';
 
                 currentImageIndex = index;
-                console.log('🖼️ Background image changed to:', imageSrc.substring(0, 50) + '...');
+                console.log(`📸 [${this.containerId}] Image selected and stored for persistence`);
             });
 
             gridContainer.appendChild(imageOption);
@@ -357,11 +356,9 @@ class SurveyCalloutSystem {
         const slideContainer = this.container.closest('.slide') || this.container.parentElement;
         if (slideContainer) {
             slideContainer.appendChild(imageSelector);
-            console.log('✅ Image selector added to slide container, outside of image area');
         } else {
             // Fallback to container if slide not found
             this.container.appendChild(imageSelector);
-            console.log('⚠️ Using fallback: Image selector added to callout container');
         }
     }
 
@@ -453,39 +450,39 @@ class SurveyCalloutSystem {
     extractImagesFromSlides() {
         const images = [];
 
-        console.log('🔍 ===== EXTRACTING IMAGES FROM SLIDES =====');
-
-        // ONLY Method: Look for images in table rows (in order) - ignore other sources
-        // Find the MAIN insight table (not presentation replicas)
+        // ENHANCED Method: Look for images in table rows that are contextually relevant to this slide
         const allInsightTables = document.querySelectorAll('.insight-table');
-        let mainTable = null;
+        let targetTable = null;
 
-        for (const table of allInsightTables) {
-            if (!table.classList.contains('exact-index-replica')) {
-                mainTable = table;
-                break;
+        // First, try to find a table within the same slide as this container
+        const slideContainer = this.container?.closest('.slide');
+        if (slideContainer) {
+            targetTable = slideContainer.querySelector('.insight-table');
+        }
+
+        // If no slide-specific table, fall back to main table logic
+        if (!targetTable) {
+            for (const table of allInsightTables) {
+                if (!table.classList.contains('exact-index-replica')) {
+                    targetTable = table;
+                    break;
+                }
+            }
+
+            // Final fallback to first table if no main table found
+            if (!targetTable && allInsightTables.length > 0) {
+                targetTable = allInsightTables[0];
             }
         }
 
-        // Fallback to first table if no main table found
-        if (!mainTable && allInsightTables.length > 0) {
-            mainTable = allInsightTables[0];
-        }
-
-        if (mainTable) {
-            console.log('📊 Main insight table found - extracting images in row order');
-            console.log(`🔍 Tables breakdown: ${allInsightTables.length} total (${allInsightTables.length - 1} replicas)`);
-
+        if (targetTable) {
             // Get table rows in order to preserve sequence
-            const tableRows = mainTable.querySelectorAll('tr[data-row]');
-            console.log(`🔍 Found ${tableRows.length} table rows in main table`);
+            const tableRows = targetTable.querySelectorAll('tr[data-row]');
 
             tableRows.forEach((row, rowIndex) => {
                 // Look for img tags in this specific row
                 const rowImages = row.querySelectorAll('img');
                 const rowBgImages = row.querySelectorAll('*[style*="background-image"]');
-
-                console.log(`📍 Row ${rowIndex + 1}: ${rowImages.length} images, ${rowBgImages.length} background images`);
 
                 // Process img tags in this row
                 rowImages.forEach((img, imgIndex) => {
@@ -498,10 +495,6 @@ class SurveyCalloutSystem {
 
                         if (isValidType && isNotSvg) {
                             images.push(img.src);
-                            console.log(`✅ Row ${rowIndex + 1} - Added image: ${img.src.substring(0, 70)}...`);
-                        } else {
-                            const reason = isSvg ? 'SVG' : 'INVALID URL TYPE';
-                            console.log(`❌ Row ${rowIndex + 1} - Skipped: ${reason} - ${img.src.substring(0, 70)}...`);
                         }
                     }
                 });
@@ -515,27 +508,10 @@ class SurveyCalloutSystem {
                         if ((bgImageUrl.startsWith('http') || bgImageUrl.startsWith('data:image/')) &&
                             !bgImageUrl.includes('data:image/svg+xml')) {
                             images.push(bgImageUrl);
-                            console.log(`✅ Row ${rowIndex + 1} - Added background image: ${bgImageUrl.substring(0, 70)}...`);
                         }
                     }
                 });
             });
-        } else {
-            console.log('⚠️ No main insight table found');
-        }
-
-        // Skip Method 4 - we only want table images to avoid accumulation
-
-        console.log(`🎯 FINAL: Found ${images.length} images total`);
-        if (images.length > 0) {
-            console.log('📋 Final images:');
-            images.forEach((img, i) => console.log(`   ${i + 1}. ${img.substring(0, 80)}...`));
-        }
-
-        if (images.length === 0) {
-            console.log('❌ NO IMAGES FOUND - checking fallbacks...');
-            console.log('   - window.croppedImages:', !!window.croppedImages);
-            console.log('   - document.images.length:', document.images.length);
         }
 
         return images;
@@ -656,7 +632,7 @@ class SurveyCalloutSystem {
         this.pinCounter++;
         const pinNumber = this.pinCounter;
 
-        console.log(`📍 Creating image pin #${pinNumber}`);
+        console.log(`📍 [${this.containerId}] Creating callout #${pinNumber}`);
 
         const callout = document.createElement('div');
         callout.className = 'floating-callout template-quotes';
@@ -696,11 +672,6 @@ class SurveyCalloutSystem {
         const x = (coords[0] / 100) * containerRect.width;
         const y = (coords[1] / 100) * containerRect.height;
 
-        console.log('🎯 SIMPLE POSITIONING:');
-        console.log('   Container size:', containerRect.width, containerRect.height);
-        console.log('   Click %:', coords[0], coords[1]);
-        console.log('   Pin position in container:', x, y);
-
         const pinMarker = document.createElement('div');
         pinMarker.style.cssText = `
             position: absolute;
@@ -728,8 +699,6 @@ class SurveyCalloutSystem {
         // Create callout in SAME container with SAME positioning method
         const calloutX = Math.min(x + 60, containerRect.width - 300); // Pin + offset, but stay in bounds
         const calloutY = Math.max(y - 80, 10); // Pin - offset, but stay in bounds
-
-        console.log('   Callout position in container:', calloutX, calloutY);
 
         callout.style.position = 'absolute';
         callout.style.left = calloutX + 'px';
@@ -947,7 +916,6 @@ class SurveyCalloutSystem {
 
                 // Renumber remaining pins after deletion
                 this.renumberPins();
-                console.log('🗑️ Pin deleted, remaining pins renumbered');
             }, 300);
         });
 
@@ -1015,7 +983,6 @@ class SurveyCalloutSystem {
             currentTemplateIndex = (currentTemplateIndex + 1) % templates.length;
             const newTemplate = templates[currentTemplateIndex];
 
-            console.log('🎨 Switching to template:', newTemplate.name);
 
             // Remove old template classes
             templates.forEach(t => callout.classList.remove(t.class));
@@ -1068,8 +1035,6 @@ class SurveyCalloutSystem {
             setTimeout(() => {
                 callout.style.transform = 'scale(1) rotate(0deg)';
             }, 200);
-
-            console.log('✅ Template switched successfully');
         });
 
         // Prevent template button from triggering drag
@@ -1124,8 +1089,6 @@ class SurveyCalloutSystem {
         callout.style.position = 'absolute';
         callout.style.left = left + 'px';
         callout.style.top = top + 'px';
-
-        console.log('📍 Positioned map callout at:', left, top);
     }
 
     drawLine(pinInfo) {
@@ -1161,10 +1124,6 @@ class SurveyCalloutSystem {
         const pinRect = pinMarker.getBoundingClientRect();
         const calloutRect = callout.getBoundingClientRect();
 
-        console.log('🔗 Drawing line:');
-        console.log('   Pin viewport pos:', pinRect.left, pinRect.top);
-        console.log('   Callout viewport pos:', calloutRect.left, calloutRect.top);
-        console.log('   Line parent pos:', lineParentRect.left, lineParentRect.top);
 
         // Calculate connection points relative to line parent
         // Pin: center of the pin
@@ -1190,10 +1149,6 @@ class SurveyCalloutSystem {
         const length = Math.sqrt((x2-x1)**2 + (y2-y1)**2);
         const angle = Math.atan2(y2-y1, x2-x1) * 180 / Math.PI;
 
-        console.log('   Pin center: (' + x1 + ',' + y1 + ')');
-        console.log('   Callout connection point: (' + x2 + ',' + y2 + ')');
-        console.log('   Connection side:', calloutCenterX > x1 ? 'left edge' : 'right edge');
-        console.log('   Line: length=' + length + ', angle=' + angle);
 
         line.style.position = 'absolute';
         line.style.left = x1 + 'px';
@@ -1205,25 +1160,6 @@ class SurveyCalloutSystem {
         line.style.transform = `rotate(${angle}deg)`;
         line.style.transformOrigin = '0 50%';
         line.style.zIndex = '9999';
-
-        console.log('   Line styled at:', line.style.left, line.style.top, 'width:', line.style.width);
-
-        // Debug line visibility
-        setTimeout(() => {
-            const lineRect = line.getBoundingClientRect();
-            const computedStyle = getComputedStyle(line);
-            console.log('🔍 Line visibility check:');
-            console.log('   Line rect:', lineRect.left, lineRect.top, lineRect.width, lineRect.height);
-            console.log('   Display:', computedStyle.display, 'Visibility:', computedStyle.visibility);
-            console.log('   Background:', computedStyle.backgroundColor, 'Opacity:', computedStyle.opacity);
-            console.log('   Z-index:', computedStyle.zIndex, 'Position:', computedStyle.position);
-
-            // Make line VERY visible for testing
-            line.style.border = '2px solid red';
-            line.style.backgroundColor = 'red';
-            line.style.height = '10px';
-            console.log('🔴 Made line RED and thick for visibility test');
-        }, 100);
     }
 
     updateAllLines() {
@@ -1263,7 +1199,6 @@ class SurveyCalloutSystem {
             callout.style.opacity = '0.8';
             callout.style.zIndex = '10002';
 
-            console.log('🖱️ Started dragging - mouse offset:', startX, startY);
         });
 
         const mouseMoveHandler = (e) => {
@@ -1290,8 +1225,6 @@ class SurveyCalloutSystem {
             callout.style.top = newY + 'px';
 
             pinInfo.manuallyPositioned = true;
-
-            console.log('🖱️ Dragging to:', newX, newY);
         };
 
         document.addEventListener('mousemove', mouseMoveHandler);
@@ -1304,8 +1237,6 @@ class SurveyCalloutSystem {
                 callout.style.cursor = 'grab';
                 callout.style.opacity = '0.95';
                 callout.style.zIndex = '10001';
-
-                console.log('🖱️ Drag ended');
             }
         });
     }
@@ -1337,7 +1268,6 @@ class SurveyCalloutSystem {
 
         // Update counter to next number
         this.pinCounter = this.pinData.length;
-        console.log(`🔢 Renumbered ${this.pinData.length} pins, counter set to ${this.pinCounter}`);
     }
 
     clearCustomPins() {
@@ -1354,21 +1284,209 @@ class SurveyCalloutSystem {
         // Reset counter and renumber remaining pins
         this.pinCounter = 0;
         this.renumberPins();
-        console.log('🧹 Cleared all custom pins, reset counter to start from 1');
     }
 
     // Hide all callouts (when slide is not active)
     hide() {
+        console.log(`🙈 [${this.containerId}] HIDING: ${this.pinData.length} callouts, selectedImage: ${this.selectedImageSrc ? 'YES' : 'NO'}`);
         this.pinData.forEach(pinInfo => {
-            pinInfo.callout.style.display = 'none';
+            if (pinInfo.callout) {
+                pinInfo.callout.style.display = 'none';
+            }
+            // Hide pin markers for image mode
+            if (pinInfo.pinMarker) {
+                pinInfo.pinMarker.style.display = 'none';
+            }
         });
+
+        // Hide image selector if it exists
+        if (this.mode === 'image') {
+            const slideContainer = this.container?.closest('.slide');
+            if (slideContainer) {
+                const imageSelector = slideContainer.querySelector('[style*="position: absolute"][style*="top: 80px"]');
+                if (imageSelector) {
+                    imageSelector.style.display = 'none';
+                }
+            }
+        }
     }
 
     // Show all callouts (when slide becomes active)
     show() {
+        console.log(`👁️ [${this.containerId}] SHOWING: ${this.pinData.length} callouts`);
+
+        // First check if our container still exists (it might have been recreated)
+        const currentContainer = document.getElementById(this.containerId);
+        if (!currentContainer) {
+            console.log(`❌ [${this.containerId}] Container no longer exists - cannot show`);
+            return;
+        } else if (currentContainer !== this.container) {
+            console.log(`🔄 [${this.containerId}] Container was recreated - recovering callouts and image`);
+            this.container = currentContainer;
+
+            // Re-initialize the container with our preserved state
+            this.recoverAfterContainerRecreation();
+            return; // Exit early since recoverAfterContainerRecreation handles the rest
+        }
+
         this.pinData.forEach(pinInfo => {
-            pinInfo.callout.style.display = 'block';
+            if (pinInfo.callout) {
+                pinInfo.callout.style.display = 'block';
+            }
+            // Show pin markers for image mode
+            if (pinInfo.pinMarker) {
+                pinInfo.pinMarker.style.display = 'block';
+            }
         });
+
+        // Show image selector if it exists
+        if (this.mode === 'image') {
+            const slideContainer = this.container?.closest('.slide');
+            if (slideContainer) {
+                const imageSelector = slideContainer.querySelector('[style*="position: absolute"][style*="top: 80px"]');
+                if (imageSelector) {
+                    imageSelector.style.display = 'block';
+                }
+            }
+
+            // Restore the selected background image if one was previously chosen
+            if (this.selectedImageSrc) {
+                console.log(`🔄 [${this.containerId}] RESTORING image: ${this.selectedImageSrc ? 'FOUND' : 'NOT_FOUND'}`);
+                const backgroundImage = this.container.querySelector('img');
+                if (backgroundImage) {
+                    backgroundImage.src = this.selectedImageSrc;
+                    console.log(`✅ [${this.containerId}] Image restored to background`);
+                } else {
+                    console.log(`❌ [${this.containerId}] Background image element not found!`);
+                }
+
+                // Also restore the selected state of the image selector
+                if (slideContainer) {
+                    const imageOptions = slideContainer.querySelectorAll('.image-option');
+                    console.log(`🔍 [${this.containerId}] Found ${imageOptions.length} image options to check`);
+                    let selectorRestored = false;
+                    imageOptions.forEach((option, index) => {
+                        if (option.src === this.selectedImageSrc) {
+                            // Reset all options
+                            imageOptions.forEach(opt => {
+                                opt.classList.remove('selected');
+                                opt.style.borderColor = '#e5e7eb';
+                                opt.style.transform = 'scale(1)';
+                                opt.style.boxShadow = 'none';
+                            });
+
+                            // Highlight the selected one
+                            option.classList.add('selected');
+                            option.style.borderColor = '#10b981';
+                            option.style.transform = 'scale(1.05)';
+                            option.style.boxShadow = '0 4px 8px rgba(16, 185, 129, 0.3)';
+                            selectorRestored = true;
+                        }
+                    });
+                    console.log(`${selectorRestored ? '✅' : '❌'} [${this.containerId}] Selector state ${selectorRestored ? 'restored' : 'NOT restored'}`);
+                }
+            } else {
+                console.log(`⚠️ [${this.containerId}] No selected image to restore`);
+            }
+        }
+    }
+
+    // Recover callout system after container was recreated (e.g., when modal reopens)
+    recoverAfterContainerRecreation() {
+        console.log(`🔧 [${this.containerId}] RECOVERING after container recreation`);
+
+        // Store current state
+        const preservedPinData = [...this.pinData]; // Copy pin data
+        const preservedSelectedImage = this.selectedImageSrc;
+        const preservedPinCounter = this.pinCounter;
+
+        console.log(`💾 [${this.containerId}] Preserved: ${preservedPinData.length} callouts, image: ${preservedSelectedImage ? 'YES' : 'NO'}`);
+
+        // Clear current state (old DOM references are invalid)
+        this.pinData = [];
+        this.pinCounter = 0;
+
+        // Re-initialize the container (this sets up the structure and image selector)
+        if (this.mode === 'image') {
+            this.initializeImageMode();
+        } else {
+            this.initializeMapMode();
+        }
+
+        // Restore pin counter
+        this.pinCounter = preservedPinCounter;
+
+        // Restore selected image if we had one
+        if (preservedSelectedImage) {
+            this.selectedImageSrc = preservedSelectedImage;
+            const backgroundImage = this.container.querySelector('img');
+            if (backgroundImage) {
+                backgroundImage.src = preservedSelectedImage;
+                console.log(`✅ [${this.containerId}] Background image restored`);
+            }
+
+            // Restore image selector state
+            const slideContainer = this.container?.closest('.slide');
+            if (slideContainer) {
+                const imageOptions = slideContainer.querySelectorAll('.image-option');
+                imageOptions.forEach(option => {
+                    if (option.src === preservedSelectedImage) {
+                        // Reset all options
+                        imageOptions.forEach(opt => {
+                            opt.classList.remove('selected');
+                            opt.style.borderColor = '#e5e7eb';
+                            opt.style.transform = 'scale(1)';
+                            opt.style.boxShadow = 'none';
+                        });
+
+                        // Highlight the selected one
+                        option.classList.add('selected');
+                        option.style.borderColor = '#10b981';
+                        option.style.transform = 'scale(1.05)';
+                        option.style.boxShadow = '0 4px 8px rgba(16, 185, 129, 0.3)';
+                    }
+                });
+                console.log(`✅ [${this.containerId}] Image selector state restored`);
+            }
+        }
+
+        // Recreate all callouts from preserved data
+        preservedPinData.forEach((preservedPin, index) => {
+            console.log(`🔄 [${this.containerId}] Recreating callout ${index + 1}`);
+
+            if (this.mode === 'image') {
+                // For image mode, recreate the callout at the same position
+                const newPinInfo = this.createImagePin(
+                    preservedPin.coords,
+                    preservedPin.callout.querySelector('.editable-body')?.textContent || 'Restored feedback',
+                    preservedPin.callout.querySelector('.editable-title')?.textContent || '💬 Customer Feedback',
+                    preservedPin.rating || 4,
+                    preservedPin.isDemo || false
+                );
+
+                // Restore the template class and data attribute
+                const originalTemplate = preservedPin.callout.getAttribute('data-template') || 'quotes';
+                newPinInfo.callout.className = `floating-callout template-${originalTemplate}`;
+                newPinInfo.callout.setAttribute('data-template', originalTemplate);
+
+                console.log(`🎨 [${this.containerId}] Restored template: ${originalTemplate}`);
+
+                // Restore any manual positioning
+                if (preservedPin.manuallyPositioned) {
+                    newPinInfo.manuallyPositioned = true;
+                    newPinInfo.callout.style.left = preservedPin.callout.style.left;
+                    newPinInfo.callout.style.top = preservedPin.callout.style.top;
+                }
+
+                console.log(`✅ [${this.containerId}] Recreated callout ${index + 1} at coords [${preservedPin.coords[0]}, ${preservedPin.coords[1]}]`);
+            }
+            // Map mode recovery would go here if needed
+        });
+
+        // After recreation, renumber all pins to ensure proper sequential numbering (1, 2, 3...)
+        this.renumberPins();
+
+        console.log(`🎉 [${this.containerId}] RECOVERY COMPLETE: ${this.pinData.length} callouts restored`);
     }
 
     // Destroy the callout system and clean up
@@ -1393,20 +1511,30 @@ class SurveyCalloutSystem {
     }
 }
 
-// Global callout system manager
-window.calloutSystems = window.calloutSystems || {};
+// Global callout system manager - preserve existing systems if script is reloaded
+if (!window.calloutSystems) {
+    window.calloutSystems = {};
+    console.log('🔧 Initialized empty callout systems registry');
+} else {
+    console.log(`🔧 Preserved existing callout systems registry with ${Object.keys(window.calloutSystems).length} systems`);
+}
 
 // Global function to initialize the callout system
 window.initializeCalloutSystem = function(mode, containerId) {
-    console.log(`🚀 ===== INITIALIZING CALLOUT SYSTEM =====`);
-    console.log(`📋 Mode: ${mode}`);
-    console.log(`📦 Container ID: ${containerId}`);
-    console.log(`🔍 Container element:`, document.getElementById(containerId));
-
-    // Clean up existing system for this container if it exists
+    // Check if system already exists - if so, just return it (don't recreate)
     if (window.calloutSystems[containerId]) {
-        window.calloutSystems[containerId].destroy();
-        delete window.calloutSystems[containerId];
+        console.log(`✅ [${containerId}] System already exists, reusing existing system`);
+
+        // If the system exists but container was recreated, trigger recovery
+        const existingSystem = window.calloutSystems[containerId];
+        const currentContainer = document.getElementById(containerId);
+        if (currentContainer && currentContainer !== existingSystem.container) {
+            console.log(`🔄 [${containerId}] Container was recreated, triggering recovery`);
+            existingSystem.container = currentContainer;
+            existingSystem.recoverAfterContainerRecreation();
+        }
+
+        return existingSystem;
     }
 
     // Check if MapLibre is available for map mode
@@ -1434,6 +1562,9 @@ window.initializeCalloutSystem = function(mode, containerId) {
 
     // Initialize directly if libraries are available
     window.calloutSystems[containerId] = new SurveyCalloutSystem(mode, containerId);
+    console.log(`✅ [${containerId}] Created new system (total: ${Object.keys(window.calloutSystems).length})`);
+
+    return window.calloutSystems[containerId];
 };
 
 // Hide all callouts when switching slides
@@ -1447,8 +1578,14 @@ window.hideAllCallouts = function() {
 
 // Show callouts for a specific slide
 window.showCalloutsForSlide = function(slideIndex) {
-    // Hide all first
-    window.hideAllCallouts();
+    console.log(`🎯 SLIDE SWITCH to ${slideIndex}`);
+
+    // Hide all callout systems first
+    Object.values(window.calloutSystems || {}).forEach(system => {
+        if (system && typeof system.hide === 'function') {
+            system.hide();
+        }
+    });
 
     // Show callouts for current slide if they exist
     const slideElement = document.querySelector(`.slide:nth-child(${slideIndex + 1})`);
@@ -1458,7 +1595,10 @@ window.showCalloutsForSlide = function(slideIndex) {
             const containerId = calloutContainer.id;
             const system = window.calloutSystems[containerId];
             if (system && typeof system.show === 'function') {
+                console.log(`🎯 [${containerId}] Showing for slide ${slideIndex}`);
                 system.show();
+            } else {
+                console.log(`❌ [${containerId}] System not found! Available: [${Object.keys(window.calloutSystems || {}).join(', ')}]`);
             }
         }
     }

@@ -1,5 +1,20 @@
 [
   {
+    "id": "older-viewer-cultural-natives",
+    "name": "Older Viewer Cultural Natives Strategy Report",
+    "description": "Analyzes cultural wisdom and experience to create authentic connections with 55+ demographics",
+    "category": "Agency, Advertiser, Achiever",
+    "value": "Ensures campaigns resonate with older consumers by avoiding stereotypes and celebrating experience, improving brand loyalty and purchase intent",
+    "whoSearches": "Brand managers, Creative directors, Media planners, Account strategists, Product marketers targeting mature demographics",
+    "whyNeeded": "Missed revenue opportunities in 55+ segment due to ageist stereotypes and misrepresentation in advertising",
+    "pricing": "$2,000-$4,500",
+    "speed": "45-60 minutes",
+    "marketUrgency": "HIGH",
+    "rows": 6,
+    "columns": 6,
+    "file": "older-viewer-cultural-natives.json"
+  },
+  {
     "id": "4c-model",
     "name": "4C/5C Campaign Completeness Report",
     "description": "Audit to identify missing strategic elements in campaigns",

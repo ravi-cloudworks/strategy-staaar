@@ -15,12 +15,12 @@
     <link rel="stylesheet" href="css/table.css">
     <link rel="stylesheet" href="css/modals.css">
     <script>
-    !function(t,e){var o,n,p,r;e.__SV||(window.posthog && window.posthog.__loaded)||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init Ce Ds js Te Os As capture Ye calculateEventProperties Us register register_once register_for_session unregister unregister_for_session Hs getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSurveysLoaded onSessionId getSurveys getActiveMatchingSurveys renderSurvey displaySurvey canRenderSurvey canRenderSurveyAsync identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty qs Ns createPersonProfile Bs Cs Ws opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing get_explicit_consent_status is_capturing clear_opt_in_out_capturing Ls debug L zs getPageViewId captureTraceFeedback captureTraceMetric".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
-    posthog.init('phc_SINS3eolP3urGu4V7bfPcwKCc9Ni2BOd1kmJq2e1YxG', {
-        api_host: 'https://us.i.posthog.com',
-        defaults: '2025-05-24',
-        person_profiles: 'identified_only', // or 'always' to create profiles for anonymous users as well
-    })
+    // !function(t,e){var o,n,p,r;e.__SV||(window.posthog && window.posthog.__loaded)||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init Ce Ds js Te Os As capture Ye calculateEventProperties Us register register_once register_for_session unregister unregister_for_session Hs getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSurveysLoaded onSessionId getSurveys getActiveMatchingSurveys renderSurvey displaySurvey canRenderSurvey canRenderSurveyAsync identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty qs Ns createPersonProfile Bs Cs Ws opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing get_explicit_consent_status is_capturing clear_opt_in_out_capturing Ls debug L zs getPageViewId captureTraceFeedback captureTraceMetric".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+    // posthog.init('phc_SINS3eolP3urGu4V7bfPcwKCc9Ni2BOd1kmJq2e1YxG', {
+    //     api_host: 'https://us.i.posthog.com',
+    //     defaults: '2025-05-24',
+    //     person_profiles: 'identified_only', // or 'always' to create profiles for anonymous users as well
+    // })
 </script>
 </head>
 <body>
@@ -35,6 +35,7 @@
                 <a href="#" class="nav-link">Features</a>
                 <a href="#" class="nav-link">Templates</a>
                 <a href="#" class="nav-link">Export</a>
+                <a href="feedback.html" class="nav-link">Feedback</a>
                 <a href="#" class="nav-link active">Dashboard</a>
                 <div class="user-profile" id="userProfile" style="display: none;">
                     <div class="profile-dropdown">
@@ -111,13 +112,16 @@
                     <div class="step-header">
                         <span class="step-number">3</span>
                         <h3>Want to accelerate your revenue? </h3>
-                        <div class="step-description">Match your brand or buyer's brand and hand over work they can use in minutes — no more chasing invoices.</div>
+                       <div class="step-description">What insight do you have that AI can't. hand over work they can use in minutes — no more chasing invoices.</div>
+  
+                        
+                        <!-- <div class="step-description">Match your brand or buyer's brand and hand over work they can use in minutes — no more chasing invoices.</div> -->
                     </div>
                     <div class="step-content">
-                        <button class="step-btn" id="colorCustomizeBtn">
+                        <!-- <button class="step-btn" id="colorCustomizeBtn">
                             <i class="bi bi-palette"></i>
                             Customize Colors
-                        </button>
+                        </button> -->
 
                         <button class="step-btn primary" id="downloadBtn">
                             <i class="bi bi-coin"></i>

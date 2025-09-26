@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback & Feature Requests - Strategy Staaar</title>
+
+    <!-- External Libraries -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://unpkg.com/@supabase/supabase-js"></script>
+
+    <!-- Core Styles -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/feedback.css">
+</head>
+<body>
+    <!-- Modern Header -->
+    <header class="modern-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <h1 class="logo">STRATEGY ⇨ STAAAR</h1>
+                <span class="logo-tagline">PRO</span>
+            </div>
+            <nav class="header-nav">
+                <a href="index.html" class="nav-link">Dashboard</a>
+                <a href="#" class="nav-link active">Feedback</a>
+                <div class="user-profile" id="userProfile">
+                    <div class="profile-dropdown">
+                        <button class="profile-btn" id="profileBtn">
+                            <img id="profileImage" src="" alt="Profile" class="profile-img">
+                            <span id="profileName"></span>
+                            <i class="bi bi-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu" id="dropdownMenu">
+                            <div class="dropdown-item" id="profileInfo">
+                                <div class="profile-email" id="profileEmail"></div>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item" id="logoutBtn">
+                                <i class="bi bi-box-arrow-right"></i>
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="feedback-container">
+        <!-- Left Panel: Submit Request -->
+        <div class="submit-panel">
+            <div class="panel-header">
+                <h2>Suggest a feature</h2>
+            </div>
+
+            <form id="feedbackForm" class="feedback-form">
+                <div class="form-group">
+                    <label for="requestType">Type</label>
+                    <select id="requestType" name="type" required>
+                        <option value="">Select type...</option>
+                        <option value="feature">New Feature</option>
+                        <option value="bug">Bug Report</option>
+                        <option value="feedback">General Feedback</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="requestTitle">Short, descriptive title</label>
+                    <input type="text" id="requestTitle" name="title" placeholder="Login button color to green" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="requestDescription">Description</label>
+                    <textarea id="requestDescription" name="description" placeholder="The login button color should be green to match our brand colors." rows="5" required></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    Create Post
+                </button>
+            </form>
+        </div>
+
+        <!-- Right Panel: Requests List -->
+        <div class="requests-panel">
+            <div class="panel-header">
+                <h2>Feature Requests & Feedback</h2>
+                <div class="filter-controls">
+                    <select id="userFilter">
+                        <option value="all">All</option>
+                        <option value="mine">Mine</option>
+                    </select>
+                    <select id="statusFilter">
+                        <option value="all">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                    <select id="typeFilter">
+                        <option value="all">All Types</option>
+                        <option value="feature">Features</option>
+                        <option value="bug">Bugs</option>
+                        <option value="feedback">Feedback</option>
+                    </select>
+                    <div class="admin-controls" id="adminControls" style="display: none;">
+                        <label>Admin Status:</label>
+                        <select id="adminStatusFilter">
+                            <option value="all">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                            <option value="duplicate">Duplicate</option>
+                            <option value="out-of-scope">Out of Scope</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="requestsList" class="requests-list">
+                <!-- Requests will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Debug Console -->
+    <div id="debugConsole" style="position: fixed; bottom: 10px; right: 10px; background: #000; color: #0f0; padding: 10px; font-family: monospace; font-size: 12px; max-width: 400px; max-height: 200px; overflow-y: auto; z-index: 9999; border-radius: 5px; display: none;">
+        <div style="color: #fff; margin-bottom: 5px;">Debug Console:</div>
+        <div id="debugMessages"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script>
+        // Debug helper functions
+        window.debugLog = function(message, data = null) {
+            console.log(message, data);
+            const debugConsole = document.getElementById('debugConsole');
+            const debugMessages = document.getElementById('debugMessages');
+
+            debugConsole.style.display = 'block';
+
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.style.marginBottom = '3px';
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            if (data) {
+                logEntry.innerHTML += `<br>&nbsp;&nbsp;Data: ${JSON.stringify(data, null, 2)}`;
+            }
+
+            debugMessages.appendChild(logEntry);
+            debugMessages.scrollTop = debugMessages.scrollHeight;
+        };
+
+        // Test Supabase connection immediately
+        window.debugLog('🔍 Starting Supabase connection test...');
+
+        if (typeof window.supabase === 'undefined') {
+            window.debugLog('❌ Supabase library not loaded!');
+        } else {
+            window.debugLog('✅ Supabase library loaded');
+
+            const SUPABASE_URL = "https://yxicubfthxkwqcihrdhe.supabase.co";
+            const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4aWN1YmZ0aHhrd3FjaWhyZGhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgyMjg3NDEsImV4cCI6MjA3MzgwNDc0MX0.-w4VQhAIF0kYLHv87JazGLxgX-r4VXCJaPVSmOUher4";
+
+            try {
+                const testClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                window.debugLog('✅ Supabase client created');
+
+                // Test database connection
+                testClient.from('users_login').select('count').limit(1).then(result => {
+                    if (result.error) {
+                        window.debugLog('❌ Database connection failed', result.error);
+                    } else {
+                        window.debugLog('✅ Database connection successful');
+                    }
+                });
+
+                // Test auth session
+                testClient.auth.getSession().then(result => {
+                    if (result.error) {
+                        window.debugLog('❌ Auth session error', result.error);
+                    } else if (result.data.session) {
+                        window.debugLog('✅ User authenticated', {
+                            user_id: result.data.session.user.id,
+                            email: result.data.session.user.email
+                        });
+                    } else {
+                        window.debugLog('❌ No active session');
+                    }
+                });
+
+            } catch (error) {
+                window.debugLog('❌ Supabase client creation failed', error);
+            }
+        }
+    </script>
+    <script src="js/feedback-supabase.js"></script>
+</body>
+</html>

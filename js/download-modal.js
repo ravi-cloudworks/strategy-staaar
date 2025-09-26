@@ -144,9 +144,29 @@ export class DownloadModal {
     }
 
     open() {
+        console.log(`📋 [MODAL] OPENING: ${this.slides ? this.slides.length : 0} slides exist from previous session`);
+        if (this.slides && this.slides.length > 0) {
+            this.slides.forEach((slide, index) => {
+                console.log(`   Previous Slide ${index}: ${slide.type} - ${slide.title}`);
+            });
+        }
+
         this.modal.classList.add('show');
         this.collectData();
+
+        // Check if we have existing slides with optional pages
+        const hadOptionalPages = this.slides && this.slides.length > 0 &&
+                                this.slides.some(slide => slide.type.startsWith('survey-insights') || slide.type === 'mckinsey-2x2');
+
+        console.log(`📋 [MODAL] Had optional pages from previous session: ${hadOptionalPages}`);
+
         this.generateSlides();
+
+        console.log(`📋 [MODAL] After generateSlides: ${this.slides.length} slides`);
+        this.slides.forEach((slide, index) => {
+            console.log(`   New Slide ${index}: ${slide.type} - ${slide.title}`);
+        });
+
         this.currentSlide = 0;
         this.showSlide(0);
 
@@ -195,22 +215,20 @@ export class DownloadModal {
     }
 
     close() {
+        console.log(`📋 [MODAL] CLOSING: ${this.slides.length} slides currently exist`);
+        this.slides.forEach((slide, index) => {
+            console.log(`   Slide ${index}: ${slide.type} - ${slide.title}`);
+        });
+
         this.isClosing = true; // Set flag to prevent event loop
 
-        // Hide and destroy all callouts when closing modal
+        // Hide all callouts when closing modal (but don't destroy them!)
         if (typeof window.hideAllCallouts === 'function') {
             window.hideAllCallouts();
         }
 
-        // Also destroy all callout systems to fully clean up
-        if (window.calloutSystems) {
-            Object.values(window.calloutSystems).forEach(system => {
-                if (system && typeof system.destroy === 'function') {
-                    system.destroy();
-                }
-            });
-            window.calloutSystems = {}; // Clear the systems registry
-        }
+        // Don't destroy callout systems - let them persist across modal open/close cycles
+        // This allows user's callouts and images to be preserved
 
         // Pause all videos when closing
         const allVideos = this.modal.querySelectorAll('video');
@@ -440,6 +458,21 @@ export class DownloadModal {
     }
 
     generateSlides() {
+        console.log(`🔧 [MODAL] GENERATING SLIDES - this will overwrite existing slides!`);
+
+        // Store any existing optional pages with their positions before regenerating
+        const existingOptionalPagesWithPositions = this.slides ?
+            this.slides.map((slide, index) => ({
+                slide,
+                originalPosition: index,
+                isOptional: slide.type.startsWith('survey-insights') || slide.type === 'mckinsey-2x2'
+            })).filter(item => item.isOptional) : [];
+
+        console.log(`💾 [MODAL] Found ${existingOptionalPagesWithPositions.length} existing optional pages to preserve`);
+        existingOptionalPagesWithPositions.forEach((item, index) => {
+            console.log(`   Optional Page ${index}: ${item.slide.type} - ${item.slide.title} (was at position ${item.originalPosition})`);
+        });
+
         this.slides = [
             this.createTitleSlide(),           // STAAAR + campaign + video thumbnail
             this.createVideoPlaySlide(),       // Actual video playback
@@ -448,6 +481,25 @@ export class DownloadModal {
             // McKinsey 2x2 matrix now available as optional page
             this.createThankYouSlide()         // Thank you slide
         ];
+
+        console.log(`📊 [MODAL] Generated ${this.slides.length} default slides`);
+
+        // Re-insert the existing optional pages at their original positions
+        if (existingOptionalPagesWithPositions.length > 0) {
+            console.log(`🔄 [MODAL] Restoring ${existingOptionalPagesWithPositions.length} optional pages at their original positions`);
+
+            // Sort by original position to insert in correct order
+            existingOptionalPagesWithPositions.sort((a, b) => a.originalPosition - b.originalPosition);
+
+            // Insert each page back at its original position (or as close as possible)
+            existingOptionalPagesWithPositions.forEach((item, index) => {
+                const targetPosition = Math.min(item.originalPosition, this.slides.length - 1); // Don't go past thank you slide
+                this.slides.splice(targetPosition, 0, item.slide);
+                console.log(`   ↪️ Restored ${item.slide.type} at position ${targetPosition} (was ${item.originalPosition})`);
+            });
+
+            console.log(`✅ [MODAL] Restored optional pages. Total slides now: ${this.slides.length}`);
+        }
 
         this.renderSlides();
         this.updateSlideIndicators();
@@ -1484,7 +1536,16 @@ export class DownloadModal {
             this.loadCalloutSystemScript(() => {
                 // Auto-initialize the callout system after script loads
                 const mode = type.split('-')[2]; // 'map' or 'image'
-                const containerId = `calloutContainer-${mode}`;
+
+                // Get the unique container ID from the newly created slide
+                const currentSlide = this.slides[insertIndex];
+                const containerId = currentSlide.containerId;
+
+                if (!containerId) {
+                    console.error('❌ Could not find container ID in slide data');
+                    return;
+                }
+
                 console.log(`🚀 Auto-initializing callout system: mode=${mode}, container=${containerId}`);
 
                 // Initialize immediately after script loads
@@ -1508,20 +1569,37 @@ export class DownloadModal {
     loadCalloutSystemScript(callback = null) {
         // Check if script is already loaded
         if (window.initializeCalloutSystem) {
+            console.log('📦 Callout system script already loaded');
             if (callback) callback();
             return;
         }
 
-        console.log('Loading callout system script...');
+        // Check if script is already being loaded
+        if (document.querySelector('script[src="./js/survey-callout-system.js"]')) {
+            console.log('📦 Callout system script already loading, waiting...');
+            // Wait for the existing script to load
+            const checkLoaded = () => {
+                if (window.initializeCalloutSystem) {
+                    console.log('📦 Callout system script loaded via existing request');
+                    if (callback) callback();
+                } else {
+                    setTimeout(checkLoaded, 50);
+                }
+            };
+            checkLoaded();
+            return;
+        }
+
+        console.log('📦 Loading callout system script...');
 
         const script = document.createElement('script');
         script.src = './js/survey-callout-system.js';
         script.onload = () => {
-            console.log('Callout system script loaded successfully');
+            console.log('📦 Callout system script loaded successfully');
             if (callback) callback();
         };
         script.onerror = () => {
-            console.error('Failed to load callout system script');
+            console.error('❌ Failed to load callout system script');
         };
 
         document.head.appendChild(script);
@@ -1714,9 +1792,14 @@ export class DownloadModal {
             'Map-based visualization with interactive pins and callouts' :
             'Image-based annotations with draggable callouts and templates';
 
+        // Generate unique container ID to avoid conflicts between multiple survey slides
+        const uniqueId = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        const containerId = `calloutContainer-${mode}-${uniqueId}`;
+
         return {
             type: `survey-insights-${mode}`,
             title: title,
+            containerId: containerId, // Store the unique container ID for later reference
             content: `
                 <div class="survey-insights-slide">
                     <div class="insights-container">
@@ -1727,7 +1810,7 @@ export class DownloadModal {
 
                         <div class="insights-content">
                             <!-- Survey container that will be automatically initialized -->
-                            <div class="callout-container" id="calloutContainer-${mode}" style="
+                            <div class="callout-container" id="${containerId}" style="
                                 width: 100%;
                                 height: ${mode === 'map' ? '500px' : '580px'};
                                 aspect-ratio: ${mode === 'map' ? '16/9' : 'auto'};
