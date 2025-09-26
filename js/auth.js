@@ -258,4 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
     authManager = new AuthManager();
     // Export for use in other modules after creation
     window.authManager = authManager;
+
+    // Dispatch custom event to notify other scripts that auth manager is ready
+    window.dispatchEvent(new CustomEvent('authManagerReady', { detail: authManager }));
 });

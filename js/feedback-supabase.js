@@ -19,7 +19,7 @@ class FeedbackSupabase {
         window.debugLog('🔍 Waiting for auth manager to be ready...');
 
         let attempts = 0;
-        const maxAttempts = 50; // 5 seconds with 100ms intervals
+        const maxAttempts = 30; // 3 seconds with 100ms intervals
 
         const checkAuthManager = async () => {
             attempts++;
@@ -705,8 +705,17 @@ class FeedbackSupabase {
     }
 }
 
-// Initialize when DOM is loaded
+// Initialize when auth manager is ready
 document.addEventListener('DOMContentLoaded', () => {
-    // Replace the old feedback system with Supabase version
-    window.feedbackSystem = new FeedbackSupabase();
+    // Listen for auth manager ready event
+    window.addEventListener('authManagerReady', () => {
+        window.feedbackSystem = new FeedbackSupabase();
+    });
+
+    // Fallback in case event doesn't fire
+    setTimeout(() => {
+        if (!window.feedbackSystem) {
+            window.feedbackSystem = new FeedbackSupabase();
+        }
+    }, 500);
 });
