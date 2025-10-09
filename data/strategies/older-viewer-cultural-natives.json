@@ -29,7 +29,7 @@
     [
       {"text": "TECH CONFUSED", "icon": "question-circle"},
       {"text": "SLOW LEARNER", "icon": "hourglass"},
-      {"text": "EXPERIENCED EQUAL", "icon": "balance-scale"},
+      {"text": "EXPERIENCED EQUAL", "icon": "front"},
       {"text": "CLEVER & WILY", "icon": "lightbulb"},
       {"text": "OUTSMARTING YOUNG", "icon": "trophy"},
       {"text": "WISDOM MENTOR", "icon": "mortarboard"}
@@ -40,7 +40,7 @@
       {"text": "VALUABLE KNOWLEDGE", "icon": "book"},
       {"text": "ACTIVE EXPERTISE", "icon": "gear"},
       {"text": "REMARKABLE ACHIEVEMENTS", "icon": "award"},
-      {"text": "LEGENDARY STATUS", "icon": "crown"}
+      {"text": "LEGENDARY STATUS", "icon": "person-arms-up"}
     ],
     [
       {"text": "FORGOTTEN & ALONE", "icon": "person-x"},
