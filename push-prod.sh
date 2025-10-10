@@ -61,6 +61,13 @@ mkdir -p /tmp/deploy_temp
 cp -r dist/* /tmp/deploy_temp/
 cp -r dist/.[^.]* /tmp/deploy_temp/ 2>/dev/null || true
 
+# Copy additional assets that index.html depends on
+echo "📁 Copying additional assets..."
+cp -r css /tmp/deploy_temp/ 2>/dev/null || echo "No css directory found"
+cp -r data /tmp/deploy_temp/ 2>/dev/null || echo "No data directory found"
+cp -r mockup-images /tmp/deploy_temp/ 2>/dev/null || echo "No mockup-images directory found"
+cp -r videos /tmp/deploy_temp/ 2>/dev/null || echo "No videos directory found"
+
 # Switch back to main and copy files
 echo "📍 Switching to main branch..."
 git checkout main
