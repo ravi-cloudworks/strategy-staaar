@@ -1,3 +1,21 @@
+// Domain Security Check - Must be first
+(function() {
+    const allowedDomain = 'ravi-cloudworks.github.io';
+    const currentDomain = window.location.hostname;
+
+    // Block localhost and other domains
+    if (currentDomain !== allowedDomain) {
+        document.body.innerHTML = '<h1>Access Denied</h1><p>This application can only run on the official domain.</p>';
+        throw new Error('Unauthorized domain');
+    }
+
+    // Additional check for local development
+    if (currentDomain === 'localhost' || currentDomain === '127.0.0.1' || currentDomain.includes('192.168')) {
+        document.body.innerHTML = '';
+        throw new Error('Local execution blocked');
+    }
+})();
+
 // Core Dashboard Functionality
 class MainApp {
     constructor() {
