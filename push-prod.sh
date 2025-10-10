@@ -57,15 +57,16 @@ git checkout dev
 
 # Copy secure build files to a temporary location
 echo "📁 Copying secure build files..."
-cp -r dist/* /tmp/deploy_temp/ 2>/dev/null || mkdir -p /tmp/deploy_temp && cp -r dist/* /tmp/deploy_temp/
+mkdir -p /tmp/deploy_temp
+cp -r dist/* /tmp/deploy_temp/
 cp -r dist/.[^.]* /tmp/deploy_temp/ 2>/dev/null || true
 
 # Switch back to main and copy files
 echo "📍 Switching to main branch..."
 git checkout main
 
-# Copy build files to main branch
-echo "📁 Adding secure build files to main..."
+# Copy build files to main branch root
+echo "📁 Adding secure build files to main branch root..."
 cp -r /tmp/deploy_temp/* ./
 cp -r /tmp/deploy_temp/.[^.]* ./ 2>/dev/null || true
 
