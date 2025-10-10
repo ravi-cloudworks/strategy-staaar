@@ -18,22 +18,11 @@ if [ "$current_branch" != "dev" ]; then
     exit 1
 fi
 
-# Auto-commit any dist folder changes in dev branch
-if ! git diff --quiet dist/; then
-    echo "📦 Auto-committing dist folder changes in dev branch..."
-    git add dist/
-    git commit -m "Update dist files from recent changes
-
-🤖 Generated with [Claude Code](https://claude.ai/code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>"
-fi
-
-# Check if dev branch has any other uncommitted changes (excluding dist)
-if git diff --quiet dist/ && ! git diff --quiet; then
-    echo "⚠️  Warning: You have uncommitted changes outside dist folder in dev branch"
-    echo "💡 Please commit or stash these changes first, then run this script again"
-    git status --porcelain | grep -v "^.* dist/"
+# Check if dev branch is clean (dist folder should not be tracked)
+if ! git diff --quiet; then
+    echo "⚠️  Warning: You have uncommitted changes in dev branch"
+    echo "💡 Please commit or stash changes first, then run this script again"
+    git status --porcelain
     exit 1
 fi
 
@@ -58,38 +47,49 @@ git checkout main
 echo "📥 Pulling latest main branch..."
 git pull origin main
 
-# Copy secure build files to root for GitHub Pages
-echo "📁 Copying secure build files to root..."
-cp -r dist/* ./
-cp -r dist/.[^.]* ./ 2>/dev/null || true
+# Clear main branch (keep only git files)
+echo "🧹 Clearing main branch for fresh deployment..."
+find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name '.gitignore' -exec rm -rf {} \;
+
+# Switch back to dev to build and copy files
+echo "📍 Switching back to dev to copy build files..."
+git checkout dev
+
+# Copy secure build files to a temporary location
+echo "📁 Copying secure build files..."
+cp -r dist/* /tmp/deploy_temp/ 2>/dev/null || mkdir -p /tmp/deploy_temp && cp -r dist/* /tmp/deploy_temp/
+cp -r dist/.[^.]* /tmp/deploy_temp/ 2>/dev/null || true
+
+# Switch back to main and copy files
+echo "📍 Switching to main branch..."
+git checkout main
+
+# Copy build files to main branch
+echo "📁 Adding secure build files to main..."
+cp -r /tmp/deploy_temp/* ./
+cp -r /tmp/deploy_temp/.[^.]* ./ 2>/dev/null || true
+
+# Clean up temp directory
+rm -rf /tmp/deploy_temp
 
 # Add secure build to staging area
-echo "📁 Adding secure build files..."
+echo "📁 Staging secure build files..."
 git add .
 
 # Commit secure build
 echo "💾 Committing secure build..."
-git commit -m "Add secure obfuscated build for production
+git commit -m "Deploy secure obfuscated build for production
 
 🔒 Security features:
 - Domain validation enabled
 - JavaScript obfuscated
 - Copyright notices added
 - Ready for RLS deployment
+- Source code secured in dev branch
 
 🤖 Generated with [Claude Code](https://claude.ai/code)
 
 Co-Authored-By: Claude <noreply@anthropic.com>"
-
-# Merge dev into main
-echo "🔄 Merging dev branch into main..."
-if git merge dev; then
-    echo "✅ Merge successful!"
-else
-    echo "❌ Merge failed! Please resolve conflicts manually"
-    echo "💡 After resolving conflicts, run: git commit && git push origin main"
-    exit 1
-fi
 
 # Push to production
 echo "🌍 Pushing to PRODUCTION (main branch)..."
