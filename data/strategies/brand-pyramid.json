@@ -1,0 +1,62 @@
+{
+  "title": "Brand Pyramid Analysis",
+  "description": "Brand equity measurement",
+  "headers": [
+    {"text": "BRAND SALIENCE", "icon": "eye"},
+    {"text": "PERFORMANCE", "icon": "speedometer2"},
+    {"text": "IMAGERY", "icon": "image"},
+    {"text": "JUDGMENTS", "icon": "scale"},
+    {"text": "FEELINGS", "icon": "heart"},
+    {"text": "RESONANCE", "icon": "soundwave"}
+  ],
+  "data": [
+    [
+      {"text": "UNKNOWN BRAND", "icon": "eye-slash"},
+      {"text": "CATEGORY REMINDER", "icon": "bookmark-star"},
+      {"text": "TOP-OF-MIND", "icon": "lightbulb"},
+      {"text": "FIRST CHOICE", "icon": "star"},
+      {"text": "MENTAL MONOPOLY", "icon": "trophy"},
+      {"text": "CULTURAL ICON", "icon": "magic"}
+    ],
+    [
+      {"text": "BASIC FUNCTION", "icon": "dash"},
+      {"text": "MEETS EXPECTATIONS", "icon": "check"},
+      {"text": "EXCEEDS STANDARDS", "icon": "shield-check"},
+      {"text": "PREMIUM QUALITY", "icon": "award"},
+      {"text": "BEST-IN-CLASS", "icon": "trophy"},
+      {"text": "REDEFINES CATEGORY", "icon": "rocket"}
+    ],
+    [
+      {"text": "NO PERSONALITY", "icon": "slash-circle"},
+      {"text": "GENERIC IMAGE", "icon": "circle"},
+      {"text": "DISTINCT CHARACTER", "icon": "user"},
+      {"text": "STRONG IDENTITY", "icon": "user-check"},
+      {"text": "ICONIC STATUS", "icon": "star"},
+      {"text": "CULTURAL SYMBOL", "icon": "gem"}
+    ],
+    [
+      {"text": "NEGATIVE REACTION", "icon": "hand-thumbs-down"},
+      {"text": "NEUTRAL RESPONSE", "icon": "emoji-neutral"},
+      {"text": "POSITIVE OPINION", "icon": "chat-left-dots"},
+      {"text": "STRONG PREFERENCE", "icon": "chat-square-quote"},
+      {"text": "DEEP TRUST", "icon": "shield"},
+      {"text": "UNWAVERING LOYALTY", "icon": "chat-square-quote"}
+    ],
+    [
+      {"text": "INDIFFERENCE", "icon": "circle"},
+      {"text": "MILD INTEREST", "icon": "eye"},
+      {"text": "EMOTIONAL CONNECTION", "icon": "heart-arrow"},
+      {"text": "PASSIONATE ATTACHMENT", "icon": "heart-pulse"},
+      {"text": "IDENTITY FUSION", "icon": "people"},
+      {"text": "LIFE PHILOSOPHY", "icon": "infinity"}
+    ],
+    [
+      {"text": "WALKS AWAY", "icon": "arrow-left"},
+      {"text": "ONE-TIME USE", "icon": "circle"},
+      {"text": "REPEAT BEHAVIOR", "icon": "arrow-repeat"},
+      {"text": "SEEKS BRAND OUT", "icon": "search"},
+      {"text": "TELLS OTHERS", "icon": "megaphone"},
+      {"text": "CREATES CONTENT", "icon": "pencil-square"}
+    ]
+  ]
+}

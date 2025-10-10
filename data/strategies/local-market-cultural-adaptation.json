@@ -1,0 +1,62 @@
+{
+  "title": "Local Market Cultural Adaptation",
+  "description": "Cultural fit scanner",
+  "headers": [
+    {"text": "CULTURAL AWARENESS", "icon": "globe"},
+    {"text": "LANGUAGE ADAPTATION", "icon": "chat-quote"},
+    {"text": "VISUAL REPRESENTATION", "icon": "image"},
+    {"text": "VALUE ALIGNMENT", "icon": "heart"},
+    {"text": "BEHAVIORAL NORMS", "icon": "people"},
+    {"text": "MARKET PENETRATION", "icon": "bullseye"}
+  ],
+  "data": [
+    [
+      {"text": "IGNORANT APPROACH", "icon": "eye-slash"},
+      {"text": "SURFACE KNOWLEDGE", "icon": "eye"},
+      {"text": "BASIC RESEARCH", "icon": "book"},
+      {"text": "DEEP UNDERSTANDING", "icon": "water"},
+      {"text": "CULTURAL FLUENCY", "icon": "globe2"},
+      {"text": "NATIVE INSIGHT", "icon": "gem"}
+    ],
+    [
+      {"text": "DIRECT TRANSLATION", "icon": "arrow-left-right"},
+      {"text": "BASIC LOCALIZATION", "icon": "chat"},
+      {"text": "CULTURAL CONTEXT", "icon": "diagram-3"},
+      {"text": "NATIVE EXPRESSION", "icon": "chat-text"},
+      {"text": "POETIC RESONANCE", "icon": "soundwave"},
+      {"text": "SOUL LANGUAGE", "icon": "infinity"}
+    ],
+    [
+      {"text": "WESTERN DEFAULTS", "icon": "person"},
+      {"text": "TOKEN INCLUSION", "icon": "person-plus"},
+      {"text": "AUTHENTIC CASTING", "icon": "camera"},
+      {"text": "CULTURAL PRIDE", "icon": "flag"},
+      {"text": "EMPOWERING IMAGERY", "icon": "arrow-up"},
+      {"text": "REVOLUTIONARY VISIBILITY", "icon": "lightning"}
+    ],
+    [
+      {"text": "IMPOSED VALUES", "icon": "arrow-down"},
+      {"text": "NEUTRAL STANCE", "icon": "dash"},
+      {"text": "RESPECTFUL APPROACH", "icon": "hand-thumbs-up"},
+      {"text": "SHARED VALUES", "icon": "people"},
+      {"text": "CULTURAL CELEBRATION", "icon": "emoji-smile"},
+      {"text": "TRANSFORMATIVE BRIDGE", "icon": "link-45deg"}
+    ],
+    [
+      {"text": "CULTURAL VIOLATION", "icon": "x-circle"},
+      {"text": "AWKWARD FIT", "icon": "question-circle"},
+      {"text": "ACCEPTABLE RANGE", "icon": "check"},
+      {"text": "NATURAL ALIGNMENT", "icon": "bullseye"},
+      {"text": "CULTURAL MASTERY", "icon": "award"},
+      {"text": "NORM EVOLUTION", "icon": "arrow-clockwise"}
+    ],
+    [
+      {"text": "REJECTED OUTSIDER", "icon": "emoji-expressionless"},
+      {"text": "TOLERATED FOREIGN", "icon": "pause-circle"},
+      {"text": "ACCEPTED BRAND", "icon": "check-circle"},
+      {"text": "BELOVED CHOICE", "icon": "heart"},
+      {"text": "CULTURAL ICON", "icon": "star"},
+      {"text": "NATIVE TREASURE", "icon": "diamond"}
+    ]
+  ]
+}
