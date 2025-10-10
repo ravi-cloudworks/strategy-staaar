@@ -2,7 +2,10 @@
  * Survey Callout System
  * Extracted from callout-map-libre.html for reuse in presentation slides
  * Supports both map and image modes with interactive callouts
+ * VERSION: 2.0 - Enhanced with debug logging
  */
+
+console.log('🔧 Survey Callout System v2.0 loaded with enhanced logging');
 
 class SurveyCalloutSystem {
     constructor(mode, containerId) {
@@ -100,6 +103,56 @@ class SurveyCalloutSystem {
     }
 
     initializeImageMode() {
+        // Check if this is a mockup overlay (detect by container ID pattern)
+        const isMockupOverlay = this.containerId.includes('calloutContainer-mockupWorkspace');
+
+        if (isMockupOverlay) {
+            // For mockup overlays, create a transparent overlay without background image
+            console.log(`🎨 [${this.containerId}] Initializing as transparent mockup overlay`);
+
+            // Set container to be transparent and clickable
+            this.container.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: transparent;
+                pointer-events: auto;
+                z-index: 10;
+            `;
+
+            // Add click handler directly to the container for mockup mode
+            this.container.addEventListener('click', (e) => {
+                console.log(`🖱️ [${this.containerId}] Container clicked! Pin mode: ${this.isPinMode ? 'ON' : 'OFF'}`);
+
+                if (!this.isPinMode) {
+                    console.log(`❌ [${this.containerId}] Pin mode is off, ignoring click`);
+                    return;
+                }
+
+                const rect = this.container.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const xPercent = (x / rect.width) * 100;
+                const yPercent = (y / rect.height) * 100;
+
+                console.log(`📍 [${this.containerId}] Creating pin at pixel (${x}, ${y}) = percentage (${xPercent.toFixed(1)}%, ${yPercent.toFixed(1)}%)`);
+
+                const randomFeedback = this.feedbacks[Math.floor(Math.random() * this.feedbacks.length)];
+                const randomRating = Math.floor(Math.random() * 2) + 4;
+                this.createImagePin([xPercent, yPercent], randomFeedback, "💬 Customer Feedback", randomRating);
+            });
+
+            // Don't add image selector for mockup overlays
+            console.log(`✅ [${this.containerId}] Transparent mockup overlay initialized`);
+            return;
+        }
+
+        // Standard image mode (for Survey Image slide)
+        console.log(`🖼️ [${this.containerId}] Initializing standard image mode`);
+
         // Create image container
         const imageContainer = document.createElement('div');
         imageContainer.style.cssText = `
@@ -129,13 +182,21 @@ class SurveyCalloutSystem {
 
         // Add click handler for image
         backgroundImage.addEventListener('click', (e) => {
-            if (!this.isPinMode) return;
+            console.log(`🖱️ [${this.containerId}] Image clicked! Pin mode: ${this.isPinMode ? 'ON' : 'OFF'}`);
+
+            if (!this.isPinMode) {
+                console.log(`❌ [${this.containerId}] Pin mode is off, ignoring click`);
+                return;
+            }
+
             const rect = backgroundImage.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
 
             const xPercent = (x / rect.width) * 100;
             const yPercent = (y / rect.height) * 100;
+
+            console.log(`📍 [${this.containerId}] Creating pin at pixel (${x}, ${y}) = percentage (${xPercent.toFixed(1)}%, ${yPercent.toFixed(1)}%)`);
 
             const randomFeedback = this.feedbacks[Math.floor(Math.random() * this.feedbacks.length)];
             const randomRating = Math.floor(Math.random() * 2) + 4;
@@ -183,14 +244,18 @@ class SurveyCalloutSystem {
 
         toggleBtn.addEventListener('click', () => {
             this.isPinMode = !this.isPinMode;
+            console.log(`🔄 [${this.containerId}] Pin mode toggled: ${this.isPinMode ? 'ON' : 'OFF'}`);
+
             if (this.isPinMode) {
                 toggleBtn.textContent = '📍 Pin Mode ON - Click';
                 toggleBtn.style.background = '#10b981';
                 toggleBtn.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
+                console.log(`✅ [${this.containerId}] Pin mode activated - ready to create callouts`);
             } else {
                 toggleBtn.textContent = '📍 Click to Add Pins';
                 toggleBtn.style.background = '#3b82f6';
                 toggleBtn.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+                console.log(`❌ [${this.containerId}] Pin mode deactivated`);
             }
         });
 
@@ -233,6 +298,13 @@ class SurveyCalloutSystem {
 
     addImageSelector() {
         if (this.mode !== 'image') return;
+
+        // Skip image selector for mockup overlays
+        const isMockupOverlay = this.containerId.includes('calloutContainer-mockupWorkspace');
+        if (isMockupOverlay) {
+            console.log(`⏭️ [${this.containerId}] Skipping image selector for mockup overlay`);
+            return;
+        }
 
         // Create image selector container positioned to the left of the slide content
         const imageSelector = document.createElement('div');
@@ -632,7 +704,7 @@ class SurveyCalloutSystem {
         this.pinCounter++;
         const pinNumber = this.pinCounter;
 
-        console.log(`📍 [${this.containerId}] Creating callout #${pinNumber}`);
+        console.log(`📍 [${this.containerId}] Creating callout #${pinNumber} at coords [${coords[0]}, ${coords[1]}]`);
 
         const callout = document.createElement('div');
         callout.className = 'floating-callout template-quotes';
@@ -708,6 +780,7 @@ class SurveyCalloutSystem {
 
         // Add callout to same container as pin
         this.container.appendChild(callout);
+        console.log(`✅ [${this.containerId}] Callout #${pinNumber} added to DOM at position (${calloutX}, ${calloutY})`);
 
         const pinInfo = {
             marker: null,
@@ -719,15 +792,27 @@ class SurveyCalloutSystem {
             rating: rating
         };
 
+        console.log(`📦 [${this.containerId}] PinInfo created:`, {
+            pinNumber,
+            calloutVisible: callout.style.display !== 'none',
+            calloutPosition: { left: callout.style.left, top: callout.style.top },
+            calloutZIndex: callout.style.zIndex,
+            pinMarkerVisible: pinMarker.style.display !== 'none'
+        });
+
         this.setupThumbsRating(callout);
         this.setupDeleteButton(callout, pinInfo);
         this.setupTemplateButton(callout, pinInfo);
         this.setupSafeMaxLength(callout);
 
+        console.log(`🎨 [${this.containerId}] Callout #${pinNumber} setup complete - stars, delete, template buttons configured`);
+
         // Removed animation timeout - callout now positioned correctly from start
 
         this.pinData.push(pinInfo);
         this.makeDraggable(callout, pinInfo);
+
+        console.log(`🎯 [${this.containerId}] Callout #${pinNumber} finalized. Total callouts: ${this.pinData.length}`);
 
         return pinInfo;
     }
@@ -979,9 +1064,13 @@ class SurveyCalloutSystem {
             e.stopPropagation();
             e.preventDefault();
 
+            console.log(`⚡ [${this.containerId}] Template button clicked! Current index: ${currentTemplateIndex}`);
+
             // Cycle to next template
             currentTemplateIndex = (currentTemplateIndex + 1) % templates.length;
             const newTemplate = templates[currentTemplateIndex];
+
+            console.log(`🎨 [${this.containerId}] Switching to template: ${newTemplate.name} (${currentTemplateIndex + 1}/${templates.length})`);
 
 
             // Remove old template classes
@@ -1035,6 +1124,8 @@ class SurveyCalloutSystem {
             setTimeout(() => {
                 callout.style.transform = 'scale(1) rotate(0deg)';
             }, 200);
+
+            console.log(`✅ [${this.containerId}] Template switch complete: ${newTemplate.name}`);
         });
 
         // Prevent template button from triggering drag

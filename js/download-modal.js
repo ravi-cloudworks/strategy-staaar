@@ -1433,6 +1433,51 @@ export class DownloadModal {
                         Insert Page
                     </button>
                 </div>
+
+                <div class="optional-page-card" data-type="ad-mockup-creator" style="
+                    border: 2px solid #e5e7eb;
+                    border-radius: 8px;
+                    padding: 20px;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    background: #f9fafb;
+                ">
+                    <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                        <div style="
+                            width: 40px;
+                            height: 40px;
+                            background: linear-gradient(135deg, #f59e0b, #d97706);
+                            border-radius: 8px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin-right: 12px;
+                        ">
+                            <span style="color: white; font-weight: bold; font-size: 18px;">🎨</span>
+                        </div>
+                        <h4 style="margin: 0; color: #1f2937; font-size: 16px; font-weight: 600;">
+                            Ad Mockup Creator
+                        </h4>
+                    </div>
+                    <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.4;">
+                        Create professional ad mockups with automatic perspective correction
+                    </p>
+                    <button class="insert-page-btn" style="
+                        margin-top: 16px;
+                        background: #f59e0b;
+                        color: white;
+                        border: none;
+                        padding: 8px 16px;
+                        border-radius: 6px;
+                        font-size: 14px;
+                        cursor: pointer;
+                        font-weight: 500;
+                        width: 100%;
+                        transition: background 0.2s ease;
+                    ">
+                        Insert Page
+                    </button>
+                </div>
             </div>
         `;
 
@@ -1465,6 +1510,8 @@ export class DownloadModal {
                     borderColor = '#10b981';
                 } else if (type === 'survey-insights-image') {
                     borderColor = '#8b5cf6';
+                } else if (type === 'ad-mockup-creator') {
+                    borderColor = '#f59e0b';
                 } else {
                     borderColor = '#6b7280';
                 }
@@ -1519,6 +1566,8 @@ export class DownloadModal {
             newSlide = this.createSurveyInsightsSlide('map');
         } else if (type === 'survey-insights-image') {
             newSlide = this.createSurveyInsightsSlide('image');
+        } else if (type === 'ad-mockup-creator') {
+            newSlide = this.createAdMockupSlide();
         } else {
             console.error('Unknown page type:', type);
             return;
@@ -1560,6 +1609,69 @@ export class DownloadModal {
             });
         }
 
+        // Load mockup system if it's an ad mockup creator slide
+        if (type === 'ad-mockup-creator') {
+            // Load only mockup system with built-in pin functionality
+            this.loadMockupSystemScript(() => {
+                // Auto-initialize mockup system after script loads
+                const currentSlide = this.slides[insertIndex];
+                const containerId = currentSlide.containerId;
+
+                if (!containerId) {
+                    console.error('❌ Could not find container ID in mockup slide data');
+                    return;
+                }
+
+                console.log(`🚀 Auto-initializing mockup system: container=${containerId}`);
+
+                // Initialize after ensuring DOM is ready
+                setTimeout(() => {
+                    if (window.initializeMockupSlide) {
+                        // Wait for DOM elements to be available
+                        const checkDOMReady = () => {
+                            console.log(`🔍 [TRACE] checkDOMReady called for container: ${containerId}`);
+
+                            const contentGrid = document.getElementById(`contentGrid-${containerId}`);
+                            const mockupArea = document.getElementById(`mockupArea-${containerId}`);
+                            const canvas = document.getElementById(`resultCanvas-${containerId}`);
+
+                            console.log(`🔍 [TRACE] DOM elements check:`, {
+                                contentGrid: !!contentGrid,
+                                mockupArea: !!mockupArea,
+                                canvas: !!canvas
+                            });
+
+                            if (contentGrid && mockupArea && canvas) {
+                                console.log('📦 [TRACE] DOM elements ready, initializing mockup system');
+
+                                console.log(`🔍 [TRACE] Calling window.initializeMockupSlide...`);
+                                window.initializeMockupSlide(containerId, this);
+
+                                // Initialize SurveyCalloutSystem for the callout container (same as Survey Image slide)
+                                const calloutContainerId = `calloutContainer-${containerId}`;
+                                console.log(`🚀 [TRACE] Initializing SurveyCalloutSystem for mockup: ${calloutContainerId}`);
+
+                                if (window.initializeCalloutSystem) {
+                                    window.initializeCalloutSystem('image', calloutContainerId);
+                                    console.log(`✅ [TRACE] SurveyCalloutSystem initialized for mockup`);
+                                } else {
+                                    console.error(`❌ [TRACE] initializeCalloutSystem function not found!`);
+                                }
+
+                                console.log('✅ [TRACE] Mockup system with custom pin system auto-initialized');
+                            } else {
+                                console.log('📦 [TRACE] Waiting for DOM elements to be ready...');
+                                setTimeout(checkDOMReady, 50);
+                            }
+                        };
+                        checkDOMReady();
+                    } else {
+                        console.error('❌ initializeMockupSlide not available');
+                    }
+                }, 200);
+            });
+        }
+
         // Show the newly inserted slide
         this.showSlide(insertIndex);
 
@@ -1593,9 +1705,10 @@ export class DownloadModal {
         console.log('📦 Loading callout system script...');
 
         const script = document.createElement('script');
-        script.src = './js/survey-callout-system.js';
+        // Add cache busting parameter to force reload
+        script.src = `./js/survey-callout-system.js?v=${Date.now()}`;
         script.onload = () => {
-            console.log('📦 Callout system script loaded successfully');
+            console.log('📦 Callout system script loaded successfully with cache bust');
             if (callback) callback();
         };
         script.onerror = () => {
@@ -1603,6 +1716,73 @@ export class DownloadModal {
         };
 
         document.head.appendChild(script);
+    }
+
+    loadMockupSystemScript(callback = null) {
+        // Check if script is already loaded
+        if (window.initializeMockupSlide) {
+            console.log('📦 Mockup system script already loaded');
+            if (callback) callback();
+            return;
+        }
+
+        // Check if script is already being loaded
+        if (document.querySelector('script[src="./js/mockup-workspace.js"]')) {
+            console.log('📦 Mockup system script already loading, waiting...');
+            // Wait for the existing script to load
+            const checkLoaded = () => {
+                if (window.initializeMockupSlide) {
+                    console.log('📦 Mockup system script loaded via existing request');
+                    if (callback) callback();
+                } else {
+                    setTimeout(checkLoaded, 50);
+                }
+            };
+            checkLoaded();
+            return;
+        }
+
+        console.log('📦 Loading mockup system scripts...');
+
+        // Load multiple scripts in sequence
+        const scripts = [
+            './js/mockup-config.js',
+            './js/mockup-processor.js',
+            './js/survey-callout-system.js',
+            './js/mockup-workspace.js'
+        ];
+
+        let loadedCount = 0;
+        const loadNext = () => {
+            if (loadedCount >= scripts.length) {
+                console.log('📦 All mockup system scripts loaded successfully');
+                if (callback) callback();
+                return;
+            }
+
+            const script = document.createElement('script');
+            const scriptSrc = scripts[loadedCount];
+            // Add cache busting for survey-callout-system.js to ensure fresh reload
+            if (scriptSrc.includes('survey-callout-system.js')) {
+                script.src = `${scriptSrc}?v=${Date.now()}`;
+            } else {
+                script.src = scriptSrc;
+            }
+            script.onload = () => {
+                console.log(`📦 Loaded: ${scripts[loadedCount]}`);
+                loadedCount++;
+                loadNext();
+            };
+            script.onerror = () => {
+                console.error(`❌ Failed to load: ${scripts[loadedCount]}`);
+                loadedCount++;
+                loadNext(); // Continue loading other scripts
+            };
+
+            document.head.appendChild(script);
+        };
+
+        loadNext();
     }
 
     showSlide(index) {
@@ -1887,6 +2067,90 @@ export class DownloadModal {
                                         font-size: 12px;
                                     "></textarea>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `
+        };
+    }
+
+    createAdMockupSlide() {
+        const uniqueId = Date.now() + '-mockup-' + Math.random().toString(36).substr(2, 9);
+        const containerId = `mockupWorkspace-${uniqueId}`;
+
+        return {
+            type: 'ad-mockup-creator',
+            title: 'Ad Mockup Creator',
+            containerId: containerId,
+            content: `
+                <div class="mockup-creator-slide">
+                    <!-- LEFT PANEL: Content + Mockup Selection -->
+                    <div class="left-panel">
+                        <!-- Content Images Panel (TOP) -->
+                        <div class="content-images-panel">
+                            <h4>📸 Content Images</h4>
+                            <div class="content-images-grid" id="contentGrid-${containerId}">
+                                <!-- Auto-populated from table data -->
+                            </div>
+                            <button class="upload-content-btn" id="uploadBtn-${containerId}">
+                                📁 Upload New Image
+                            </button>
+                            <input type="file" id="contentInput-${containerId}" accept="image/*" style="display:none;">
+                        </div>
+
+                        <!-- Mockup Grid Panel (BOTTOM) -->
+                        <div class="mockup-grid-panel">
+                            <h4>🎨 Mockup Templates</h4>
+
+                            <!-- Navigation Breadcrumb -->
+                            <div class="mockup-breadcrumb" id="breadcrumb-${containerId}">
+                                <span class="breadcrumb-step active" id="audienceStep-${containerId}">Choose Audience</span>
+                                <span class="breadcrumb-step" id="locationStep-${containerId}" style="display:none;">Choose Location</span>
+                                <span class="breadcrumb-step" id="mockupStep-${containerId}" style="display:none;">Choose Mockup</span>
+                            </div>
+
+                            <!-- Back Button -->
+                            <button class="mockup-back-btn" id="backBtn-${containerId}" style="display:none;">
+                                ← Back
+                            </button>
+
+                            <!-- Mockup Selection Area (Scrollable) -->
+                            <div class="mockup-selection-area" id="mockupArea-${containerId}">
+                                <!-- Dynamic: Audiences → Locations → Mockups -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT PANEL: Canvas Workspace -->
+                    <div class="right-panel">
+                        <div class="canvas-header">
+                            <div class="current-mockup-info" id="mockupInfo-${containerId}">
+                                Loading first mockup...
+                            </div>
+                            <div class="canvas-controls-header">
+                                <button id="downloadBtn-${containerId}" disabled>💾 Download</button>
+                                <button id="resetBtn-${containerId}">🔄 Reset</button>
+                                <button id="debugBtn-${containerId}">🔧 Debug: OFF</button>
+                            </div>
+                        </div>
+
+                        <div class="canvas-workspace" id="canvasContainer-${containerId}">
+                            <canvas id="resultCanvas-${containerId}"></canvas>
+                            <div class="canvas-instructions" id="instructions-${containerId}">
+                                Select content image or upload to apply to mockup
+                            </div>
+                            <!-- SurveyCalloutSystem Container positioned over canvas -->
+                            <div class="callout-container" id="calloutContainer-${containerId}" style="
+                                position: absolute;
+                                top: 0;
+                                left: 0;
+                                width: 100%;
+                                height: 100%;
+                                pointer-events: auto;
+                                z-index: 10;
+                            ">
+                                <!-- SurveyCalloutSystem will initialize here -->
                             </div>
                         </div>
                     </div>
