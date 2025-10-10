@@ -18,10 +18,22 @@ if [ "$current_branch" != "dev" ]; then
     exit 1
 fi
 
-# Check if dev branch is clean
-if ! git diff --quiet; then
-    echo "⚠️  Warning: You have uncommitted changes in dev branch"
-    echo "💡 Please commit or stash changes first, then run this script again"
+# Auto-commit any dist folder changes in dev branch
+if ! git diff --quiet dist/; then
+    echo "📦 Auto-committing dist folder changes in dev branch..."
+    git add dist/
+    git commit -m "Update dist files from recent changes
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+fi
+
+# Check if dev branch has any other uncommitted changes (excluding dist)
+if git diff --quiet dist/ && ! git diff --quiet; then
+    echo "⚠️  Warning: You have uncommitted changes outside dist folder in dev branch"
+    echo "💡 Please commit or stash these changes first, then run this script again"
+    git status --porcelain | grep -v "^.* dist/"
     exit 1
 fi
 
