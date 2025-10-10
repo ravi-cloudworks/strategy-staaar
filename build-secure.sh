@@ -111,6 +111,9 @@ cp -r css dist/ 2>/dev/null || echo "No css directory found"
 cp -r images dist/ 2>/dev/null || echo "No images directory found"
 cp -r assets dist/ 2>/dev/null || echo "No assets directory found"
 cp -r fonts dist/ 2>/dev/null || echo "No fonts directory found"
+cp -r data dist/ 2>/dev/null || echo "No data directory found"
+cp -r mockup-images dist/ 2>/dev/null || echo "No mockup-images directory found"
+cp -r videos dist/ 2>/dev/null || echo "No videos directory found"
 
 # Copy mockups HTML if exists
 if [ -f "mockups/index.html" ]; then

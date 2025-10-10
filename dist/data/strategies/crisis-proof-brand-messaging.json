@@ -1,0 +1,62 @@
+{
+  "title": "Crisis-Proof Messaging Audit",
+  "description": "PR risk scanner",
+  "headers": [
+    {"text": "CULTURAL SENSITIVITY", "icon": "globe"},
+    {"text": "GENDER REPRESENTATION", "icon": "person-plus"},
+    {"text": "SOCIOECONOMIC AWARENESS", "icon": "currency-dollar"},
+    {"text": "POLITICAL LANDMINES", "icon": "exclamation-triangle"},
+    {"text": "GENERATIONAL GAPS", "icon": "people"},
+    {"text": "VULNERABILITY EXPLOITATION", "icon": "shield-exclamation"}
+  ],
+  "data": [
+    [
+      {"text": "TONE DEAF", "icon": "volume-off"},
+      {"text": "BASIC AWARENESS", "icon": "eye"},
+      {"text": "RESPECTFUL APPROACH", "icon": "heart"},
+      {"text": "CULTURALLY INFORMED", "icon": "book"},
+      {"text": "DEEPLY INCLUSIVE", "icon": "people"},
+      {"text": "PIONEERING ALLYSHIP", "icon": "flag"}
+    ],
+    [
+      {"text": "STEREOTYPICAL", "icon": "person-x"},
+      {"text": "TRADITIONAL ROLES", "icon": "house"},
+      {"text": "BALANCED PRESENCE", "icon": "person-check"},
+      {"text": "PROGRESSIVE CASTING", "icon": "palette"},
+      {"text": "EMPOWERING NARRATIVE", "icon": "arrow-up"},
+      {"text": "REVOLUTIONARY PERSPECTIVE", "icon": "lightning"}
+    ],
+    [
+      {"text": "TONE DEAF LUXURY", "icon": "exclamation-diamond"},
+      {"text": "MAINSTREAM MIDDLE", "icon": "people"},
+      {"text": "ACCESSIBLE MESSAGING", "icon": "door-open"},
+      {"text": "INCLUSIVE PRICING", "icon": "calculator"},
+      {"text": "EQUITY FOCUSED", "icon": "check-square"},
+      {"text": "SYSTEMIC CHANGE", "icon": "arrow-repeat"}
+    ],
+    [
+      {"text": "PARTISAN MESSAGING", "icon": "exclamation-circle"},
+      {"text": "SUBTLE BIAS", "icon": "eye-slash"},
+      {"text": "NEUTRAL STANCE", "icon": "dash"},
+      {"text": "CAREFULLY BALANCED", "icon": "shield"},
+      {"text": "VALUES DRIVEN", "icon": "compass"},
+      {"text": "COURAGEOUSLY PRINCIPLED", "icon": "star"}
+    ],
+    [
+      {"text": "ALIENATES YOUTH", "icon": "x-circle"},
+      {"text": "TRADITIONAL APPEAL", "icon": "clock-history"},
+      {"text": "BROAD DEMOGRAPHIC", "icon": "graph-up"},
+      {"text": "MULTI-GENERATIONAL", "icon": "diagram-3"},
+      {"text": "BRIDGE BUILDING", "icon": "link-45deg"},
+      {"text": "UNIFYING MESSAGE", "icon": "circle-square"}
+    ],
+    [
+      {"text": "PREDATORY TACTICS", "icon": "exclamation-octagon"},
+      {"text": "PRESSURE SELLING", "icon": "hourglass"},
+      {"text": "STANDARD PERSUASION", "icon": "chat"},
+      {"text": "ETHICAL INFLUENCE", "icon": "check-circle"},
+      {"text": "EMPOWERING CHOICE", "icon": "hand-thumbs-up"},
+      {"text": "PROTECTIVE MESSAGING", "icon": "shield-check"}
+    ]
+  ]
+}

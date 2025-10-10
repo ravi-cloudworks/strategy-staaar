@@ -46,9 +46,14 @@ git checkout main
 echo "📥 Pulling latest main branch..."
 git pull origin main
 
+# Copy secure build files to root for GitHub Pages
+echo "📁 Copying secure build files to root..."
+cp -r dist/* ./
+cp -r dist/.[^.]* ./ 2>/dev/null || true
+
 # Add secure build to staging area
 echo "📁 Adding secure build files..."
-git add dist/
+git add .
 
 # Commit secure build
 echo "💾 Committing secure build..."
