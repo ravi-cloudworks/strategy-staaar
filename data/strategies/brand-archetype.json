@@ -1,0 +1,62 @@
+{
+  "title": "Brand Archetype Analysis",
+  "description": "Personality authenticity scan",
+  "headers": [
+    {"text": "INNOCENT", "icon": "heart"},
+    {"text": "EXPLORER", "icon": "compass"},
+    {"text": "SAGE", "icon": "book"},
+    {"text": "HERO", "icon": "shield"},
+    {"text": "OUTLAW", "icon": "exclamation-triangle"},
+    {"text": "MAGICIAN", "icon": "stars"}
+  ],
+  "data": [
+    [
+      {"text": "NAIVE SIMPLICITY", "icon": "emoji-smile"},
+      {"text": "PURE INTENTION", "icon": "heart"},
+      {"text": "HOPEFUL OPTIMISM", "icon": "sun"},
+      {"text": "MORAL CLARITY", "icon": "check-circle"},
+      {"text": "CHILDLIKE WONDER", "icon": "star"},
+      {"text": "PARADISE VISION", "icon": "cloud-sun"}
+    ],
+    [
+      {"text": "RESTLESS SPIRIT", "icon": "arrow-right"},
+      {"text": "SEEKS FREEDOM", "icon": "unlock"},
+      {"text": "AUTHENTIC EXPERIENCE", "icon": "camera"},
+      {"text": "PIONEER PATH", "icon": "map"},
+      {"text": "LIMITLESS ADVENTURE", "icon": "signpost"},
+      {"text": "ULTIMATE DISCOVERY", "icon": "binoculars"}
+    ],
+    [
+      {"text": "BASIC KNOWLEDGE", "icon": "journal-text"},
+      {"text": "PRACTICAL WISDOM", "icon": "lightbulb"},
+      {"text": "EXPERT INSIGHT", "icon": "list-stars"},
+      {"text": "PROFOUND UNDERSTANDING", "icon": "search-heart"},
+      {"text": "UNIVERSAL TRUTH", "icon": "universal-access"},
+      {"text": "ENLIGHTENED MASTER", "icon": "mortarboard"}
+    ],
+    [
+      {"text": "ORDINARY PERSON", "icon": "person"},
+      {"text": "ACCEPTS CHALLENGE", "icon": "shield-plus"},
+      {"text": "FACES OBSTACLES", "icon": "exclamation-diamond"},
+      {"text": "PROVES COURAGE", "icon": "award"},
+      {"text": "ACHIEVES VICTORY", "icon": "trophy"},
+      {"text": "TRANSFORMS WORLD", "icon": "arrow-repeat"}
+    ],
+    [
+      {"text": "MILD REBELLION", "icon": "exclamation-circle"},
+      {"text": "BREAKS RULES", "icon": "x-circle"},
+      {"text": "CHALLENGES SYSTEM", "icon": "shield-x"},
+      {"text": "REVOLUTION LEADER", "icon": "megaphone"},
+      {"text": "DESTROYS CORRUPTION", "icon": "trash"},
+      {"text": "CREATES NEW ORDER", "icon": "arrow-clockwise"}
+    ],
+    [
+      {"text": "SIMPLE TRICKS", "icon": "wand2"},
+      {"text": "IMPRESSIVE SKILLS", "icon": "star"},
+      {"text": "TRANSFORMS REALITY", "icon": "magic"},
+      {"text": "MAKES IMPOSSIBLE", "icon": "lightning"},
+      {"text": "BENDS UNIVERSE", "icon": "infinity"},
+      {"text": "OMNIPOTENT POWER", "icon": "lightning"}
+    ]
+  ]
+}
