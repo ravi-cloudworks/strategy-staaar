@@ -35,32 +35,32 @@ class FeatureRequestManager {
     }
 
     getAuthHeaders() {
-    const headers = {
-        'apikey': this.SUPABASE_KEY,
-        'Content-Type': 'application/json'
-    };
-    
-    // Get session from localStorage (where Supabase stores it)
-    try {
-        const authStorage = localStorage.getItem('sb-yxicubfthxkwqcihrdhe-auth-token');
-        if (authStorage) {
-            const session = JSON.parse(authStorage);
-            if (session?.access_token) {
-                headers['Authorization'] = `Bearer ${session.access_token}`;
-                console.log('🔑 Using user JWT token');
-                return headers;
+        const headers = {
+            'apikey': this.SUPABASE_KEY,
+            'Content-Type': 'application/json'
+        };
+
+        // Get session from localStorage (where Supabase stores it)
+        try {
+            const authStorage = localStorage.getItem('sb-yxicubfthxkwqcihrdhe-auth-token');
+            if (authStorage) {
+                const session = JSON.parse(authStorage);
+                if (session?.access_token) {
+                    headers['Authorization'] = `Bearer ${session.access_token}`;
+                    console.log('🔑 Using user JWT token');
+                    return headers;
+                }
             }
+        } catch (e) {
+            console.warn('Failed to get token from storage:', e);
         }
-    } catch (e) {
-        console.warn('Failed to get token from storage:', e);
+
+        // Fallback to anon key
+        headers['Authorization'] = `Bearer ${this.SUPABASE_KEY}`;
+        console.log('🔑 Using anon key (no user token found)');
+
+        return headers;
     }
-    
-    // Fallback to anon key
-    headers['Authorization'] = `Bearer ${this.SUPABASE_KEY}`;
-    console.log('🔑 Using anon key (no user token found)');
-    
-    return headers;
-}
 
     async loadFeatureRequests() {
         const container = document.getElementById('featuresList');
@@ -88,10 +88,19 @@ class FeatureRequestManager {
             const data = await response.json();
             console.log('✅ Loaded:', data.length, 'feature requests');
 
-            this.featureRequests = data.map(item => ({
-                ...item,
-                vote_count: Array.isArray(item.upvoter_emails) ? item.upvoter_emails.length : 0
-            }));
+            this.featureRequests = data
+                .map(item => ({
+                    ...item,
+                    vote_count: Array.isArray(item.upvoter_emails) ? item.upvoter_emails.length : 0
+                }))
+                .sort((a, b) => {
+                    // Sort by vote count descending
+                    if (b.vote_count !== a.vote_count) {
+                        return b.vote_count - a.vote_count;
+                    }
+                    // If votes are equal, sort by newest first
+                    return new Date(b.created_at) - new Date(a.created_at);
+                });
 
             this.renderFeatureRequests();
 
@@ -133,7 +142,7 @@ class FeatureRequestManager {
                     description,
                     type,
                     created_by: this.currentUser.id,
-                    upvoter_emails: []
+                    upvoter_emails: [this.currentUser.email]
                 })
             });
 
