@@ -301,13 +301,18 @@ let featureManager;
 document.addEventListener('DOMContentLoaded', () => {
     console.log('📄 DOM loaded');
 
-    setTimeout(() => {
-        if (window.currentUserData) {
-            console.log('✅ Starting manager...');
+    // Check if user data already exists
+    if (window.currentUserData) {
+        console.log('✅ User data already available');
+        featureManager = new FeatureRequestManager();
+        featureManager.init();
+    } else {
+        // Wait for userDataReady event
+        console.log('⏳ Waiting for user data...');
+        window.addEventListener('userDataReady', () => {
+            console.log('✅ User data ready event received');
             featureManager = new FeatureRequestManager();
             featureManager.init();
-        } else {
-            console.error('❌ No user data');
-        }
-    }, 1000);
+        });
+    }
 });
