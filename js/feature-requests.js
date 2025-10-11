@@ -136,7 +136,8 @@ class FeatureRequestManager {
                     title,
                     description,
                     type,
-                    created_by: this.currentUser.id
+                    created_by: this.currentUser.id,
+                    upvoter_emails: [this.currentUser.email] // Auto-upvote creator
                 })
                 .select();
 
