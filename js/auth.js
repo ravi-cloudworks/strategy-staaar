@@ -257,7 +257,7 @@ class AuthManager {
     }
 
     redirectToLogin() {
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
     }
 
     // Public method to get current user
