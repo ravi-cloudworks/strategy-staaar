@@ -19,7 +19,7 @@ class FeatureRequestManager {
 
             // Get Supabase client
             this.supabaseClient = window.authManager.getSupabaseClient();
-            
+
             // FIXED: Wait for user data to be ready
             if (window.currentUserData) {
                 // User data already available
@@ -41,31 +41,48 @@ class FeatureRequestManager {
     }
 
     async onUserReady() {
-    try {
-        this.currentUser = window.currentUserData;
-        
-        if (!this.currentUser) {
-            console.error('❌ No user data available');
-            this.showNotAuthenticated();
-            return;
+        try {
+            this.currentUser = window.currentUserData;
+
+            if (!this.currentUser) {
+                console.error('❌ No user data available');
+                this.showNotAuthenticated();
+                return;
+            }
+
+            console.log('✅ User authenticated:', this.currentUser.email);
+
+            // VERIFY SUPABASE CLIENT
+            console.log('🔍 Verifying Supabase client...');
+            console.log('  - Client exists:', !!this.supabaseClient);
+            console.log('  - Auth manager exists:', !!window.authManager);
+
+            if (!this.supabaseClient) {
+                console.error('❌ Supabase client is null!');
+                this.showError('Database connection failed');
+                return;
+            }
+
+            // Try to get session directly
+            const { data: { session }, error: sessionError } = await this.supabaseClient.auth.getSession();
+            console.log('🔍 Session check:', {
+                hasSession: !!session,
+                error: sessionError,
+                userId: session?.user?.id,
+                expiresAt: session?.expires_at
+            });
+
+            this.setupEventListeners();
+            await this.testDatabaseAccess();
+            await this.loadFeatureRequests();
+
+            console.log('✅ Feature Request Manager fully initialized');
+
+        } catch (error) {
+            console.error('❌ Error in onUserReady:', error);
+            this.showError('Failed to initialize. Please refresh the page.');
         }
-
-        console.log('✅ User authenticated:', this.currentUser.email);
-
-        this.setupEventListeners();
-        
-        // ADD THIS LINE:
-        await this.testDatabaseAccess();
-        
-        await this.loadFeatureRequests();
-
-        console.log('✅ Feature Request Manager fully initialized');
-
-    } catch (error) {
-        console.error('❌ Error in onUserReady:', error);
-        this.showError('Failed to initialize. Please refresh the page.');
     }
-}
 
     setupEventListeners() {
         const form = document.getElementById('featureForm');
@@ -78,129 +95,161 @@ class FeatureRequestManager {
     }
 
     async loadFeatureRequests() {
-    const container = document.getElementById('featuresList');
-    
-    // Show loading
-    container.innerHTML = `
+        const container = document.getElementById('featuresList');
+
+        // Show loading
+        container.innerHTML = `
         <div class="loading-state">
             <i class="bi bi-hourglass-split"></i>
             <div>Loading feature requests...</div>
         </div>
     `;
 
-    try {
-        console.log('📥 Loading feature requests...');
+        try {
+            console.log('📥 Loading feature requests...');
 
-        // DEBUG: Check session before query
-        console.log('🔍 Checking Supabase session...');
-        const { data: sessionData, error: sessionError } = await this.supabaseClient.auth.getSession();
-        
-        if (sessionError) {
-            console.error('❌ Session error:', sessionError);
-            this.showError('Authentication session error');
-            return;
-        }
-        
-        if (!sessionData.session) {
-            console.error('❌ No active session found');
-            this.showNotAuthenticated();
-            return;
-        }
-        
-        console.log('✅ Active session found:', sessionData.session.user.email);
-        console.log('🔑 Session expires at:', new Date(sessionData.session.expires_at * 1000).toLocaleString());
+            // DEBUG: Check session before query
+            console.log('🔍 Checking Supabase session...');
+            const { data: sessionData, error: sessionError } = await this.supabaseClient.auth.getSession();
 
-        // DEBUG: Try query with timeout
-        console.log('🔍 Executing query to feature_requests table...');
-        
-        const queryPromise = this.supabaseClient
-            .from('feature_requests')
-            .select('*')
-            .order('created_at', { ascending: false });
+            if (sessionError) {
+                console.error('❌ Session error:', sessionError);
+                this.showError('Authentication session error');
+                return;
+            }
 
-        // Add timeout to detect hanging queries
-        const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Query timeout after 10 seconds')), 10000)
-        );
-
-        const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
-
-        console.log('📊 Query completed');
-        console.log('📊 Data:', data);
-        console.log('📊 Error:', error);
-
-        if (error) {
-            console.error('❌ Error loading feature requests:', error);
-            console.error('❌ Error code:', error.code);
-            console.error('❌ Error message:', error.message);
-            console.error('❌ Error details:', error.details);
-            console.error('❌ Error hint:', error.hint);
-            
-            // Check if it's an auth error
-            if (error.code === 'PGRST301' || error.message.includes('JWT') || error.code === '42501') {
-                console.error('❌ Authentication/Permission error detected');
+            if (!sessionData.session) {
+                console.error('❌ No active session found');
                 this.showNotAuthenticated();
                 return;
             }
-            
-            this.showError('Failed to load feature requests: ' + error.message);
+
+            console.log('✅ Active session found:', sessionData.session.user.email);
+            console.log('🔑 Session expires at:', new Date(sessionData.session.expires_at * 1000).toLocaleString());
+
+            // DEBUG: Try query with timeout
+            console.log('🔍 Executing query to feature_requests table...');
+
+            const queryPromise = this.supabaseClient
+                .from('feature_requests')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            // Add timeout to detect hanging queries
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Query timeout after 10 seconds')), 10000)
+            );
+
+            const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
+
+            console.log('📊 Query completed');
+            console.log('📊 Data:', data);
+            console.log('📊 Error:', error);
+
+            if (error) {
+                console.error('❌ Error loading feature requests:', error);
+                console.error('❌ Error code:', error.code);
+                console.error('❌ Error message:', error.message);
+                console.error('❌ Error details:', error.details);
+                console.error('❌ Error hint:', error.hint);
+
+                // Check if it's an auth error
+                if (error.code === 'PGRST301' || error.message.includes('JWT') || error.code === '42501') {
+                    console.error('❌ Authentication/Permission error detected');
+                    this.showNotAuthenticated();
+                    return;
+                }
+
+                this.showError('Failed to load feature requests: ' + error.message);
+                this.featureRequests = [];
+            } else {
+                console.log(`✅ Loaded ${data?.length || 0} feature requests`);
+
+                // Process data - calculate vote counts from array
+                this.featureRequests = (data || []).map(item => ({
+                    ...item,
+                    vote_count: Array.isArray(item.upvoter_emails) ? item.upvoter_emails.length : 0
+                }));
+
+                console.log('✅ Processed feature requests:', this.featureRequests);
+            }
+
+            this.renderFeatureRequests();
+
+        } catch (error) {
+            console.error('❌ Exception loading feature requests:', error);
+            console.error('❌ Exception name:', error.name);
+            console.error('❌ Exception message:', error.message);
+            console.error('❌ Exception stack:', error.stack);
+
+            if (error.message.includes('timeout')) {
+                this.showError('Request timed out. Please check your connection.');
+            } else {
+                this.showError('Failed to load feature requests');
+            }
+
             this.featureRequests = [];
-        } else {
-            console.log(`✅ Loaded ${data?.length || 0} feature requests`);
-            
-            // Process data - calculate vote counts from array
-            this.featureRequests = (data || []).map(item => ({
-                ...item,
-                vote_count: Array.isArray(item.upvoter_emails) ? item.upvoter_emails.length : 0
-            }));
-            
-            console.log('✅ Processed feature requests:', this.featureRequests);
+            this.renderFeatureRequests();
         }
+    }
 
-        this.renderFeatureRequests();
+    async testDatabaseAccess() {
+        console.log('🧪 Testing database access...');
 
-    } catch (error) {
-        console.error('❌ Exception loading feature requests:', error);
-        console.error('❌ Exception name:', error.name);
-        console.error('❌ Exception message:', error.message);
-        console.error('❌ Exception stack:', error.stack);
-        
-        if (error.message.includes('timeout')) {
-            this.showError('Request timed out. Please check your connection.');
-        } else {
-            this.showError('Failed to load feature requests');
+        try {
+            // Check if client exists
+            console.log('✅ Supabase client exists:', !!this.supabaseClient);
+            console.log('✅ Client details:', {
+                hasFrom: typeof this.supabaseClient?.from === 'function',
+                hasAuth: typeof this.supabaseClient?.auth === 'object'
+            });
+
+            // Check Supabase URL
+            const url = this.supabaseClient?.supabaseUrl;
+            console.log('✅ Supabase URL:', url);
+
+            // Test with explicit timeout and error handling
+            console.log('Test 1: Simple query with 5s timeout...');
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => {
+                controller.abort();
+                console.error('❌ Request aborted after 5 seconds');
+            }, 5000);
+
+            try {
+                const startTime = Date.now();
+                console.log('⏱️ Query started at:', new Date().toISOString());
+
+                const { data, error } = await this.supabaseClient
+                    .from('feature_requests')
+                    .select('id')
+                    .limit(1);
+
+                clearTimeout(timeoutId);
+                const endTime = Date.now();
+
+                console.log('⏱️ Query completed in:', (endTime - startTime) + 'ms');
+                console.log('📊 Result:', { data, error });
+
+                if (error) {
+                    console.error('❌ Query error:', error);
+                    console.error('❌ Error details:', JSON.stringify(error, null, 2));
+                } else {
+                    console.log('✅ Query successful, rows returned:', data?.length || 0);
+                }
+
+            } catch (fetchError) {
+                clearTimeout(timeoutId);
+                console.error('❌ Fetch error:', fetchError);
+                console.error('❌ Error name:', fetchError.name);
+                console.error('❌ Error message:', fetchError.message);
+            }
+
+        } catch (error) {
+            console.error('❌ Test failed:', error);
         }
-        
-        this.featureRequests = [];
-        this.renderFeatureRequests();
     }
-}
-
-async testDatabaseAccess() {
-    console.log('🧪 Testing database access...');
-    
-    try {
-        // Test 1: Simple table list
-        console.log('Test 1: Listing all tables...');
-        const { data: tables, error: tableError } = await this.supabaseClient
-            .from('feature_requests')
-            .select('id')
-            .limit(1);
-            
-        console.log('Tables result:', { data: tables, error: tableError });
-        
-        // Test 2: Count rows
-        console.log('Test 2: Counting rows...');
-        const { count, error: countError } = await this.supabaseClient
-            .from('feature_requests')
-            .select('*', { count: 'exact', head: true });
-            
-        console.log('Count result:', { count, error: countError });
-        
-    } catch (error) {
-        console.error('Test failed:', error);
-    }
-}
 
     async createFeatureRequest() {
         const title = document.getElementById('featureTitle').value.trim();
@@ -259,11 +308,11 @@ async testDatabaseAccess() {
     async toggleVote(featureId, currentlyVoted) {
         try {
             const userEmail = this.currentUser.email;
-            
+
             if (currentlyVoted) {
                 // Remove vote (downvote)
                 console.log('⬇️ Removing vote from:', featureId);
-                
+
                 const { error } = await this.supabaseClient
                     .rpc('downvote_feature_request', {
                         feature_id: featureId,
@@ -275,13 +324,13 @@ async testDatabaseAccess() {
                     this.showError('Failed to remove vote');
                     return;
                 }
-                
+
                 console.log('✅ Vote removed');
-                
+
             } else {
                 // Add vote (upvote)
                 console.log('⬆️ Adding vote to:', featureId);
-                
+
                 const { error } = await this.supabaseClient
                     .rpc('upvote_feature_request', {
                         feature_id: featureId,
@@ -293,7 +342,7 @@ async testDatabaseAccess() {
                     this.showError('Failed to add vote');
                     return;
                 }
-                
+
                 console.log('✅ Vote added');
             }
 
@@ -418,11 +467,11 @@ async testDatabaseAccess() {
 
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
-        
-        const icon = type === 'success' ? 'check-circle' : 
-                     type === 'error' ? 'exclamation-circle' : 
-                     'info-circle';
-        
+
+        const icon = type === 'success' ? 'check-circle' :
+            type === 'error' ? 'exclamation-circle' :
+                'info-circle';
+
         toast.innerHTML = `
             <div class="toast-content">
                 <i class="bi bi-${icon}"></i>
