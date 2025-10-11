@@ -175,19 +175,19 @@ jobs:
           echo "ℹ️ No changes to deploy"
         else
           # Commit with deployment message
-          git commit -m "Deploy secured build to production
-
-🔒 Security features:
-- JavaScript obfuscated with RC4 encoding
-- HTML minified and optimized
-- Dead code injection enabled
-- Control flow flattening applied
-- Only production-ready files included
-
-🤖 Auto-deployed from dev branch via GitHub Actions
-📅 $(date -u '+%Y-%m-%d %H:%M:%S UTC')
-
-Co-Authored-By: GitHub Actions <actions@github.com>"
+          git commit -m "Deploy secured build to production" \
+                     -m "" \
+                     -m "🔒 Security features:" \
+                     -m "- JavaScript obfuscated with RC4 encoding" \
+                     -m "- HTML minified and optimized" \
+                     -m "- Dead code injection enabled" \
+                     -m "- Control flow flattening applied" \
+                     -m "- Only production-ready files included" \
+                     -m "" \
+                     -m "🤖 Auto-deployed from dev branch via GitHub Actions" \
+                     -m "📅 $(date -u '+%Y-%m-%d %H:%M:%S UTC')" \
+                     -m "" \
+                     -m "Co-Authored-By: GitHub Actions <actions@github.com>"
 
           # Push to main branch
           echo "🌍 Pushing to main branch..."
