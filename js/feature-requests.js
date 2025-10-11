@@ -28,7 +28,6 @@ class FeatureRequestManager {
             this.setupEventListeners();
             console.log('Event listeners setup ✓');
 
-            await this.testSimpleQuery();
             await this.loadFeatureRequests();
             console.log('Feature requests loaded ✓');
 
@@ -129,7 +128,9 @@ class FeatureRequestManager {
 
         try {
             console.log('Creating feature request:', { title, description, type });
+            console.log('User info:', { id: this.currentUser.id, email: this.currentUser.email });
 
+            console.log('Executing INSERT query...');
             const { data, error } = await this.supabaseClient
                 .from('feature_requests')
                 .insert({
@@ -141,13 +142,16 @@ class FeatureRequestManager {
                 })
                 .select();
 
+            console.log('INSERT completed. Result:', { data, error });
+
             if (error) {
                 console.error('Error creating feature request:', error);
-                this.showError('Failed to create feature request');
+                console.error('Full error details:', JSON.stringify(error, null, 2));
+                this.showError('Failed to create feature request: ' + error.message);
                 return;
             }
 
-            console.log('Feature request created:', data[0]);
+            console.log('✅ Feature request created successfully:', data[0]);
 
             // Clear form
             document.getElementById('featureForm').reset();
