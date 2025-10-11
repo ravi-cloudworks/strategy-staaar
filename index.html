@@ -9,7 +9,7 @@
     <meta charset="UTF-8">
   <!-- CSP to prevent XSS and allow required external resources -->
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://docs.opencv.org; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net data:; img-src 'self' data: https: blob:; media-src 'self' blob: data:; connect-src 'self' https://*.supabase.co https://www.linkedin.com https://*.linkedin.com; frame-ancestors 'self';">
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://docs.opencv.org; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net data:; img-src 'self' data: https: blob:; media-src 'self' blob: data:; connect-src 'self' https://*.supabase.co https://www.linkedin.com https://*.linkedin.com; frame-ancestors 'self';">
   
   <!-- Prevent MIME type sniffing -->
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
