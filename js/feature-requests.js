@@ -50,37 +50,29 @@ class FeatureRequestManager {
     }
 
     async testSimpleQuery() {
-        console.log('🧪 Testing simple database query...');
+        console.log('🧪 Testing Supabase client...');
 
         try {
-            // Test 1: Basic connectivity test (PostgreSQL equivalent of "select 1")
-            console.log('Test 1: Basic query...');
-            const { data: test1, error: error1 } = await this.supabaseClient
-                .rpc('now'); // PostgreSQL built-in function
+            // Test 0: Check client properties
+            console.log('Supabase client URL:', this.supabaseClient?.supabaseUrl);
+            console.log('Supabase client key exists:', !!this.supabaseClient?.supabaseKey);
+            console.log('Client instance:', this.supabaseClient);
 
-            console.log('Test 1 result:', { data: test1, error: error1 });
+            // Test 1: Session check (non-hanging operation)
+            console.log('Test 1: Checking session...');
+            const session = await this.supabaseClient.auth.getSession();
+            console.log('Session result:', session);
 
-            if (error1) {
-                // Try alternative simple query
-                console.log('Test 1 failed, trying Test 2: Known table query...');
-                const { data: test2, error: error2 } = await this.supabaseClient
-                    .from('users_login')
-                    .select('count')
-                    .limit(1);
+            // Test 2: Basic RPC call
+            console.log('Test 2: Basic RPC call...');
+            const rpcResult = await this.supabaseClient.rpc('now');
+            console.log('RPC result:', rpcResult);
 
-                console.log('Test 2 result:', { data: test2, error: error2 });
-
-                if (error2) {
-                    throw new Error('Both simple queries failed');
-                } else {
-                    console.log('✅ Simple query test passed (Test 2)');
-                }
-            } else {
-                console.log('✅ Simple query test passed (Test 1)');
-            }
+            console.log('✅ Basic tests completed');
 
         } catch (error) {
-            console.error('❌ Simple query test failed:', error);
+            console.error('❌ Basic test failed:', error);
+            console.error('Error stack:', error.stack);
             throw error;
         }
     }
