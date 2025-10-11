@@ -7,42 +7,55 @@ class FeatureRequestManager {
     }
 
     async init() {
-        console.log('🚀 Init started');
+    console.log('🚀 Init started');
 
-        // Get client directly - don't store in variable yet
-        const client = window.authManager?.getSupabaseClient();
-        console.log('📊 Client retrieved:', !!client);
+    const client = window.authManager?.getSupabaseClient();
+    console.log('📊 Client retrieved:', !!client);
 
-        if (!client) {
-            console.error('❌ No client');
-            return;
-        }
+    if (!client) {
+        console.error('❌ No client');
+        return;
+    }
 
-        this.supabaseClient = client;
-        console.log('✅ Client assigned');
+    this.supabaseClient = client;
+    console.log('✅ Client assigned');
 
-        // Use global user data
-        if (!window.currentUserData) {
-            console.error('❌ No user data');
-            return;
-        }
+    if (!window.currentUserData) {
+        console.error('❌ No user data');
+        return;
+    }
 
-        this.currentUser = window.currentUserData;
-        console.log('✅ User assigned:', this.currentUser.email);
+    this.currentUser = window.currentUserData;
+    console.log('✅ User assigned:', this.currentUser.email);
 
-        // Setup form
-        this.setupEventListeners();
-        console.log('✅ Listeners setup');
+    this.setupEventListeners();
+    console.log('✅ Listeners setup');
 
-        // Try query WITHOUT await - use .then() instead
-        console.log('🔍 Attempting query with .then()...');
-        
+    // TEST 1: Query users_login (we know this works from auth.js)
+    console.log('🧪 TEST 1: Query users_login table...');
+    this.supabaseClient
+        .from('users_login')
+        .select('email')
+        .limit(1)
+        .then(({ data, error }) => {
+            console.log('✅ users_login query resolved!');
+            console.log('📊 Data:', data);
+            console.log('📊 Error:', error);
+        })
+        .catch(err => {
+            console.error('❌ users_login query rejected:', err);
+        });
+
+    // Give it 2 seconds
+    setTimeout(() => {
+        // TEST 2: Query feature_requests
+        console.log('🧪 TEST 2: Query feature_requests table...');
         this.supabaseClient
             .from('feature_requests')
             .select('*')
             .order('created_at', { ascending: false })
             .then(({ data, error }) => {
-                console.log('✅ Query resolved!');
+                console.log('✅ feature_requests query resolved!');
                 console.log('📊 Data:', data);
                 console.log('📊 Error:', error);
                 
@@ -60,14 +73,14 @@ class FeatureRequestManager {
                 this.renderFeatureRequests();
             })
             .catch(err => {
-                console.error('❌ Query rejected:', err);
+                console.error('❌ feature_requests query rejected:', err);
                 this.featureRequests = [];
                 this.renderFeatureRequests();
             });
-        
-        console.log('🔍 Query dispatched (not awaited)');
-        console.log('✅ Init completed (query still pending)');
-    }
+    }, 2000);
+    
+    console.log('✅ Init completed (tests dispatched)');
+}
 
     setupEventListeners() {
         const form = document.getElementById('featureForm');
