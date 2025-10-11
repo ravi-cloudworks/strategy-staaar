@@ -143,6 +143,10 @@ jobs:
       run: |
         echo "🚀 Deploying to main branch..."
 
+        # Backup dist directory before switching branches
+        echo "💾 Backing up dist directory..."
+        cp -r dist /tmp/deploy_backup
+
         # Switch to main branch
         git checkout main
 
@@ -153,9 +157,15 @@ jobs:
         echo "🧹 Clearing main branch for fresh deployment..."
         find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name '.gitignore' -exec rm -rf {} \; || true
 
-        # Copy secure build files from dist
+        # Copy secure build files from backup
         echo "📁 Copying secure build files to main branch..."
-        cp -r dist/* ./ || echo "No files to copy from dist"
+        if [ "$(ls -A /tmp/deploy_backup 2>/dev/null)" ]; then
+          cp -r /tmp/deploy_backup/* ./
+          echo "✅ Secured files copied successfully"
+        else
+          echo "❌ No files found in backup directory"
+          exit 1
+        fi
 
         # Add all files to git
         git add .
