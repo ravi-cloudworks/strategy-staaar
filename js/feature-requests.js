@@ -10,7 +10,7 @@ class FeatureRequestManager {
         console.log('🚀 Initializing Feature Request Manager...');
 
         try {
-            // CRITICAL: Wait for auth to be ready first
+            // CRITICAL: Wait for auth manager
             if (!window.authManager) {
                 console.error('❌ Auth manager not available');
                 this.showError('Authentication system not ready. Please refresh the page.');
@@ -20,11 +20,33 @@ class FeatureRequestManager {
             // Get Supabase client
             this.supabaseClient = window.authManager.getSupabaseClient();
             
-            // Get current user from auth
-            this.currentUser = await window.authManager.getCurrentUser();
+            // FIXED: Wait for user data to be ready
+            if (window.currentUserData) {
+                // User data already available
+                console.log('✅ User data already available');
+                await this.onUserReady();
+            } else {
+                // Wait for user data ready event
+                console.log('⏳ Waiting for user data...');
+                window.addEventListener('userDataReady', async (e) => {
+                    console.log('✅ User data ready event received');
+                    await this.onUserReady();
+                });
+            }
+
+        } catch (error) {
+            console.error('❌ Error during initialization:', error);
+            this.showError('Failed to initialize. Please refresh the page.');
+        }
+    }
+
+    async onUserReady() {
+        try {
+            // Get user data from global
+            this.currentUser = window.currentUserData;
             
             if (!this.currentUser) {
-                console.error('❌ No authenticated user found');
+                console.error('❌ No user data available');
                 this.showNotAuthenticated();
                 return;
             }
@@ -35,10 +57,10 @@ class FeatureRequestManager {
             this.setupEventListeners();
             await this.loadFeatureRequests();
 
-            console.log('✅ Feature Request Manager initialized');
+            console.log('✅ Feature Request Manager fully initialized');
 
         } catch (error) {
-            console.error('❌ Error during initialization:', error);
+            console.error('❌ Error in onUserReady:', error);
             this.showError('Failed to initialize. Please refresh the page.');
         }
     }
@@ -346,22 +368,18 @@ class FeatureRequestManager {
 // Global instance
 let featureManager;
 
-// Initialize when auth is ready
+// Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     console.log('📄 DOM loaded, waiting for auth...');
 
-    // Check if auth manager already exists
-    if (window.authManager) {
-        console.log('✅ Auth manager found immediately');
-        featureManager = new FeatureRequestManager();
-        featureManager.init();
-    } else {
-        // Wait for auth manager ready event
-        console.log('⏳ Waiting for authManagerReady event...');
-        window.addEventListener('authManagerReady', () => {
-            console.log('✅ Auth manager ready event received');
+    // Always wait a bit for auth.js to initialize
+    setTimeout(() => {
+        if (window.authManager) {
+            console.log('✅ Auth manager found');
             featureManager = new FeatureRequestManager();
             featureManager.init();
-        });
-    }
+        } else {
+            console.error('❌ Auth manager not found after timeout');
+        }
+    }, 500);
 });
