@@ -9,25 +9,46 @@ class FeatureRequestManager {
     async init() {
         console.log('Initializing Feature Request Manager...');
 
-        // Wait for auth manager to be ready
-        if (!window.authManager) {
-            console.error('Auth manager not found');
-            return;
+        try {
+            // Wait for auth manager to be ready
+            console.log('Checking auth manager...');
+            if (!window.authManager) {
+                console.error('Auth manager not found');
+                return;
+            }
+            console.log('Auth manager found ✓');
+
+            console.log('Getting Supabase client...');
+            this.supabaseClient = window.authManager.getSupabaseClient();
+            console.log('Supabase client obtained ✓');
+
+            console.log('Getting current user...');
+            this.currentUser = await window.authManager.getCurrentUser();
+            console.log('Current user result:', this.currentUser);
+
+            if (!this.currentUser) {
+                console.error('User not authenticated');
+                this.showError('Please login to access feature requests');
+                return;
+            }
+
+            console.log('User authenticated ✓:', this.currentUser.email);
+
+            console.log('Setting up event listeners...');
+            this.setupEventListeners();
+            console.log('Event listeners setup ✓');
+
+            console.log('Testing Supabase connection...');
+            await this.testConnection();
+
+            console.log('Loading feature requests...');
+            await this.loadFeatureRequests();
+            console.log('Feature requests loading completed ✓');
+
+        } catch (error) {
+            console.error('Error during initialization:', error);
+            this.showError('Failed to initialize feature requests');
         }
-
-        this.supabaseClient = window.authManager.getSupabaseClient();
-        this.currentUser = await window.authManager.getCurrentUser();
-
-        if (!this.currentUser) {
-            console.error('User not authenticated');
-            this.showError('Please login to access feature requests');
-            return;
-        }
-
-        console.log('User authenticated:', this.currentUser.email);
-
-        this.setupEventListeners();
-        await this.loadFeatureRequests();
     }
 
     setupEventListeners() {
@@ -39,6 +60,40 @@ class FeatureRequestManager {
         });
 
         console.log('Event listeners setup complete');
+    }
+
+    async testConnection() {
+        try {
+            console.log('🔍 Testing basic Supabase connection...');
+
+            // Test 1: Check if client exists
+            console.log('Supabase client exists:', !!this.supabaseClient);
+
+            // Test 2: Test session
+            console.log('Testing session...');
+            const { data: session, error: sessionError } = await this.supabaseClient.auth.getSession();
+            console.log('Session test result:', { session: !!session?.session, error: sessionError });
+
+            // Test 3: Simple query to existing table
+            console.log('Testing basic query...');
+            const { data: testData, error: testError } = await this.supabaseClient
+                .from('users_login')
+                .select('count')
+                .limit(1);
+
+            console.log('Basic query result:', { data: testData, error: testError });
+
+            if (testError) {
+                console.error('❌ Basic connection test failed:', testError);
+                throw new Error('Connection test failed: ' + testError.message);
+            }
+
+            console.log('✅ Supabase connection test passed!');
+
+        } catch (error) {
+            console.error('❌ Connection test failed:', error);
+            throw error;
+        }
     }
 
     async loadFeatureRequests() {
