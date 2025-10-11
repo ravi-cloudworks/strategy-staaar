@@ -34,151 +34,158 @@ class FeatureRequestManager {
         }
     }
 
-    async getAuthHeaders() {
-        // Get user's JWT token from Supabase auth
-        const { data: { session } } = await window.authManager.getSupabaseClient().auth.getSession();
-
-        const headers = {
-            'apikey': this.SUPABASE_KEY,
-            'Content-Type': 'application/json'
-        };
-
-        // Add user's JWT token if available
-        if (session?.access_token) {
-            headers['Authorization'] = `Bearer ${session.access_token}`;
-        } else {
-            headers['Authorization'] = `Bearer ${this.SUPABASE_KEY}`;
-        }
-
-        return headers;
+    getAuthHeaders() {
+    const headers = {
+        'apikey': this.SUPABASE_KEY,
+        'Content-Type': 'application/json'
+    };
+    
+    // Try to get cached session from Supabase client (synchronous)
+    const client = window.authManager?.getSupabaseClient();
+    
+    // Access the internal auth state (this is synchronous)
+    if (client?.auth?.currentSession?.access_token) {
+        headers['Authorization'] = `Bearer ${client.auth.currentSession.access_token}`;
+    } else if (client?.realtime?.accessToken) {
+        headers['Authorization'] = `Bearer ${client.realtime.accessToken}`;
+    } else {
+        // Fallback to anon key
+        headers['Authorization'] = `Bearer ${this.SUPABASE_KEY}`;
     }
+    
+    console.log('🔑 Using auth token:', headers['Authorization'].substring(0, 30) + '...');
+    
+    return headers;
+}
 
     async loadFeatureRequests() {
-        const container = document.getElementById('featuresList');
-
-        container.innerHTML = `
+    const container = document.getElementById('featuresList');
+    
+    container.innerHTML = `
         <div class="loading-state">
             <i class="bi bi-hourglass-split"></i>
             <div>Loading feature requests...</div>
         </div>
     `;
 
-        try {
-            console.log('📥 Loading feature requests...');
+    try {
+        console.log('📥 Loading feature requests...');
 
-            const headers = await this.getAuthHeaders();
+        const headers = this.getAuthHeaders(); // Remove await
 
-            const response = await fetch(`${this.SUPABASE_URL}/rest/v1/feature_requests?select=*&order=created_at.desc`, {
-                headers
-            });
+        const response = await fetch(`${this.SUPABASE_URL}/rest/v1/feature_requests?select=*&order=created_at.desc`, {
+            headers
+        });
 
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            console.log('✅ Loaded:', data.length, 'feature requests');
-
-            this.featureRequests = data.map(item => ({
-                ...item,
-                vote_count: Array.isArray(item.upvoter_emails) ? item.upvoter_emails.length : 0
-            }));
-
-            this.renderFeatureRequests();
-
-        } catch (error) {
-            console.error('❌ Error loading:', error);
-            this.showError('Failed to load: ' + error.message);
-            this.featureRequests = [];
-            this.renderFeatureRequests();
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
+
+        const data = await response.json();
+        console.log('✅ Loaded:', data.length, 'feature requests');
+
+        this.featureRequests = data.map(item => ({
+            ...item,
+            vote_count: Array.isArray(item.upvoter_emails) ? item.upvoter_emails.length : 0
+        }));
+
+        this.renderFeatureRequests();
+
+    } catch (error) {
+        console.error('❌ Error loading:', error);
+        this.showError('Failed to load: ' + error.message);
+        this.featureRequests = [];
+        this.renderFeatureRequests();
+    }
+}
+
+    
+
+   async createFeatureRequest() {
+    const title = document.getElementById('featureTitle').value.trim();
+    const description = document.getElementById('featureDescription').value.trim();
+    const type = document.querySelector('input[name="type"]:checked').value;
+
+    if (!title || !description) {
+        this.showError('Please fill in all fields');
+        return;
     }
 
-    async createFeatureRequest() {
-        const title = document.getElementById('featureTitle').value.trim();
-        const description = document.getElementById('featureDescription').value.trim();
-        const type = document.querySelector('input[name="type"]:checked').value;
+    const createBtn = document.getElementById('createBtn');
+    createBtn.disabled = true;
+    createBtn.textContent = 'Creating...';
 
-        if (!title || !description) {
-            this.showError('Please fill in all fields');
-            return;
+    try {
+        console.log('📝 Creating feature request...');
+
+        const headers = this.getAuthHeaders(); // Remove await
+        headers['Prefer'] = 'return=representation';
+
+        const response = await fetch(`${this.SUPABASE_URL}/rest/v1/feature_requests`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+                title,
+                description,
+                type,
+                created_by: this.currentUser.id,
+                upvoter_emails: []
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || response.statusText);
         }
 
-        const createBtn = document.getElementById('createBtn');
-        createBtn.disabled = true;
-        createBtn.textContent = 'Creating...';
+        const data = await response.json();
+        console.log('✅ Created:', data[0].id);
 
-        try {
-            console.log('📝 Creating feature request...');
+        document.getElementById('featureForm').reset();
+        document.getElementById('typeFeature').checked = true;
 
-            const headers = await this.getAuthHeaders();
-            headers['Prefer'] = 'return=representation';
+        await this.loadFeatureRequests();
+        this.showSuccess('Feature request created!');
 
-            const response = await fetch(`${this.SUPABASE_URL}/rest/v1/feature_requests`, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify({
-                    title,
-                    description,
-                    type,
-                    created_by: this.currentUser.id,
-                    upvoter_emails: []
-                })
-            });
-
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.message || response.statusText);
-            }
-
-            const data = await response.json();
-            console.log('✅ Created:', data[0].id);
-
-            document.getElementById('featureForm').reset();
-            document.getElementById('typeFeature').checked = true;
-
-            await this.loadFeatureRequests();
-            this.showSuccess('Feature request created!');
-
-        } catch (error) {
-            console.error('❌ Error creating:', error);
-            this.showError('Failed: ' + error.message);
-        } finally {
-            createBtn.disabled = false;
-            createBtn.textContent = 'Create Post';
-        }
+    } catch (error) {
+        console.error('❌ Error creating:', error);
+        this.showError('Failed: ' + error.message);
+    } finally {
+        createBtn.disabled = false;
+        createBtn.textContent = 'Create Post';
     }
+}
 
 
     async toggleVote(featureId, currentlyVoted) {
-        const functionName = currentlyVoted ? 'downvote_feature_request' : 'upvote_feature_request';
+    const functionName = currentlyVoted ? 'downvote_feature_request' : 'upvote_feature_request';
 
-        try {
-            console.log('🗳️ Voting:', functionName);
+    try {
+        console.log('🗳️ Voting:', functionName);
 
-            const headers = await this.getAuthHeaders();
+        const headers = this.getAuthHeaders(); // Remove await
 
-            const response = await fetch(`${this.SUPABASE_URL}/rest/v1/rpc/${functionName}`, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify({
-                    feature_id: featureId,
-                    user_email: this.currentUser.email
-                })
-            });
+        const response = await fetch(`${this.SUPABASE_URL}/rest/v1/rpc/${functionName}`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+                feature_id: featureId,
+                user_email: this.currentUser.email
+            })
+        });
 
-            if (!response.ok) {
-                throw new Error(response.statusText);
-            }
-
-            console.log('✅ Vote recorded');
-            await this.loadFeatureRequests();
-
-        } catch (error) {
-            console.error('❌ Vote error:', error);
-            this.showError('Failed to vote');
+        if (!response.ok) {
+            throw new Error(response.statusText);
         }
+
+        console.log('✅ Vote recorded');
+        await this.loadFeatureRequests();
+
+    } catch (error) {
+        console.error('❌ Vote error:', error);
+        this.showError('Failed to vote');
     }
+}
 
     renderFeatureRequests() {
         const container = document.getElementById('featuresList');
