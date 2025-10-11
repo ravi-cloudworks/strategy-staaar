@@ -1,86 +1,28 @@
-// Feature Requests Manager - MINIMAL DEBUG VERSION
+// Feature Requests Manager - Using Direct Fetch
 class FeatureRequestManager {
     constructor() {
-        this.supabaseClient = null;
+        this.SUPABASE_URL = 'https://yxicubfthxkwqcihrdhe.supabase.co';
+        this.SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4aWN1YmZ0aHhrd3FjaWhyZGhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgyMjg3NDEsImV4cCI6MjA3MzgwNDc0MX0.-w4VQhAIF0kYLHv87JazGLxgX-r4VXCJaPVSmOUher4';
         this.currentUser = null;
         this.featureRequests = [];
     }
 
     async init() {
-    console.log('🚀 Init started');
+        console.log('🚀 Init started');
 
-    const client = window.authManager?.getSupabaseClient();
-    console.log('📊 Client retrieved:', !!client);
+        if (!window.currentUserData) {
+            console.error('❌ No user data');
+            return;
+        }
 
-    if (!client) {
-        console.error('❌ No client');
-        return;
+        this.currentUser = window.currentUserData;
+        console.log('✅ User assigned:', this.currentUser.email);
+
+        this.setupEventListeners();
+        await this.loadFeatureRequests();
+
+        console.log('✅ Init completed');
     }
-
-    this.supabaseClient = client;
-    console.log('✅ Client assigned');
-
-    if (!window.currentUserData) {
-        console.error('❌ No user data');
-        return;
-    }
-
-    this.currentUser = window.currentUserData;
-    console.log('✅ User assigned:', this.currentUser.email);
-
-    this.setupEventListeners();
-    console.log('✅ Listeners setup');
-
-    // TEST 1: Query users_login (we know this works from auth.js)
-    console.log('🧪 TEST 1: Query users_login table...');
-    this.supabaseClient
-        .from('users_login')
-        .select('email')
-        .limit(1)
-        .then(({ data, error }) => {
-            console.log('✅ users_login query resolved!');
-            console.log('📊 Data:', data);
-            console.log('📊 Error:', error);
-        })
-        .catch(err => {
-            console.error('❌ users_login query rejected:', err);
-        });
-
-    // Give it 2 seconds
-    setTimeout(() => {
-        // TEST 2: Query feature_requests
-        console.log('🧪 TEST 2: Query feature_requests table...');
-        this.supabaseClient
-            .from('feature_requests')
-            .select('*')
-            .order('created_at', { ascending: false })
-            .then(({ data, error }) => {
-                console.log('✅ feature_requests query resolved!');
-                console.log('📊 Data:', data);
-                console.log('📊 Error:', error);
-                
-                if (error) {
-                    console.error('❌ Query error:', error);
-                    this.featureRequests = [];
-                } else {
-                    console.log('✅ Success! Rows:', data?.length || 0);
-                    this.featureRequests = (data || []).map(item => ({
-                        ...item,
-                        vote_count: Array.isArray(item.upvoter_emails) ? item.upvoter_emails.length : 0
-                    }));
-                }
-                
-                this.renderFeatureRequests();
-            })
-            .catch(err => {
-                console.error('❌ feature_requests query rejected:', err);
-                this.featureRequests = [];
-                this.renderFeatureRequests();
-            });
-    }, 2000);
-    
-    console.log('✅ Init completed (tests dispatched)');
-}
 
     setupEventListeners() {
         const form = document.getElementById('featureForm');
@@ -92,7 +34,49 @@ class FeatureRequestManager {
         }
     }
 
-    createFeatureRequest() {
+    async loadFeatureRequests() {
+        const container = document.getElementById('featuresList');
+        
+        container.innerHTML = `
+            <div class="loading-state">
+                <i class="bi bi-hourglass-split"></i>
+                <div>Loading feature requests...</div>
+            </div>
+        `;
+
+        try {
+            console.log('📥 Loading feature requests...');
+
+            const response = await fetch(`${this.SUPABASE_URL}/rest/v1/feature_requests?select=*&order=created_at.desc`, {
+                headers: {
+                    'apikey': this.SUPABASE_KEY,
+                    'Authorization': `Bearer ${this.SUPABASE_KEY}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            console.log('✅ Loaded:', data.length, 'feature requests');
+
+            this.featureRequests = data.map(item => ({
+                ...item,
+                vote_count: Array.isArray(item.upvoter_emails) ? item.upvoter_emails.length : 0
+            }));
+
+            this.renderFeatureRequests();
+
+        } catch (error) {
+            console.error('❌ Error loading:', error);
+            this.showError('Failed to load: ' + error.message);
+            this.featureRequests = [];
+            this.renderFeatureRequests();
+        }
+    }
+
+    async createFeatureRequest() {
         const title = document.getElementById('featureTitle').value.trim();
         const description = document.getElementById('featureDescription').value.trim();
         const type = document.querySelector('input[name="type"]:checked').value;
@@ -106,73 +90,83 @@ class FeatureRequestManager {
         createBtn.disabled = true;
         createBtn.textContent = 'Creating...';
 
-        console.log('📝 Creating:', { title, type });
+        try {
+            console.log('📝 Creating feature request...');
 
-        this.supabaseClient
-            .from('feature_requests')
-            .insert({
-                title,
-                description,
-                type,
-                created_by: this.currentUser.id,
-                upvoter_emails: []
-            })
-            .select()
-            .then(({ data, error }) => {
-                console.log('Insert result:', { data, error });
-                
-                if (error) {
-                    console.error('❌ Insert error:', error);
-                    this.showError('Failed: ' + error.message);
-                } else {
-                    console.log('✅ Created!');
-                    document.getElementById('featureForm').reset();
-                    document.getElementById('typeFeature').checked = true;
-                    this.showSuccess('Created successfully!');
-                    
-                    // Reload
-                    this.init();
-                }
-            })
-            .catch(err => {
-                console.error('❌ Insert exception:', err);
-                this.showError('Failed to create');
-            })
-            .finally(() => {
-                createBtn.disabled = false;
-                createBtn.textContent = 'Create Post';
+            const response = await fetch(`${this.SUPABASE_URL}/rest/v1/feature_requests`, {
+                method: 'POST',
+                headers: {
+                    'apikey': this.SUPABASE_KEY,
+                    'Authorization': `Bearer ${this.SUPABASE_KEY}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=representation'
+                },
+                body: JSON.stringify({
+                    title,
+                    description,
+                    type,
+                    created_by: this.currentUser.id,
+                    upvoter_emails: []
+                })
             });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || response.statusText);
+            }
+
+            const data = await response.json();
+            console.log('✅ Created:', data[0].id);
+
+            document.getElementById('featureForm').reset();
+            document.getElementById('typeFeature').checked = true;
+
+            await this.loadFeatureRequests();
+            this.showSuccess('Feature request created!');
+
+        } catch (error) {
+            console.error('❌ Error creating:', error);
+            this.showError('Failed: ' + error.message);
+        } finally {
+            createBtn.disabled = false;
+            createBtn.textContent = 'Create Post';
+        }
     }
 
-    toggleVote(featureId, currentlyVoted) {
+    async toggleVote(featureId, currentlyVoted) {
         const functionName = currentlyVoted ? 'downvote_feature_request' : 'upvote_feature_request';
         
-        console.log('🗳️ Voting:', functionName, featureId);
+        try {
+            console.log('🗳️ Voting:', functionName);
 
-        this.supabaseClient
-            .rpc(functionName, {
-                feature_id: featureId,
-                user_email: this.currentUser.email
-            })
-            .then(({ error }) => {
-                if (error) {
-                    console.error('❌ Vote error:', error);
-                    this.showError('Failed to vote');
-                } else {
-                    console.log('✅ Vote recorded');
-                    this.init(); // Reload
-                }
-            })
-            .catch(err => {
-                console.error('❌ Vote exception:', err);
-                this.showError('Failed to vote');
+            const response = await fetch(`${this.SUPABASE_URL}/rest/v1/rpc/${functionName}`, {
+                method: 'POST',
+                headers: {
+                    'apikey': this.SUPABASE_KEY,
+                    'Authorization': `Bearer ${this.SUPABASE_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    feature_id: featureId,
+                    user_email: this.currentUser.email
+                })
             });
+
+            if (!response.ok) {
+                throw new Error(response.statusText);
+            }
+
+            console.log('✅ Vote recorded');
+            await this.loadFeatureRequests();
+
+        } catch (error) {
+            console.error('❌ Vote error:', error);
+            this.showError('Failed to vote');
+        }
     }
 
     renderFeatureRequests() {
         const container = document.getElementById('featuresList');
-
-        console.log('🎨 Rendering:', this.featureRequests.length, 'items');
 
         if (this.featureRequests.length === 0) {
             container.innerHTML = `
@@ -286,12 +280,12 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('📄 DOM loaded');
 
     setTimeout(() => {
-        if (window.authManager && window.currentUserData) {
-            console.log('✅ Auth ready, starting manager...');
+        if (window.currentUserData) {
+            console.log('✅ Starting manager...');
             featureManager = new FeatureRequestManager();
             featureManager.init();
         } else {
-            console.error('❌ Auth not ready');
+            console.error('❌ No user data');
         }
     }, 1000);
 });
