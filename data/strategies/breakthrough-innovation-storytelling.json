@@ -1,0 +1,62 @@
+{
+  "title": "Innovation Storytelling",
+  "description": "Launch positioning strategy",
+  "headers": [
+    {"text": "PROBLEM MAGNITUDE", "icon": "exclamation-triangle"},
+    {"text": "SOLUTION BREAKTHROUGH", "icon": "lightbulb"},
+    {"text": "INNOVATION PROOF", "icon": "shield-check"},
+    {"text": "ADOPTION BARRIERS", "icon": "shield-slash"},
+    {"text": "MARKET TRANSFORMATION", "icon": "arrow-clockwise"},
+    {"text": "FUTURE VISION", "icon": "binoculars"}
+  ],
+  "data": [
+    [
+      {"text": "MINOR INCONVENIENCE", "icon": "info"},
+      {"text": "COMMON FRUSTRATION", "icon": "emoji-frown"},
+      {"text": "SIGNIFICANT PROBLEM", "icon": "exclamation-circle"},
+      {"text": "INDUSTRY CRISIS", "icon": "shield-exclamation"},
+      {"text": "EXISTENTIAL THREAT", "icon": "emoji-dizzy"},
+      {"text": "CIVILIZATION CHALLENGE", "icon": "globe"}
+    ],
+    [
+      {"text": "INCREMENTAL IMPROVEMENT", "icon": "arrow-up"},
+      {"text": "NOTABLE UPGRADE", "icon": "graph-up"},
+      {"text": "SIGNIFICANT ADVANCE", "icon": "award"},
+      {"text": "BREAKTHROUGH INNOVATION", "icon": "lightning"},
+      {"text": "PARADIGM SHIFT", "icon": "arrow-left-right"},
+      {"text": "IMPOSSIBLE MADE REAL", "icon": "rocket"}
+    ],
+    [
+      {"text": "WEAK EVIDENCE", "icon": "question-circle"},
+      {"text": "BASIC DEMONSTRATION", "icon": "play-circle"},
+      {"text": "COMPELLING PROOF", "icon": "check-circle"},
+      {"text": "OVERWHELMING VALIDATION", "icon": "patch-check"},
+      {"text": "UNDENIABLE RESULTS", "icon": "trophy"},
+      {"text": "MIRACULOUS OUTCOMES", "icon": "magic"}
+    ],
+    [
+      {"text": "EASY ADOPTION", "icon": "check"},
+      {"text": "MINOR RESISTANCE", "icon": "dash"},
+      {"text": "MODERATE BARRIERS", "icon": "shield"},
+      {"text": "SIGNIFICANT OBSTACLES", "icon": "exclamation-octagon"},
+      {"text": "MAJOR DISRUPTION", "icon": "exclamation-diamond"},
+      {"text": "COMPLETE TRANSFORMATION", "icon": "arrow-counterclockwise"}
+    ],
+    [
+      {"text": "NO MARKET CHANGE", "icon": "circle"},
+      {"text": "SLIGHT IMPROVEMENT", "icon": "caret-up"},
+      {"text": "NOTABLE IMPACT", "icon": "graph-up-arrow"},
+      {"text": "INDUSTRY TRANSFORMATION", "icon": "shuffle"},
+      {"text": "MARKET REVOLUTION", "icon": "tornado"},
+      {"text": "WORLD TRANSFORMATION", "icon": "globe2"}
+    ],
+    [
+      {"text": "STATUS QUO", "icon": "pause"},
+      {"text": "GRADUAL EVOLUTION", "icon": "graph-up-arrow"},
+      {"text": "ACCELERATED PROGRESS", "icon": "speedometer"},
+      {"text": "EXPONENTIAL GROWTH", "icon": "bar-chart"},
+      {"text": "PARADIGM SHIFT", "icon": "arrow-repeat"},
+      {"text": "UTOPIAN FUTURE", "icon": "star"}
+    ]
+  ]
+}

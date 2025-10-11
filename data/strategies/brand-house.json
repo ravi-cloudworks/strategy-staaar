@@ -1,0 +1,53 @@
+{
+  "title": "Brand House Analysis",
+  "description": "Brand consistency audit",
+  "headers": [
+    {"text": "PURPOSE", "icon": "compass"},
+    {"text": "PERSONALITY", "icon": "person"},
+    {"text": "POSITION", "icon": "geo-alt"},
+    {"text": "PROMISE", "icon": "hand-thumbs-up"},
+    {"text": "PROOF", "icon": "shield-check"}
+  ],
+  "data": [
+    [
+      {"text": "PROFIT FOCUS", "icon": "currency-dollar"},
+      {"text": "BUSINESS TALK", "icon": "briefcase"},
+      {"text": "CUSTOMER BENEFIT", "icon": "person-check"},
+      {"text": "SOCIAL GOOD", "icon": "heart"},
+      {"text": "WORLD CHANGE", "icon": "globe"},
+      {"text": "HUMAN EVOLUTION", "icon": "arrow-up-circle"}
+    ],
+    [
+      {"text": "BLAND CHARACTER", "icon": "emoji-expressionless"},
+      {"text": "BASIC TRAITS", "icon": "list-ul"},
+      {"text": "DISTINCT PERSONA", "icon": "person-badge"},
+      {"text": "MEMORABLE CHARACTER", "icon": "person-heart"},
+      {"text": "ICONIC ARCHETYPE", "icon": "award"},
+      {"text": "CULTURAL FORCE", "icon": "lightning"}
+    ],
+    [
+      {"text": "UNCLEAR SPACE", "icon": "question-circle"},
+      {"text": "FOLLOWS OTHERS", "icon": "person-walking"},
+      {"text": "DIFFERENT STORY", "icon": "book"},
+      {"text": "UNIQUE CLAIM", "icon": "star"},
+      {"text": "OWNS CONCEPT", "icon": "trophy"},
+      {"text": "INVENTS CATEGORY", "icon": "plus-square"}
+    ],
+    [
+      {"text": "VAGUE WORDS", "icon": "chat-dots"},
+      {"text": "BASIC CLAIM", "icon": "chat-left"},
+      {"text": "CLEAR BENEFIT", "icon": "check-circle"},
+      {"text": "BOLD PROMISE", "icon": "exclamation-triangle"},
+      {"text": "GUARANTEE SHOWN", "icon": "shield"},
+      {"text": "TRANSFORMS LIFE", "icon": "magic"}
+    ],
+    [
+      {"text": "NO EVIDENCE", "icon": "x-circle"},
+      {"text": "WEAK SUPPORT", "icon": "dash"},
+      {"text": "SOLID CREDENTIALS", "icon": "file-check"},
+      {"text": "STRONG DEMONSTRATION", "icon": "play-circle"},
+      {"text": "OVERWHELMING VALIDATION", "icon": "award"},
+      {"text": "UNDENIABLE REALITY", "icon": "gem"}
+    ]
+  ]
+}

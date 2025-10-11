@@ -1,0 +1,62 @@
+{
+  "title": "Regulatory Compliance Creative Review",
+  "description": "Legal compliance scanner",
+  "headers": [
+    {"text": "CLAIM SUBSTANTIATION", "icon": "file-check"},
+    {"text": "DISCLOSURE COMPLIANCE", "icon": "eye"},
+    {"text": "RISK COMMUNICATION", "icon": "exclamation-triangle"},
+    {"text": "TARGET AUDIENCE PROTECTION", "icon": "shield"},
+    {"text": "COMPARATIVE CLAIMS", "icon": "bar-chart"},
+    {"text": "APPROVAL LIKELIHOOD", "icon": "check-circle"}
+  ],
+  "data": [
+    [
+      {"text": "UNSUBSTANTIATED", "icon": "x-circle"},
+      {"text": "WEAK EVIDENCE", "icon": "question-circle"},
+      {"text": "BASIC PROOF", "icon": "file-text"},
+      {"text": "SOLID DOCUMENTATION", "icon": "file-check"},
+      {"text": "CLINICAL VALIDATION", "icon": "award"},
+      {"text": "REGULATORY GOLD STANDARD", "icon": "shield-check"}
+    ],
+    [
+      {"text": "HIDDEN TERMS", "icon": "eye-slash"},
+      {"text": "BURIED FINE PRINT", "icon": "search"},
+      {"text": "BASIC DISCLOSURE", "icon": "info"},
+      {"text": "CLEAR TRANSPARENCY", "icon": "eye"},
+      {"text": "PROMINENT DISPLAY", "icon": "megaphone"},
+      {"text": "EXEMPLARY OPENNESS", "icon": "sun"}
+    ],
+    [
+      {"text": "MINIMIZED DANGERS", "icon": "dash"},
+      {"text": "VAGUE WARNINGS", "icon": "patch-question"},
+      {"text": "STANDARD CAUTIONS", "icon": "info-circle"},
+      {"text": "CLEAR RISKS", "icon": "exclamation-circle"},
+      {"text": "COMPREHENSIVE WARNINGS", "icon": "shield-exclamation"},
+      {"text": "MAXIMUM PROTECTION", "icon": "shield-check"}
+    ],
+    [
+      {"text": "VULNERABLE EXPLOITATION", "icon": "exclamation-octagon"},
+      {"text": "QUESTIONABLE TARGETING", "icon": "question"},
+      {"text": "APPROPRIATE AUDIENCE", "icon": "people"},
+      {"text": "PROTECTIVE MEASURES", "icon": "shield-slash"},
+      {"text": "ENHANCED SAFEGUARDS", "icon": "shield"},
+      {"text": "EXEMPLARY PROTECTION", "icon": "trophy"}
+    ],
+    [
+      {"text": "FALSE COMPARISONS", "icon": "x-octagon"},
+      {"text": "MISLEADING IMPLICATIONS", "icon": "exclamation-circle"},
+      {"text": "FAIR COMPARISONS", "icon": "scales"},
+      {"text": "HONEST POSITIONING", "icon": "check-circle"},
+      {"text": "TRANSPARENT ADVANTAGES", "icon": "binoculars"},
+      {"text": "REGULATORY PERFECT", "icon": "star"}
+    ],
+    [
+      {"text": "CERTAIN REJECTION", "icon": "x-circle"},
+      {"text": "HIGH RISK", "icon": "exclamation-diamond"},
+      {"text": "MODERATE CONCERN", "icon": "exclamation-square"},
+      {"text": "LIKELY APPROVAL", "icon": "check-square"},
+      {"text": "STRONG CONFIDENCE", "icon": "shield-plus"},
+      {"text": "GUARANTEED PASS", "icon": "check-all"}
+    ]
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "title": "Influencer Partnership ROI Predictor",
+  "description": "Influencer investment analyzer",
+  "headers": [
+    {"text": "AUDIENCE AUTHENTICITY", "icon": "shield-check"},
+    {"text": "BRAND ALIGNMENT", "icon": "bullseye"},
+    {"text": "CONTENT QUALITY", "icon": "star"},
+    {"text": "ENGAGEMENT DEPTH", "icon": "heart"},
+    {"text": "CONVERSION HISTORY", "icon": "graph-up"},
+    {"text": "LONG-TERM VALUE", "icon": "infinity"}
+  ],
+  "data": [
+    [
+      {"text": "BOUGHT FOLLOWERS", "icon": "cart"},
+      {"text": "SUSPECT ENGAGEMENT", "icon": "question-circle"},
+      {"text": "REAL AUDIENCE", "icon": "people"},
+      {"text": "ENGAGED COMMUNITY", "icon": "activity"},
+      {"text": "DEVOTED FANS", "icon": "star"},
+      {"text": "CULT FOLLOWING", "icon": "crown"}
+    ],
+    [
+      {"text": "COMPLETE MISMATCH", "icon": "x-octagon"},
+      {"text": "FORCED FIT", "icon": "exclamation-circle"},
+      {"text": "REASONABLE MATCH", "icon": "check"},
+      {"text": "NATURAL ALIGNMENT", "icon": "heart"},
+      {"text": "PERFECT SYNERGY", "icon": "stars"},
+      {"text": "BRAND SOULMATE", "icon": "hearts"}
+    ],
+    [
+      {"text": "POOR PRODUCTION", "icon": "camera-video"},
+      {"text": "AMATEUR LEVEL", "icon": "play"},
+      {"text": "PROFESSIONAL STANDARD", "icon": "award"},
+      {"text": "HIGH-END POLISH", "icon": "gem"},
+      {"text": "ARTISTIC MASTERY", "icon": "palette"},
+      {"text": "CULTURAL INFLUENCE", "icon": "globe"}
+    ],
+    [
+      {"text": "LIKES ONLY", "icon": "heart"},
+      {"text": "BASIC COMMENTS", "icon": "chat"},
+      {"text": "MEANINGFUL DISCUSSION", "icon": "chat-dots"},
+      {"text": "COMMUNITY BUILDING", "icon": "people"},
+      {"text": "LIFE-CHANGING IMPACT", "icon": "lightning"},
+      {"text": "MOVEMENT CREATION", "icon": "flag"}
+    ],
+    [
+      {"text": "NO TRACK RECORD", "icon": "dash-circle"},
+      {"text": "UNCLEAR RESULTS", "icon": "graph-down"},
+      {"text": "MODEST SUCCESS", "icon": "graph-up"},
+      {"text": "PROVEN PERFORMER", "icon": "trophy"},
+      {"text": "SALES MACHINE", "icon": "currency-dollar"},
+      {"text": "EMPIRE BUILDER", "icon": "building"}
+    ],
+    [
+      {"text": "ONE-POST DEAL", "icon": "circle"},
+      {"text": "SHORT CAMPAIGN", "icon": "clock"},
+      {"text": "ONGOING PARTNERSHIP", "icon": "arrow-repeat"},
+      {"text": "BRAND AMBASSADOR", "icon": "person-badge"},
+      {"text": "EQUITY PARTNER", "icon": "person-arms-up"},
+      {"text": "BUSINESS BUILDER", "icon": "rocket"}
+    ]
+  ]
+}
