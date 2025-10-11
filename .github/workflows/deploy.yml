@@ -1,39 +1,203 @@
-name: Deploy to GitHub Pages
+name: Deploy Secured Build to Production
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches: [dev]
   workflow_dispatch:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
 
 jobs:
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    - name: Checkout dev branch
+      uses: actions/checkout@v4
+      with:
+        ref: dev
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.'
+    - name: Install build dependencies
+      run: |
+        npm install -g javascript-obfuscator html-minifier-terser
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+    - name: Build secure version
+      run: |
+        echo "🔒 Building secure production version..."
+
+        # Create dist directory for secure build
+        mkdir -p dist/js dist/mockups
+
+        # Obfuscate JavaScript files with high security settings
+        echo "🔐 Obfuscating JavaScript files..."
+
+        # Main app files (highest security)
+        javascript-obfuscator js/main.js \
+          --output dist/js/main.js \
+          --compact true \
+          --control-flow-flattening true \
+          --control-flow-flattening-threshold 0.75 \
+          --dead-code-injection true \
+          --dead-code-injection-threshold 0.4 \
+          --string-array true \
+          --string-array-encoding 'rc4' \
+          --string-array-threshold 0.75 \
+          --unicode-escape-sequence true || echo "main.js not found, skipping"
+
+        # Auth file (maximum security)
+        javascript-obfuscator js/auth.js \
+          --output dist/js/auth.js \
+          --compact true \
+          --control-flow-flattening true \
+          --control-flow-flattening-threshold 0.9 \
+          --dead-code-injection true \
+          --dead-code-injection-threshold 0.6 \
+          --string-array true \
+          --string-array-encoding 'rc4' \
+          --string-array-threshold 0.9 \
+          --unicode-escape-sequence true || echo "auth.js not found, skipping"
+
+        # Obfuscate all other JS files
+        for jsfile in js/*.js; do
+          if [ -f "$jsfile" ] && [ "$jsfile" != "js/main.js" ] && [ "$jsfile" != "js/auth.js" ]; then
+            filename=$(basename "$jsfile")
+            echo "🔐 Obfuscating $filename..."
+            javascript-obfuscator "$jsfile" \
+              --output "dist/js/$filename" \
+              --compact true \
+              --control-flow-flattening true \
+              --control-flow-flattening-threshold 0.75 \
+              --dead-code-injection true \
+              --dead-code-injection-threshold 0.4 \
+              --string-array true \
+              --string-array-encoding 'rc4' \
+              --string-array-threshold 0.75
+          fi
+        done
+
+        # Obfuscate mockups JS files if they exist
+        if [ -d "mockups" ]; then
+          for jsfile in mockups/*.js; do
+            if [ -f "$jsfile" ]; then
+              filename=$(basename "$jsfile")
+              echo "🔐 Obfuscating mockups/$filename..."
+              javascript-obfuscator "$jsfile" \
+                --output "dist/mockups/$filename" \
+                --compact true \
+                --control-flow-flattening true \
+                --string-array true
+            fi
+          done
+        fi
+
+        # Minify HTML files
+        echo "📄 Minifying HTML files..."
+        for htmlfile in *.html; do
+          if [ -f "$htmlfile" ]; then
+            echo "📄 Minifying $htmlfile..."
+            html-minifier-terser \
+              --collapse-whitespace \
+              --remove-comments \
+              --minify-css true \
+              --minify-js true \
+              "$htmlfile" -o "dist/$htmlfile"
+          fi
+        done
+
+        # Copy other necessary files
+        echo "📋 Copying assets..."
+        [ -d "css" ] && cp -r css dist/ || echo "No css directory found"
+        [ -d "images" ] && cp -r images dist/ || echo "No images directory found"
+        [ -d "assets" ] && cp -r assets dist/ || echo "No assets directory found"
+        [ -d "fonts" ] && cp -r fonts dist/ || echo "No fonts directory found"
+        [ -d "data" ] && cp -r data dist/ || echo "No data directory found"
+        [ -d "mockup-images" ] && cp -r mockup-images dist/ || echo "No mockup-images directory found"
+        [ -d "videos" ] && cp -r videos dist/ || echo "No videos directory found"
+
+        # Copy mockups HTML if exists
+        if [ -f "mockups/index.html" ]; then
+          mkdir -p dist/mockups
+          html-minifier-terser \
+            --collapse-whitespace \
+            --remove-comments \
+            --minify-css true \
+            --minify-js true \
+            mockups/index.html -o dist/mockups/index.html
+        fi
+
+        echo "✅ Secure build completed!"
+        echo "📁 Contents of dist directory:"
+        ls -la dist/
+
+    - name: Configure Git
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+
+    - name: Deploy to main branch
+      run: |
+        echo "🚀 Deploying to main branch..."
+
+        # Switch to main branch
+        git checkout main
+
+        # Pull latest main to ensure we're up to date
+        git pull origin main
+
+        # Clear main branch (keep only git files)
+        echo "🧹 Clearing main branch for fresh deployment..."
+        find . -mindepth 1 -maxdepth 1 ! -name '.git' ! -name '.gitignore' -exec rm -rf {} \; || true
+
+        # Copy secure build files from dist
+        echo "📁 Copying secure build files to main branch..."
+        cp -r dist/* ./ || echo "No files to copy from dist"
+
+        # Add all files to git
+        git add .
+
+        # Check if there are changes to commit
+        if git diff --staged --quiet; then
+          echo "ℹ️ No changes to deploy"
+        else
+          # Commit with deployment message
+          git commit -m "Deploy secured build to production
+
+🔒 Security features:
+- JavaScript obfuscated with RC4 encoding
+- HTML minified and optimized
+- Dead code injection enabled
+- Control flow flattening applied
+- Only production-ready files included
+
+🤖 Auto-deployed from dev branch via GitHub Actions
+📅 $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+
+Co-Authored-By: GitHub Actions <actions@github.com>"
+
+          # Push to main branch
+          echo "🌍 Pushing to main branch..."
+          git push origin main
+
+          echo "🎉 SUCCESS! Secured build deployed to production!"
+          echo "🔗 Production URL: https://ravi-cloudworks.github.io/strategy-staaar/"
+          echo "⏱️ Changes will be live in a few minutes"
+        fi
+
+    - name: Cleanup
+      run: |
+        echo "🧹 Deployment completed!"
+        echo ""
+        echo "🔒 SECURITY CHECKLIST - Complete these in Supabase Dashboard:"
+        echo "   1. Run SQL from supabase-rls-setup.sql in SQL Editor"
+        echo "   2. Auth → URL Configuration → Site URL: https://ravi-cloudworks.github.io"
+        echo "   3. Auth → Redirect URLs → Add only: https://ravi-cloudworks.github.io/**"
+        echo ""
+        echo "📱 LinkedIn OAuth Configuration:"
+        echo "   1. LinkedIn Developer Portal → Your App → Auth"
+        echo "   2. Remove all redirect URLs except GitHub Pages domain"
+        echo "   3. Test login flow after deployment"
