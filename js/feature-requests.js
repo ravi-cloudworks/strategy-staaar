@@ -1,4 +1,4 @@
-// Feature Requests Manager
+// Feature Requests Manager - MINIMAL DEBUG VERSION
 class FeatureRequestManager {
     constructor() {
         this.supabaseClient = null;
@@ -7,263 +7,79 @@ class FeatureRequestManager {
     }
 
     async init() {
-        console.log('🚀 Initializing Feature Request Manager...');
+        console.log('🚀 Init started');
 
-        try {
-            // CRITICAL: Wait for auth manager
-            if (!window.authManager) {
-                console.error('❌ Auth manager not available');
-                this.showError('Authentication system not ready. Please refresh the page.');
-                return;
-            }
+        // Get client directly - don't store in variable yet
+        const client = window.authManager?.getSupabaseClient();
+        console.log('📊 Client retrieved:', !!client);
 
-            // Get Supabase client
-            this.supabaseClient = window.authManager.getSupabaseClient();
-
-            // FIXED: Wait for user data to be ready
-            if (window.currentUserData) {
-                // User data already available
-                console.log('✅ User data already available');
-                await this.onUserReady();
-            } else {
-                // Wait for user data ready event
-                console.log('⏳ Waiting for user data...');
-                window.addEventListener('userDataReady', async (e) => {
-                    console.log('✅ User data ready event received');
-                    await this.onUserReady();
-                });
-            }
-
-        } catch (error) {
-            console.error('❌ Error during initialization:', error);
-            this.showError('Failed to initialize. Please refresh the page.');
-        }
-    }
-
-    async onUserReady() {
-    try {
-        this.currentUser = window.currentUserData;
-        
-        if (!this.currentUser) {
-            console.error('❌ No user data available');
-            this.showNotAuthenticated();
+        if (!client) {
+            console.error('❌ No client');
             return;
         }
 
-        console.log('✅ User authenticated:', this.currentUser.email);
-        console.log('✅ User ID:', this.currentUser.id);
+        this.supabaseClient = client;
+        console.log('✅ Client assigned');
 
-        // Skip session check - it hangs
-        console.log('⏭️ Skipping session check, proceeding with queries...');
+        // Use global user data
+        if (!window.currentUserData) {
+            console.error('❌ No user data');
+            return;
+        }
 
+        this.currentUser = window.currentUserData;
+        console.log('✅ User assigned:', this.currentUser.email);
+
+        // Setup form
         this.setupEventListeners();
+        console.log('✅ Listeners setup');
+
+        // Try query WITHOUT await - use .then() instead
+        console.log('🔍 Attempting query with .then()...');
         
-        // Test direct query
-        console.log('🧪 Testing direct database query...');
-        this.testDirectQuery();
-        
-        await this.loadFeatureRequests();
-
-        console.log('✅ Feature Request Manager fully initialized');
-
-    } catch (error) {
-        console.error('❌ Error in onUserReady:', error);
-        this.showError('Failed to initialize. Please refresh the page.');
-    }
-}
-
-async testDirectQuery() {
-    console.log('🔍 Attempting direct query...');
-    
-    try {
-        // Don't await - just fire it and log when it completes
         this.supabaseClient
             .from('feature_requests')
-            .select('id')
-            .limit(1)
-            .then(result => {
-                console.log('✅ Query completed:', result);
+            .select('*')
+            .order('created_at', { ascending: false })
+            .then(({ data, error }) => {
+                console.log('✅ Query resolved!');
+                console.log('📊 Data:', data);
+                console.log('📊 Error:', error);
+                
+                if (error) {
+                    console.error('❌ Query error:', error);
+                    this.featureRequests = [];
+                } else {
+                    console.log('✅ Success! Rows:', data?.length || 0);
+                    this.featureRequests = (data || []).map(item => ({
+                        ...item,
+                        vote_count: Array.isArray(item.upvoter_emails) ? item.upvoter_emails.length : 0
+                    }));
+                }
+                
+                this.renderFeatureRequests();
             })
-            .catch(error => {
-                console.error('❌ Query failed:', error);
+            .catch(err => {
+                console.error('❌ Query rejected:', err);
+                this.featureRequests = [];
+                this.renderFeatureRequests();
             });
         
-        console.log('🔍 Query dispatched (waiting for response)...');
-        
-    } catch (error) {
-        console.error('❌ Query error:', error);
+        console.log('🔍 Query dispatched (not awaited)');
+        console.log('✅ Init completed (query still pending)');
     }
-}
 
     setupEventListeners() {
         const form = document.getElementById('featureForm');
         if (form) {
-            form.addEventListener('submit', async (e) => {
+            form.addEventListener('submit', (e) => {
                 e.preventDefault();
-                await this.createFeatureRequest();
+                this.createFeatureRequest();
             });
         }
     }
 
-
-    async loadFeatureRequests() {
-        const container = document.getElementById('featuresList');
-
-        // Show loading
-        container.innerHTML = `
-        <div class="loading-state">
-            <i class="bi bi-hourglass-split"></i>
-            <div>Loading feature requests...</div>
-        </div>
-    `;
-
-        try {
-            console.log('📥 Loading feature requests...');
-
-            // DEBUG: Check session before query
-            console.log('🔍 Checking Supabase session...');
-            const { data: sessionData, error: sessionError } = await this.supabaseClient.auth.getSession();
-
-            if (sessionError) {
-                console.error('❌ Session error:', sessionError);
-                this.showError('Authentication session error');
-                return;
-            }
-
-            if (!sessionData.session) {
-                console.error('❌ No active session found');
-                this.showNotAuthenticated();
-                return;
-            }
-
-            console.log('✅ Active session found:', sessionData.session.user.email);
-            console.log('🔑 Session expires at:', new Date(sessionData.session.expires_at * 1000).toLocaleString());
-
-            // DEBUG: Try query with timeout
-            console.log('🔍 Executing query to feature_requests table...');
-
-            const queryPromise = this.supabaseClient
-                .from('feature_requests')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            // Add timeout to detect hanging queries
-            const timeoutPromise = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Query timeout after 10 seconds')), 10000)
-            );
-
-            const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
-
-            console.log('📊 Query completed');
-            console.log('📊 Data:', data);
-            console.log('📊 Error:', error);
-
-            if (error) {
-                console.error('❌ Error loading feature requests:', error);
-                console.error('❌ Error code:', error.code);
-                console.error('❌ Error message:', error.message);
-                console.error('❌ Error details:', error.details);
-                console.error('❌ Error hint:', error.hint);
-
-                // Check if it's an auth error
-                if (error.code === 'PGRST301' || error.message.includes('JWT') || error.code === '42501') {
-                    console.error('❌ Authentication/Permission error detected');
-                    this.showNotAuthenticated();
-                    return;
-                }
-
-                this.showError('Failed to load feature requests: ' + error.message);
-                this.featureRequests = [];
-            } else {
-                console.log(`✅ Loaded ${data?.length || 0} feature requests`);
-
-                // Process data - calculate vote counts from array
-                this.featureRequests = (data || []).map(item => ({
-                    ...item,
-                    vote_count: Array.isArray(item.upvoter_emails) ? item.upvoter_emails.length : 0
-                }));
-
-                console.log('✅ Processed feature requests:', this.featureRequests);
-            }
-
-            this.renderFeatureRequests();
-
-        } catch (error) {
-            console.error('❌ Exception loading feature requests:', error);
-            console.error('❌ Exception name:', error.name);
-            console.error('❌ Exception message:', error.message);
-            console.error('❌ Exception stack:', error.stack);
-
-            if (error.message.includes('timeout')) {
-                this.showError('Request timed out. Please check your connection.');
-            } else {
-                this.showError('Failed to load feature requests');
-            }
-
-            this.featureRequests = [];
-            this.renderFeatureRequests();
-        }
-    }
-
-    async testDatabaseAccess() {
-        console.log('🧪 Testing database access...');
-
-        try {
-            // Check if client exists
-            console.log('✅ Supabase client exists:', !!this.supabaseClient);
-            console.log('✅ Client details:', {
-                hasFrom: typeof this.supabaseClient?.from === 'function',
-                hasAuth: typeof this.supabaseClient?.auth === 'object'
-            });
-
-            // Check Supabase URL
-            const url = this.supabaseClient?.supabaseUrl;
-            console.log('✅ Supabase URL:', url);
-
-            // Test with explicit timeout and error handling
-            console.log('Test 1: Simple query with 5s timeout...');
-
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => {
-                controller.abort();
-                console.error('❌ Request aborted after 5 seconds');
-            }, 5000);
-
-            try {
-                const startTime = Date.now();
-                console.log('⏱️ Query started at:', new Date().toISOString());
-
-                const { data, error } = await this.supabaseClient
-                    .from('feature_requests')
-                    .select('id')
-                    .limit(1);
-
-                clearTimeout(timeoutId);
-                const endTime = Date.now();
-
-                console.log('⏱️ Query completed in:', (endTime - startTime) + 'ms');
-                console.log('📊 Result:', { data, error });
-
-                if (error) {
-                    console.error('❌ Query error:', error);
-                    console.error('❌ Error details:', JSON.stringify(error, null, 2));
-                } else {
-                    console.log('✅ Query successful, rows returned:', data?.length || 0);
-                }
-
-            } catch (fetchError) {
-                clearTimeout(timeoutId);
-                console.error('❌ Fetch error:', fetchError);
-                console.error('❌ Error name:', fetchError.name);
-                console.error('❌ Error message:', fetchError.message);
-            }
-
-        } catch (error) {
-            console.error('❌ Test failed:', error);
-        }
-    }
-
-    async createFeatureRequest() {
+    createFeatureRequest() {
         const title = document.getElementById('featureTitle').value.trim();
         const description = document.getElementById('featureDescription').value.trim();
         const type = document.querySelector('input[name="type"]:checked').value;
@@ -277,110 +93,80 @@ async testDirectQuery() {
         createBtn.disabled = true;
         createBtn.textContent = 'Creating...';
 
-        try {
-            console.log('📝 Creating feature request...');
+        console.log('📝 Creating:', { title, type });
 
-            const { data, error } = await this.supabaseClient
-                .from('feature_requests')
-                .insert({
-                    title,
-                    description,
-                    type,
-                    created_by: this.currentUser.id,
-                    upvoter_emails: [] // Start with empty array
-                })
-                .select();
-
-            if (error) {
-                console.error('❌ Error creating feature request:', error);
-                this.showError('Failed to create: ' + error.message);
-                return;
-            }
-
-            console.log('✅ Feature request created:', data[0].id);
-
-            // Clear form
-            document.getElementById('featureForm').reset();
-            document.getElementById('typeFeature').checked = true;
-
-            // Refresh list
-            await this.loadFeatureRequests();
-
-            this.showSuccess('Feature request created successfully!');
-
-        } catch (error) {
-            console.error('❌ Exception creating feature request:', error);
-            this.showError('Failed to create feature request');
-        } finally {
-            createBtn.disabled = false;
-            createBtn.textContent = 'Create Post';
-        }
+        this.supabaseClient
+            .from('feature_requests')
+            .insert({
+                title,
+                description,
+                type,
+                created_by: this.currentUser.id,
+                upvoter_emails: []
+            })
+            .select()
+            .then(({ data, error }) => {
+                console.log('Insert result:', { data, error });
+                
+                if (error) {
+                    console.error('❌ Insert error:', error);
+                    this.showError('Failed: ' + error.message);
+                } else {
+                    console.log('✅ Created!');
+                    document.getElementById('featureForm').reset();
+                    document.getElementById('typeFeature').checked = true;
+                    this.showSuccess('Created successfully!');
+                    
+                    // Reload
+                    this.init();
+                }
+            })
+            .catch(err => {
+                console.error('❌ Insert exception:', err);
+                this.showError('Failed to create');
+            })
+            .finally(() => {
+                createBtn.disabled = false;
+                createBtn.textContent = 'Create Post';
+            });
     }
 
-    async toggleVote(featureId, currentlyVoted) {
-        try {
-            const userEmail = this.currentUser.email;
+    toggleVote(featureId, currentlyVoted) {
+        const functionName = currentlyVoted ? 'downvote_feature_request' : 'upvote_feature_request';
+        
+        console.log('🗳️ Voting:', functionName, featureId);
 
-            if (currentlyVoted) {
-                // Remove vote (downvote)
-                console.log('⬇️ Removing vote from:', featureId);
-
-                const { error } = await this.supabaseClient
-                    .rpc('downvote_feature_request', {
-                        feature_id: featureId,
-                        user_email: userEmail
-                    });
-
+        this.supabaseClient
+            .rpc(functionName, {
+                feature_id: featureId,
+                user_email: this.currentUser.email
+            })
+            .then(({ error }) => {
                 if (error) {
-                    console.error('❌ Error removing vote:', error);
-                    this.showError('Failed to remove vote');
-                    return;
+                    console.error('❌ Vote error:', error);
+                    this.showError('Failed to vote');
+                } else {
+                    console.log('✅ Vote recorded');
+                    this.init(); // Reload
                 }
-
-                console.log('✅ Vote removed');
-
-            } else {
-                // Add vote (upvote)
-                console.log('⬆️ Adding vote to:', featureId);
-
-                const { error } = await this.supabaseClient
-                    .rpc('upvote_feature_request', {
-                        feature_id: featureId,
-                        user_email: userEmail
-                    });
-
-                if (error) {
-                    console.error('❌ Error adding vote:', error);
-                    this.showError('Failed to add vote');
-                    return;
-                }
-
-                console.log('✅ Vote added');
-            }
-
-            // Refresh list to show updated counts
-            await this.loadFeatureRequests();
-
-        } catch (error) {
-            console.error('❌ Exception voting:', error);
-            this.showError('Failed to record vote');
-        }
+            })
+            .catch(err => {
+                console.error('❌ Vote exception:', err);
+                this.showError('Failed to vote');
+            });
     }
 
     renderFeatureRequests() {
         const container = document.getElementById('featuresList');
 
-        if (!this.currentUser) {
-            this.showNotAuthenticated();
-            return;
-        }
+        console.log('🎨 Rendering:', this.featureRequests.length, 'items');
 
         if (this.featureRequests.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
                     <i class="bi bi-lightbulb"></i>
                     <h3>No feature requests yet</h3>
-                    <p>Be the first to suggest a new feature or report a bug!</p>
+                    <p>Be the first to suggest a feature!</p>
                 </div>
             `;
             return;
@@ -389,7 +175,7 @@ async testDirectQuery() {
         const html = this.featureRequests.map(feature => {
             const hasVoted = feature.upvoter_emails?.includes(this.currentUser.email) || false;
             const voteCount = feature.vote_count || 0;
-            const isOwnRequest = feature.created_by === this.currentUser.id;
+            const isOwn = feature.created_by === this.currentUser.id;
 
             return `
                 <div class="feature-item">
@@ -399,22 +185,18 @@ async testDirectQuery() {
                             <button 
                                 class="vote-btn ${hasVoted ? 'voted' : ''}"
                                 onclick="featureManager.toggleVote('${feature.id}', ${hasVoted})"
-                                title="${hasVoted ? 'Remove your vote' : 'Vote for this request'}">
+                                title="${hasVoted ? 'Remove vote' : 'Vote'}">
                                 <i class="bi bi-arrow-up"></i>
                             </button>
                             <span class="vote-count">${voteCount}</span>
                         </div>
                     </div>
-
-                    <div class="feature-description">
-                        ${this.escapeHtml(feature.description)}
-                    </div>
-
+                    <div class="feature-description">${this.escapeHtml(feature.description)}</div>
                     <div class="feature-meta">
                         <div>
                             <span class="feature-type ${feature.type}">${feature.type}</span>
                             <span style="margin-left: 0.5rem; color: #6b7280;">
-                                ${isOwnRequest ? 'by you' : 'by user'}
+                                ${isOwn ? 'by you' : 'by user'}
                             </span>
                         </div>
                         <div style="color: #9ca3af; font-size: 12px;">
@@ -428,20 +210,6 @@ async testDirectQuery() {
         container.innerHTML = html;
     }
 
-    showNotAuthenticated() {
-        const container = document.getElementById('featuresList');
-        container.innerHTML = `
-            <div class="empty-state">
-                <i class="bi bi-lock"></i>
-                <h3>Authentication Required</h3>
-                <p>Please log in to view and create feature requests.</p>
-                <a href="index.html" class="btn btn-primary" style="margin-top: 1rem; display: inline-block; background: #667eea; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none;">
-                    Go to Login
-                </a>
-            </div>
-        `;
-    }
-
     escapeHtml(text) {
         if (!text) return '';
         const div = document.createElement('div');
@@ -452,13 +220,11 @@ async testDirectQuery() {
     formatDate(dateString) {
         const date = new Date(dateString);
         const now = new Date();
-        const diffMs = now - date;
-        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
 
         if (diffDays === 0) return 'Today';
         if (diffDays === 1) return 'Yesterday';
         if (diffDays < 7) return `${diffDays} days ago`;
-
         return date.toLocaleDateString();
     }
 
@@ -477,13 +243,11 @@ async testDirectQuery() {
             return;
         }
 
+        const icon = type === 'success' ? 'check-circle' : 
+                     type === 'error' ? 'exclamation-circle' : 'info-circle';
+        
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
-
-        const icon = type === 'success' ? 'check-circle' :
-            type === 'error' ? 'exclamation-circle' :
-                'info-circle';
-
         toast.innerHTML = `
             <div class="toast-content">
                 <i class="bi bi-${icon}"></i>
@@ -493,9 +257,7 @@ async testDirectQuery() {
         `;
 
         container.appendChild(toast);
-
         setTimeout(() => toast.classList.add('show'), 10);
-
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 300);
@@ -506,18 +268,17 @@ async testDirectQuery() {
 // Global instance
 let featureManager;
 
-// Initialize when DOM is ready
+// Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('📄 DOM loaded, waiting for auth...');
+    console.log('📄 DOM loaded');
 
-    // Always wait a bit for auth.js to initialize
     setTimeout(() => {
-        if (window.authManager) {
-            console.log('✅ Auth manager found');
+        if (window.authManager && window.currentUserData) {
+            console.log('✅ Auth ready, starting manager...');
             featureManager = new FeatureRequestManager();
             featureManager.init();
         } else {
-            console.error('❌ Auth manager not found after timeout');
+            console.error('❌ Auth not ready');
         }
-    }, 500);
+    }, 1000);
 });
