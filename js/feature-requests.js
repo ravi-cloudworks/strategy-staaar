@@ -34,24 +34,42 @@ class FeatureRequestManager {
         }
     }
 
+    async getAuthHeaders() {
+        // Get user's JWT token from Supabase auth
+        const { data: { session } } = await window.authManager.getSupabaseClient().auth.getSession();
+
+        const headers = {
+            'apikey': this.SUPABASE_KEY,
+            'Content-Type': 'application/json'
+        };
+
+        // Add user's JWT token if available
+        if (session?.access_token) {
+            headers['Authorization'] = `Bearer ${session.access_token}`;
+        } else {
+            headers['Authorization'] = `Bearer ${this.SUPABASE_KEY}`;
+        }
+
+        return headers;
+    }
+
     async loadFeatureRequests() {
         const container = document.getElementById('featuresList');
-        
+
         container.innerHTML = `
-            <div class="loading-state">
-                <i class="bi bi-hourglass-split"></i>
-                <div>Loading feature requests...</div>
-            </div>
-        `;
+        <div class="loading-state">
+            <i class="bi bi-hourglass-split"></i>
+            <div>Loading feature requests...</div>
+        </div>
+    `;
 
         try {
             console.log('📥 Loading feature requests...');
 
+            const headers = await this.getAuthHeaders();
+
             const response = await fetch(`${this.SUPABASE_URL}/rest/v1/feature_requests?select=*&order=created_at.desc`, {
-                headers: {
-                    'apikey': this.SUPABASE_KEY,
-                    'Authorization': `Bearer ${this.SUPABASE_KEY}`
-                }
+                headers
             });
 
             if (!response.ok) {
@@ -93,14 +111,12 @@ class FeatureRequestManager {
         try {
             console.log('📝 Creating feature request...');
 
+            const headers = await this.getAuthHeaders();
+            headers['Prefer'] = 'return=representation';
+
             const response = await fetch(`${this.SUPABASE_URL}/rest/v1/feature_requests`, {
                 method: 'POST',
-                headers: {
-                    'apikey': this.SUPABASE_KEY,
-                    'Authorization': `Bearer ${this.SUPABASE_KEY}`,
-                    'Content-Type': 'application/json',
-                    'Prefer': 'return=representation'
-                },
+                headers,
                 body: JSON.stringify({
                     title,
                     description,
@@ -133,19 +149,18 @@ class FeatureRequestManager {
         }
     }
 
+
     async toggleVote(featureId, currentlyVoted) {
         const functionName = currentlyVoted ? 'downvote_feature_request' : 'upvote_feature_request';
-        
+
         try {
             console.log('🗳️ Voting:', functionName);
 
+            const headers = await this.getAuthHeaders();
+
             const response = await fetch(`${this.SUPABASE_URL}/rest/v1/rpc/${functionName}`, {
                 method: 'POST',
-                headers: {
-                    'apikey': this.SUPABASE_KEY,
-                    'Authorization': `Bearer ${this.SUPABASE_KEY}`,
-                    'Content-Type': 'application/json'
-                },
+                headers,
                 body: JSON.stringify({
                     feature_id: featureId,
                     user_email: this.currentUser.email
@@ -250,9 +265,9 @@ class FeatureRequestManager {
             return;
         }
 
-        const icon = type === 'success' ? 'check-circle' : 
-                     type === 'error' ? 'exclamation-circle' : 'info-circle';
-        
+        const icon = type === 'success' ? 'check-circle' :
+            type === 'error' ? 'exclamation-circle' : 'info-circle';
+
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
         toast.innerHTML = `
