@@ -45,25 +45,59 @@ class FeatureRequestManager {
         try {
             console.log('Loading feature requests...');
 
+            // Try to query the base table first, then add stats manually
             const { data, error } = await this.supabaseClient
-                .from('feature_requests_with_stats')
-                .select('*')
-                .order('vote_count', { ascending: false })
+                .from('feature_requests')
+                .select(`
+                    *,
+                    users_login!inner(name, avatar_url)
+                `)
                 .order('created_at', { ascending: false });
 
             if (error) {
                 console.error('Error loading feature requests:', error);
-                this.showError('Failed to load feature requests');
-                return;
+                console.error('Full error details:', error);
+
+                // Fallback to simple query without join
+                console.log('Trying fallback query...');
+                const { data: fallbackData, error: fallbackError } = await this.supabaseClient
+                    .from('feature_requests')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (fallbackError) {
+                    console.error('Fallback query also failed:', fallbackError);
+                    this.showError('Failed to load feature requests');
+                    return;
+                }
+
+                // Process fallback data
+                this.featureRequests = (fallbackData || []).map(item => ({
+                    ...item,
+                    vote_count: Array.isArray(item.upvoter_emails) ? item.upvoter_emails.length : 0,
+                    creator_name: 'User'
+                }));
+            } else {
+                // Process successful data
+                this.featureRequests = (data || []).map(item => ({
+                    ...item,
+                    vote_count: Array.isArray(item.upvoter_emails) ? item.upvoter_emails.length : 0,
+                    creator_name: item.users_login?.name || 'User',
+                    creator_avatar: item.users_login?.avatar_url
+                }));
             }
 
-            this.featureRequests = data || [];
             console.log('Loaded feature requests:', this.featureRequests.length);
+            console.log('Feature requests data:', this.featureRequests);
             this.renderFeatureRequests();
 
         } catch (error) {
             console.error('Exception loading feature requests:', error);
             this.showError('Failed to load feature requests');
+
+            // Show empty state as fallback
+            this.featureRequests = [];
+            this.renderFeatureRequests();
         }
     }
 
