@@ -50,29 +50,27 @@ class FeatureRequestManager {
     }
 
     async testSimpleQuery() {
-        console.log('🧪 Testing Supabase client...');
+        console.log('🧪 Testing direct database query...');
 
         try {
-            // Test 0: Check client properties
-            console.log('Supabase client URL:', this.supabaseClient?.supabaseUrl);
-            console.log('Supabase client key exists:', !!this.supabaseClient?.supabaseKey);
-            console.log('Client instance:', this.supabaseClient);
+            // Skip auth checks - go straight to database test
+            console.log('Direct table query test...');
 
-            // Test 1: Session check (non-hanging operation)
-            console.log('Test 1: Checking session...');
-            const session = await this.supabaseClient.auth.getSession();
-            console.log('Session result:', session);
+            const result = await this.supabaseClient
+                .from('users_login')
+                .select('email')
+                .limit(1);
 
-            // Test 2: Basic RPC call
-            console.log('Test 2: Basic RPC call...');
-            const rpcResult = await this.supabaseClient.rpc('now');
-            console.log('RPC result:', rpcResult);
+            console.log('Direct query result:', result);
 
-            console.log('✅ Basic tests completed');
+            if (result.error) {
+                console.error('Direct query failed:', result.error);
+            } else {
+                console.log('✅ Direct database access works!');
+            }
 
         } catch (error) {
-            console.error('❌ Basic test failed:', error);
-            console.error('Error stack:', error.stack);
+            console.error('❌ Direct query test failed:', error);
             throw error;
         }
     }
