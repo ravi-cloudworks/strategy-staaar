@@ -28,6 +28,7 @@ class FeatureRequestManager {
             this.setupEventListeners();
             console.log('Event listeners setup ✓');
 
+            await this.testSimpleQuery();
             await this.loadFeatureRequests();
             console.log('Feature requests loaded ✓');
 
@@ -46,6 +47,42 @@ class FeatureRequestManager {
         });
 
         console.log('Event listeners setup complete');
+    }
+
+    async testSimpleQuery() {
+        console.log('🧪 Testing simple database query...');
+
+        try {
+            // Test 1: Basic connectivity test (PostgreSQL equivalent of "select 1")
+            console.log('Test 1: Basic query...');
+            const { data: test1, error: error1 } = await this.supabaseClient
+                .rpc('now'); // PostgreSQL built-in function
+
+            console.log('Test 1 result:', { data: test1, error: error1 });
+
+            if (error1) {
+                // Try alternative simple query
+                console.log('Test 1 failed, trying Test 2: Known table query...');
+                const { data: test2, error: error2 } = await this.supabaseClient
+                    .from('users_login')
+                    .select('count')
+                    .limit(1);
+
+                console.log('Test 2 result:', { data: test2, error: error2 });
+
+                if (error2) {
+                    throw new Error('Both simple queries failed');
+                } else {
+                    console.log('✅ Simple query test passed (Test 2)');
+                }
+            } else {
+                console.log('✅ Simple query test passed (Test 1)');
+            }
+
+        } catch (error) {
+            console.error('❌ Simple query test failed:', error);
+            throw error;
+        }
     }
 
 
