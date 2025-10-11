@@ -41,48 +41,59 @@ class FeatureRequestManager {
     }
 
     async onUserReady() {
-        try {
-            this.currentUser = window.currentUserData;
-
-            if (!this.currentUser) {
-                console.error('❌ No user data available');
-                this.showNotAuthenticated();
-                return;
-            }
-
-            console.log('✅ User authenticated:', this.currentUser.email);
-
-            // VERIFY SUPABASE CLIENT
-            console.log('🔍 Verifying Supabase client...');
-            console.log('  - Client exists:', !!this.supabaseClient);
-            console.log('  - Auth manager exists:', !!window.authManager);
-
-            if (!this.supabaseClient) {
-                console.error('❌ Supabase client is null!');
-                this.showError('Database connection failed');
-                return;
-            }
-
-            // Try to get session directly
-            const { data: { session }, error: sessionError } = await this.supabaseClient.auth.getSession();
-            console.log('🔍 Session check:', {
-                hasSession: !!session,
-                error: sessionError,
-                userId: session?.user?.id,
-                expiresAt: session?.expires_at
-            });
-
-            this.setupEventListeners();
-            await this.testDatabaseAccess();
-            await this.loadFeatureRequests();
-
-            console.log('✅ Feature Request Manager fully initialized');
-
-        } catch (error) {
-            console.error('❌ Error in onUserReady:', error);
-            this.showError('Failed to initialize. Please refresh the page.');
+    try {
+        this.currentUser = window.currentUserData;
+        
+        if (!this.currentUser) {
+            console.error('❌ No user data available');
+            this.showNotAuthenticated();
+            return;
         }
+
+        console.log('✅ User authenticated:', this.currentUser.email);
+        console.log('✅ User ID:', this.currentUser.id);
+
+        // Skip session check - it hangs
+        console.log('⏭️ Skipping session check, proceeding with queries...');
+
+        this.setupEventListeners();
+        
+        // Test direct query
+        console.log('🧪 Testing direct database query...');
+        this.testDirectQuery();
+        
+        await this.loadFeatureRequests();
+
+        console.log('✅ Feature Request Manager fully initialized');
+
+    } catch (error) {
+        console.error('❌ Error in onUserReady:', error);
+        this.showError('Failed to initialize. Please refresh the page.');
     }
+}
+
+async testDirectQuery() {
+    console.log('🔍 Attempting direct query...');
+    
+    try {
+        // Don't await - just fire it and log when it completes
+        this.supabaseClient
+            .from('feature_requests')
+            .select('id')
+            .limit(1)
+            .then(result => {
+                console.log('✅ Query completed:', result);
+            })
+            .catch(error => {
+                console.error('❌ Query failed:', error);
+            });
+        
+        console.log('🔍 Query dispatched (waiting for response)...');
+        
+    } catch (error) {
+        console.error('❌ Query error:', error);
+    }
+}
 
     setupEventListeners() {
         const form = document.getElementById('featureForm');
@@ -93,6 +104,7 @@ class FeatureRequestManager {
             });
         }
     }
+
 
     async loadFeatureRequests() {
         const container = document.getElementById('featuresList');
