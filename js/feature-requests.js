@@ -10,40 +10,26 @@ class FeatureRequestManager {
         console.log('Initializing Feature Request Manager...');
 
         try {
-            // Wait for auth manager to be ready
-            console.log('Checking auth manager...');
-            if (!window.authManager) {
-                console.error('Auth manager not found');
-                return;
-            }
-            console.log('Auth manager found ✓');
-
-            console.log('Getting Supabase client...');
-            this.supabaseClient = window.authManager.getSupabaseClient();
-            console.log('Supabase client obtained ✓');
-
-            console.log('Getting current user...');
-            this.currentUser = await window.authManager.getCurrentUser();
-            console.log('Current user result:', this.currentUser);
-
-            if (!this.currentUser) {
-                console.error('User not authenticated');
+            // Use existing global user data (already set by auth.js)
+            if (!window.currentUserData) {
+                console.error('No user data found - user not logged in');
                 this.showError('Please login to access feature requests');
                 return;
             }
 
-            console.log('User authenticated ✓:', this.currentUser.email);
+            this.currentUser = window.currentUserData;
+            console.log('Using existing user data ✓:', this.currentUser.email);
 
-            console.log('Setting up event listeners...');
+            // Get Supabase client
+            this.supabaseClient = window.authManager.getSupabaseClient();
+            console.log('Supabase client obtained ✓');
+
+            // Setup and load
             this.setupEventListeners();
             console.log('Event listeners setup ✓');
 
-            console.log('Testing Supabase connection...');
-            await this.testConnection();
-
-            console.log('Loading feature requests...');
             await this.loadFeatureRequests();
-            console.log('Feature requests loading completed ✓');
+            console.log('Feature requests loaded ✓');
 
         } catch (error) {
             console.error('Error during initialization:', error);
@@ -62,95 +48,39 @@ class FeatureRequestManager {
         console.log('Event listeners setup complete');
     }
 
-    async testConnection() {
-        try {
-            console.log('🔍 Testing basic Supabase connection...');
-
-            // Test 1: Check if client exists
-            console.log('Supabase client exists:', !!this.supabaseClient);
-
-            // Test 2: Test session
-            console.log('Testing session...');
-            const { data: session, error: sessionError } = await this.supabaseClient.auth.getSession();
-            console.log('Session test result:', { session: !!session?.session, error: sessionError });
-
-            // Test 3: Simple query to existing table
-            console.log('Testing basic query...');
-            const { data: testData, error: testError } = await this.supabaseClient
-                .from('users_login')
-                .select('count')
-                .limit(1);
-
-            console.log('Basic query result:', { data: testData, error: testError });
-
-            if (testError) {
-                console.error('❌ Basic connection test failed:', testError);
-                throw new Error('Connection test failed: ' + testError.message);
-            }
-
-            console.log('✅ Supabase connection test passed!');
-
-        } catch (error) {
-            console.error('❌ Connection test failed:', error);
-            throw error;
-        }
-    }
 
     async loadFeatureRequests() {
         try {
             console.log('Loading feature requests...');
 
-            // Try to query the base table first, then add stats manually
+            // Simple query to feature_requests table
             const { data, error } = await this.supabaseClient
                 .from('feature_requests')
-                .select(`
-                    *,
-                    users_login!inner(name, avatar_url)
-                `)
+                .select('*')
                 .order('created_at', { ascending: false });
 
             if (error) {
                 console.error('Error loading feature requests:', error);
-                console.error('Full error details:', error);
+                this.showError('Failed to load feature requests: ' + error.message);
+                this.featureRequests = [];
+            } else {
+                console.log('Raw data:', data);
 
-                // Fallback to simple query without join
-                console.log('Trying fallback query...');
-                const { data: fallbackData, error: fallbackError } = await this.supabaseClient
-                    .from('feature_requests')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (fallbackError) {
-                    console.error('Fallback query also failed:', fallbackError);
-                    this.showError('Failed to load feature requests');
-                    return;
-                }
-
-                // Process fallback data
-                this.featureRequests = (fallbackData || []).map(item => ({
+                // Process data - calculate vote counts
+                this.featureRequests = (data || []).map(item => ({
                     ...item,
                     vote_count: Array.isArray(item.upvoter_emails) ? item.upvoter_emails.length : 0,
                     creator_name: 'User'
                 }));
-            } else {
-                // Process successful data
-                this.featureRequests = (data || []).map(item => ({
-                    ...item,
-                    vote_count: Array.isArray(item.upvoter_emails) ? item.upvoter_emails.length : 0,
-                    creator_name: item.users_login?.name || 'User',
-                    creator_avatar: item.users_login?.avatar_url
-                }));
+
+                console.log('Processed feature requests:', this.featureRequests.length);
             }
 
-            console.log('Loaded feature requests:', this.featureRequests.length);
-            console.log('Feature requests data:', this.featureRequests);
             this.renderFeatureRequests();
 
         } catch (error) {
             console.error('Exception loading feature requests:', error);
             this.showError('Failed to load feature requests');
-
-            // Show empty state as fallback
             this.featureRequests = [];
             this.renderFeatureRequests();
         }
