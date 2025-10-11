@@ -301,6 +301,47 @@
 .toast-close:hover {
     color: #374151;
 }
+
+/* Status Badges */
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 12px;
+    margin-left: 0.5rem;
+}
+
+.status-badge.in_progress {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-badge.completed {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-badge.closed {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+/* Disabled voting state */
+.vote-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f3f4f6 !important;
+    border-color: #e5e7eb !important;
+}
+
+.vote-btn:disabled:hover {
+    background: #f3f4f6 !important;
+    border-color: #e5e7eb !important;
+}
+
+.feature-item.disabled-voting {
+    opacity: 0.85;
+}
     </style>
 </head>
 <body>

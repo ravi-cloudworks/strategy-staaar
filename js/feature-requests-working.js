@@ -39,7 +39,7 @@ class FeatureRequestManager {
             'apikey': this.SUPABASE_KEY,
             'Content-Type': 'application/json'
         };
-        
+
         // Get session from localStorage (where Supabase stores it)
         try {
             const authStorage = localStorage.getItem('sb-yxicubfthxkwqcihrdhe-auth-token');
@@ -54,28 +54,28 @@ class FeatureRequestManager {
         } catch (e) {
             console.warn('Failed to get token from storage:', e);
         }
-        
+
         // Fallback to anon key
         headers['Authorization'] = `Bearer ${this.SUPABASE_KEY}`;
         console.log('🔑 Using anon key (no user token found)');
-        
+
         return headers;
     }
 
     async loadFeatureRequests() {
         const container = document.getElementById('featuresList');
-        
+
         container.innerHTML = `
-            <div class="loading-state">
-                <i class="bi bi-hourglass-split"></i>
-                <div>Loading feature requests...</div>
-            </div>
-        `;
+        <div class="loading-state">
+            <i class="bi bi-hourglass-split"></i>
+            <div>Loading feature requests...</div>
+        </div>
+    `;
 
         try {
             console.log('📥 Loading feature requests...');
 
-            const headers = this.getAuthHeaders();
+            const headers = this.getAuthHeaders(); // Remove await
 
             const response = await fetch(`${this.SUPABASE_URL}/rest/v1/feature_requests?select=*&order=created_at.desc`, {
                 headers
@@ -88,12 +88,10 @@ class FeatureRequestManager {
             const data = await response.json();
             console.log('✅ Loaded:', data.length, 'feature requests');
 
-            // Map and sort by vote count (descending)
             this.featureRequests = data
                 .map(item => ({
                     ...item,
-                    vote_count: Array.isArray(item.upvoter_emails) ? item.upvoter_emails.length : 0,
-                    status: item.status || 'open' // Default to open if missing
+                    vote_count: Array.isArray(item.upvoter_emails) ? item.upvoter_emails.length : 0
                 }))
                 .sort((a, b) => {
                     // Sort by vote count descending
@@ -114,6 +112,8 @@ class FeatureRequestManager {
         }
     }
 
+
+
     async createFeatureRequest() {
         const title = document.getElementById('featureTitle').value.trim();
         const description = document.getElementById('featureDescription').value.trim();
@@ -131,7 +131,7 @@ class FeatureRequestManager {
         try {
             console.log('📝 Creating feature request...');
 
-            const headers = this.getAuthHeaders();
+            const headers = this.getAuthHeaders(); // Remove await
             headers['Prefer'] = 'return=representation';
 
             const response = await fetch(`${this.SUPABASE_URL}/rest/v1/feature_requests`, {
@@ -142,8 +142,7 @@ class FeatureRequestManager {
                     description,
                     type,
                     created_by: this.currentUser.id,
-                    upvoter_emails: [this.currentUser.email], // Auto-upvote by creator
-                    status: 'open' // Default status
+                    upvoter_emails: [this.currentUser.email]
                 })
             });
 
@@ -170,13 +169,14 @@ class FeatureRequestManager {
         }
     }
 
+
     async toggleVote(featureId, currentlyVoted) {
         const functionName = currentlyVoted ? 'downvote_feature_request' : 'upvote_feature_request';
 
         try {
             console.log('🗳️ Voting:', functionName);
 
-            const headers = this.getAuthHeaders();
+            const headers = this.getAuthHeaders(); // Remove await
 
             const response = await fetch(`${this.SUPABASE_URL}/rest/v1/rpc/${functionName}`, {
                 method: 'POST',
@@ -218,23 +218,16 @@ class FeatureRequestManager {
             const hasVoted = feature.upvoter_emails?.includes(this.currentUser.email) || false;
             const voteCount = feature.vote_count || 0;
             const isOwn = feature.created_by === this.currentUser.id;
-            const status = feature.status || 'open';
-            const isVotingDisabled = status !== 'open';
-
-            // Status badge HTML
-            const statusBadge = status !== 'open' ? 
-                `<span class="status-badge ${status}">${this.formatStatus(status)}</span>` : '';
 
             return `
-                <div class="feature-item ${isVotingDisabled ? 'disabled-voting' : ''}">
+                <div class="feature-item">
                     <div class="feature-header">
                         <h3 class="feature-title">${this.escapeHtml(feature.title)}</h3>
                         <div class="vote-section">
                             <button 
                                 class="vote-btn ${hasVoted ? 'voted' : ''}"
                                 onclick="featureManager.toggleVote('${feature.id}', ${hasVoted})"
-                                title="${isVotingDisabled ? 'Voting closed - ' + this.formatStatus(status) : hasVoted ? 'Remove your vote' : 'Vote for this request'}"
-                                ${isVotingDisabled ? 'disabled' : ''}>
+                                title="${hasVoted ? 'Remove vote' : 'Vote'}">
                                 <i class="bi bi-arrow-up"></i>
                             </button>
                             <span class="vote-count">${voteCount}</span>
@@ -244,7 +237,6 @@ class FeatureRequestManager {
                     <div class="feature-meta">
                         <div>
                             <span class="feature-type ${feature.type}">${feature.type}</span>
-                            ${statusBadge}
                             <span style="margin-left: 0.5rem; color: #6b7280;">
                                 ${isOwn ? 'by you' : 'by user'}
                             </span>
@@ -258,16 +250,6 @@ class FeatureRequestManager {
         }).join('');
 
         container.innerHTML = html;
-    }
-
-    formatStatus(status) {
-        const statusMap = {
-            'open': 'Open',
-            'in_progress': 'In Progress',
-            'completed': 'Completed',
-            'closed': 'Closed'
-        };
-        return statusMap[status] || status;
     }
 
     escapeHtml(text) {
