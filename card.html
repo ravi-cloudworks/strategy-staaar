@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategy Card Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;700&family=Poppins:wght@400;500;700&family=Open+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --border: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-muted: #9ca3af;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --destructive: #dc2626;
+            --warning: #f59e0b;
+            --warning-bg: #fef3c7;
+            --warning-border: #fcd34d;
+            --success: #10b981;
+            --radius: 0.5rem;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            padding: 1.5rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 1024px) {
+            .grid {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
+
+        .card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            height: fit-content;
+        }
+
+        .card-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .card-content {
+            padding: 1.25rem;
+            flex: 1;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            border: 1px solid var(--border);
+            border-radius: calc(var(--radius) - 2px);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.15s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        }
+
+        input[type="color"] {
+            width: 48px;
+            height: 32px;
+            border: 1px solid var(--border);
+            border-radius: calc(var(--radius) - 2px);
+            cursor: pointer;
+        }
+
+        input[type="file"] {
+            font-size: 0.875rem;
+            padding: 0.375rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: none;
+            border-radius: calc(var(--radius) - 2px);
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--accent-hover);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--bg-secondary);
+        }
+
+        .btn-outline.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+        }
+
+        .btn-icon {
+            padding: 0.5rem;
+            width: 32px;
+            height: 32px;
+        }
+
+        .color-picker-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .color-value {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+        }
+
+        .template-btn {
+            aspect-ratio: 1.585;
+            padding: 0;
+            overflow: hidden;
+            border: 2px solid var(--border);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .template-btn:hover {
+            border-color: var(--accent);
+        }
+
+        .template-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-container {
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 1.585;
+            margin: 0 auto;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: white;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .generated-card {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .generated-card-preview {
+            aspect-ratio: 1.585;
+            width: 100%;
+        }
+
+        .generated-card-code {
+            padding: 0.5rem;
+            text-align: center;
+            font-family: monospace;
+            font-size: 0.75rem;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 999px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            transition: width 0.3s;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+        }
+
+        .alert-warning {
+            background: var(--warning-bg);
+            border: 1px solid var(--warning-border);
+            color: #92400e;
+        }
+
+        .alert-icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+
+        .empty-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-md);
+        }
+
+        .modal-header {
+            margin-bottom: 1rem;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-description {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+        .text-sm {
+            font-size: 0.875rem;
+        }
+
+        .text-xs {
+            font-size: 0.75rem;
+        }
+
+        .text-muted {
+            color: var(--text-muted);
+        }
+
+        .mb-2 {
+            margin-bottom: 0.5rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        svg {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Strategy Card Generator</h1>
+
+        <div class="grid">
+            <!-- Configuration Panel -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Strategy Card Details</h2>
+                </div>
+                <div class="card-content">
+                    <div class="form-group">
+                        <label for="numCards">Number of Cards (Max 6)</label>
+                        <input type="number" id="numCards" min="1" max="6" value="1">
+                    </div>
+
+                    <div id="codeInputs"></div>
+
+                    <div class="form-group">
+                        <label for="price">Price (max 4 characters)</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" id="price" maxlength="4" placeholder="e.g. 1439">
+                            <button class="btn btn-outline btn-icon active" data-currency="£">£</button>
+                            <button class="btn btn-outline btn-icon" data-currency="$">$</button>
+                            <button class="btn btn-outline btn-icon" data-currency="₹">₹</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="websiteUrl">Strategy or Training Code</label>
+                        <input type="text" id="websiteUrl" value="www.yourwebsite.com" maxlength="30">
+                        <span class="text-xs text-muted" id="urlError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Valid Until</label>
+                        <div class="btn-group mb-2">
+                            <button class="btn btn-outline btn-sm active" data-validity="1day">1 Day</button>
+                            <button class="btn btn-outline btn-sm" data-validity="1week">1 Week</button>
+                            <button class="btn btn-outline btn-sm" data-validity="1month">1 Month</button>
+                        </div>
+                        <div style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: calc(var(--radius) - 2px);">
+                            <span id="validityDisplay"></span>
+                        </div>
+                    </div>
+
+                    <div class="grid-3">
+                        <div class="form-group">
+                            <label>Text Color</label>
+                            <div class="color-picker-group">
+                                <input type="color" id="textColor" value="#333333">
+                                <span class="color-value" id="textColorValue">#333333</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Box Color</label>
+                            <div class="color-picker-group">
+                                <input type="color" id="boxColor" value="#FFFFFF">
+                                <span class="color-value" id="boxColorValue">#FFFFFF</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fontStyle">Font Style</label>
+                            <select id="fontStyle">
+                                <option value="Arial">Arial</option>
+                                <option value="Roboto" selected>Roboto</option>
+                                <option value="Montserrat">Montserrat</option>
+                                <option value="Poppins">Poppins</option>
+                                <option value="Open Sans">Open Sans</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Background Templates</label>
+                        <div class="grid-3">
+                            <button class="template-btn" data-template="1">
+                                <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                            </button>
+                            <button class="template-btn" data-template="2">
+                                <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"></div>
+                            </button>
+                            <button class="template-btn" data-template="3">
+                                <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"></div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="customBg">Upload Custom Background</label>
+                        <input type="file" id="customBg" accept="image/*">
+                    </div>
+
+                    <button class="btn btn-primary" id="generateBtn" style="width: 100%;">Generate Cards</button>
+                </div>
+            </div>
+
+            <!-- Preview Panel -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Preview Card</h2>
+                </div>
+                <div class="card-content" style="display: flex; align-items: center; justify-content: center;">
+                    <div class="preview-container" id="previewContainer"></div>
+                </div>
+            </div>
+
+            <!-- Generated Cards Panel -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Generated Cards</h2>
+                </div>
+                <div class="card-content" style="max-height: 600px; overflow-y: auto;">
+                    <div id="downloadAlert" class="hidden"></div>
+                    <div id="progressBar" class="hidden">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <div class="text-xs text-muted" id="progressText"></div>
+                    </div>
+                    <div id="cardsGrid" class="cards-grid hidden"></div>
+                    <div id="emptyState" class="empty-state">No cards generated yet</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirm Generation</h3>
+                <p class="modal-description">You are about to generate <span id="confirmCount"></span> card(s). This process cannot be interrupted once started.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelBtn">Cancel</button>
+                <button class="btn btn-primary" id="confirmBtn">Generate Now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">PDF Generated Successfully!</h3>
+                <div class="modal-description">
+                    <p class="mb-2">Your PDF is ready to download:</p>
+                    <p style="font-weight: 600; color: var(--accent);" id="pdfFilename"></p>
+                    <div class="alert alert-warning" style="margin-top: 1rem;">
+                        <strong>IMPORTANT:</strong> This is your ONLY chance to download these cards. The PDF cannot be regenerated later.
+                    </div>
+                    <p style="margin-top: 0.5rem;">Please use the download button in the right panel.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="successOkBtn">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Date helper functions
+        function addDays(date, days) {
+            const result = new Date(date);
+            result.setDate(result.getDate() + days);
+            return result;
+        }
+
+        function addMonths(date, months) {
+            const result = new Date(date);
+            result.setMonth(result.getMonth() + months);
+            return result;
+        }
+
+        function formatDate(date, format) {
+            const d = new Date(date);
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            
+            if (format === 'dd-MMM-yyyy') {
+                const day = String(d.getDate()).padStart(2, '0');
+                const month = months[d.getMonth()];
+                const year = d.getFullYear();
+                return `${day}-${month}-${year}`;
+            } else if (format === 'yyyyMMdd-HHmmss') {
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                const hours = String(d.getHours()).padStart(2, '0');
+                const minutes = String(d.getMinutes()).padStart(2, '0');
+                const seconds = String(d.getSeconds()).padStart(2, '0');
+                return `${year}${month}${day}-${hours}${minutes}${seconds}`;
+            }
+            return date.toString();
+        }
+
+        // State management
+        const state = {
+            numCards: 1,
+            codes: [''],
+            price: '',
+            currency: '£',
+            websiteUrl: 'www.yourwebsite.com',
+            validUntil: null,
+            textColor: '#333333',
+            boxColor: '#FFFFFF',
+            font: 'Roboto',
+            backgroundImage: null,
+            generatedCards: [],
+            pdfBlob: null,
+            pdfFilename: '',
+            isGenerating: false
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            // Set initial validity date
+            state.validUntil = addDays(new Date(), 1);
+            updateValidityDisplay();
+            
+            // Set default gradient background
+            loadTemplateBackground(1);
+            
+            // Render initial code inputs
+            renderCodeInputs();
+            
+            // Update preview
+            updatePreview();
+            
+            // Add event listeners
+            setupEventListeners();
+        }
+
+        function setupEventListeners() {
+            // Number of cards
+            document.getElementById('numCards').addEventListener('input', (e) => {
+                state.numCards = Math.min(parseInt(e.target.value) || 1, 6);
+                e.target.value = state.numCards;
+                renderCodeInputs();
+            });
+
+            // Price
+            document.getElementById('price').addEventListener('input', (e) => {
+                state.price = e.target.value.slice(0, 4);
+                e.target.value = state.price;
+                updatePreview();
+            });
+
+            // Currency buttons
+            document.querySelectorAll('[data-currency]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('[data-currency]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    state.currency = btn.dataset.currency;
+                    updatePreview();
+                });
+            });
+
+            // Website URL
+            document.getElementById('websiteUrl').addEventListener('input', (e) => {
+                state.websiteUrl = e.target.value.slice(0, 30);
+                e.target.value = state.websiteUrl;
+                updatePreview();
+            });
+
+            // Validity buttons
+            document.querySelectorAll('[data-validity]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('[data-validity]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    const option = btn.dataset.validity;
+                    const today = new Date();
+                    
+                    if (option === '1day') state.validUntil = addDays(today, 1);
+                    else if (option === '1week') state.validUntil = addDays(today, 7);
+                    else if (option === '1month') state.validUntil = addMonths(today, 1);
+                    
+                    updateValidityDisplay();
+                    updatePreview();
+                });
+            });
+
+            // Colors
+            document.getElementById('textColor').addEventListener('input', (e) => {
+                state.textColor = e.target.value;
+                document.getElementById('textColorValue').textContent = e.target.value;
+                updatePreview();
+            });
+
+            document.getElementById('boxColor').addEventListener('input', (e) => {
+                state.boxColor = e.target.value;
+                document.getElementById('boxColorValue').textContent = e.target.value;
+                updatePreview();
+            });
+
+            // Font
+            document.getElementById('fontStyle').addEventListener('change', (e) => {
+                state.font = e.target.value;
+                updatePreview();
+            });
+
+            // Template buttons
+            document.querySelectorAll('[data-template]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    loadTemplateBackground(parseInt(btn.dataset.template));
+                });
+            });
+
+            // Custom background
+            document.getElementById('customBg').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        state.backgroundImage = event.target.result;
+                        updatePreview();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Generate button
+            document.getElementById('generateBtn').addEventListener('click', showConfirmDialog);
+
+            // Modal buttons
+            document.getElementById('cancelBtn').addEventListener('click', hideConfirmDialog);
+            document.getElementById('confirmBtn').addEventListener('click', generateCards);
+            document.getElementById('successOkBtn').addEventListener('click', hideSuccessModal);
+        }
+
+        function renderCodeInputs() {
+            const container = document.getElementById('codeInputs');
+            container.innerHTML = '';
+            
+            // Adjust codes array
+            while (state.codes.length < state.numCards) {
+                state.codes.push('');
+            }
+            while (state.codes.length > state.numCards) {
+                state.codes.pop();
+            }
+            
+            state.codes.forEach((code, index) => {
+                const group = document.createElement('div');
+                group.className = 'form-group';
+                group.innerHTML = `
+                    <label for="code${index}">Card Code #${index + 1}</label>
+                    <input type="text" id="code${index}" value="${code}" placeholder="Enter 8-character code" maxlength="8">
+                `;
+                container.appendChild(group);
+                
+                group.querySelector('input').addEventListener('input', (e) => {
+                    state.codes[index] = e.target.value;
+                    updatePreview();
+                });
+            });
+        }
+
+        function updateValidityDisplay() {
+            document.getElementById('validityDisplay').textContent = 
+                formatDate(state.validUntil, 'dd-MMM-yyyy');
+        }
+
+        function loadTemplateBackground(templateNum) {
+            const gradients = {
+                1: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                2: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                3: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+            };
+            
+            // Create a canvas with the gradient
+            const canvas = document.createElement('canvas');
+            canvas.width = 856;
+            canvas.height = 540;
+            const ctx = canvas.getContext('2d');
+            
+            const gradient = ctx.createLinearGradient(0, 0, 856, 540);
+            if (templateNum === 1) {
+                gradient.addColorStop(0, '#667eea');
+                gradient.addColorStop(1, '#764ba2');
+            } else if (templateNum === 2) {
+                gradient.addColorStop(0, '#f093fb');
+                gradient.addColorStop(1, '#f5576c');
+            } else {
+                gradient.addColorStop(0, '#4facfe');
+                gradient.addColorStop(1, '#00f2fe');
+            }
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 856, 540);
+            
+            state.backgroundImage = canvas.toDataURL();
+            updatePreview();
+        }
+
+        function createCardSVG(code = null) {
+            const displayCode = code || (state.codes[0] || 'XXX12345');
+            const formattedCode = displayCode.length >= 3 
+                ? `${displayCode.slice(0, 3)}-${displayCode.slice(3)}` 
+                : displayCode;
+            
+            return `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 85.6 54" style="width: 100%; height: 100%;">
+                    <defs>
+                        <filter id="boxShadow">
+                            <feDropShadow dx="0.5" dy="0.5" stdDeviation="0.5" flood-opacity="0.3"/>
+                        </filter>
+                    </defs>
+                    
+                    ${state.backgroundImage ? `
+                        <image x="0" y="0" width="100%" height="100%" href="${state.backgroundImage}" preserveAspectRatio="xMidYMid slice"/>
+                    ` : `
+                        <rect width="100%" height="100%" fill="#f8f8f8"/>
+                        <text x="42.8" y="27" font-family="Arial" font-size="4" text-anchor="middle" fill="#aaa">Choose your Background</text>
+                    `}
+                    
+                    <g transform="translate(0, 0)">
+                        <rect x="3" y="3" width="22" height="8" fill="${state.boxColor}" rx="3" ry="3" 
+                              stroke="${state.textColor}" stroke-width="0.5" filter="url(#boxShadow)"/>
+                        <text x="7" y="8.5" font-family="${state.font}" font-size="5" font-weight="bold" 
+                              fill="${state.textColor}" text-anchor="start">${state.currency} ${state.price}</text>
+                    </g>
+                    
+                    <text x="56.8" y="31" font-family="${state.font}" font-size="3" 
+                          fill="${state.textColor}" text-anchor="middle">${state.websiteUrl}</text>
+                    
+                    <text x="57" y="40" font-family="${state.font}" font-size="7" font-weight="500" 
+                          fill="${state.textColor}" letter-spacing="1" text-anchor="middle">${formattedCode}</text>
+                    
+                    <g transform="translate(42.8, 45)">
+                        <rect x="4" y="-2.5" width="32" height="6" fill="${state.boxColor}" rx="3" ry="3" 
+                              stroke="${state.textColor}" stroke-width="0.5" filter="url(#boxShadow)"/>
+                        <text x="20" y="0.5" font-family="${state.font}" font-size="1.8" text-anchor="middle" 
+                              fill="${state.textColor}" font-weight="bold">VALID UNTIL</text>
+                        <text x="20" y="2.8" font-family="${state.font}" font-size="2.8" text-anchor="middle" 
+                              fill="${state.textColor}">${formatDate(state.validUntil, 'dd-MMM-yyyy').toUpperCase()}</text>
+                    </g>
+                </svg>
+            `;
+        }
+
+        function updatePreview() {
+            document.getElementById('previewContainer').innerHTML = createCardSVG();
+        }
+
+        function showConfirmDialog() {
+            // Validation
+            if (!state.price || state.codes.some(c => !c.trim())) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            document.getElementById('confirmCount').textContent = state.numCards;
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        function hideConfirmDialog() {
+            document.getElementById('confirmModal').classList.remove('active');
+        }
+
+        function hideSuccessModal() {
+            document.getElementById('successModal').classList.remove('active');
+        }
+
+        async function generateCards() {
+            hideConfirmDialog();
+            state.isGenerating = true;
+            state.generatedCards = [];
+            
+            // Show progress
+            document.getElementById('progressBar').classList.remove('hidden');
+            document.getElementById('emptyState').classList.add('hidden');
+            document.getElementById('cardsGrid').innerHTML = '';
+            
+            const cardsGrid = document.getElementById('cardsGrid');
+            cardsGrid.classList.remove('hidden');
+            
+            for (let i = 0; i < state.numCards; i++) {
+                const card = {
+                    code: state.codes[i],
+                    timestamp: new Date().toISOString()
+                };
+                
+                state.generatedCards.push(card);
+                
+                // Add card to grid
+                const cardEl = document.createElement('div');
+                cardEl.className = 'generated-card';
+                cardEl.innerHTML = `
+                    <div class="generated-card-preview">${createCardSVG(card.code)}</div>
+                    <div class="generated-card-code">${card.code}</div>
+                `;
+                cardsGrid.appendChild(cardEl);
+                
+                // Update progress
+                const progress = ((i + 1) / state.numCards) * 100;
+                document.getElementById('progressFill').style.width = progress + '%';
+                document.getElementById('progressText').textContent = 
+                    `Generating ${i + 1} of ${state.numCards} cards...`;
+                
+                if (i < state.numCards - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+            }
+            
+            document.getElementById('progressBar').classList.add('hidden');
+            
+            // Generate PDF
+            await generatePDF();
+            
+            state.isGenerating = false;
+        }
+
+        async function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({
+                unit: 'mm',
+                format: 'a4',
+                orientation: 'portrait'
+            });
+            
+            const CARD_WIDTH = 85.6;
+            const CARD_HEIGHT = 54;
+            const MARGIN = 20;
+            const SPACING = 5;
+            
+            for (let i = 0; i < state.generatedCards.length; i += 6) {
+                if (i > 0) pdf.addPage();
+                
+                for (let row = 0; row < 3; row++) {
+                    for (let col = 0; col < 2; col++) {
+                        const index = i + row * 2 + col;
+                        if (index >= state.generatedCards.length) continue;
+                        
+                        const x = MARGIN + col * (CARD_WIDTH + SPACING);
+                        const y = MARGIN + row * (CARD_HEIGHT + SPACING);
+                        
+                        // Create temporary div for card
+                        const tempDiv = document.createElement('div');
+                        tempDiv.style.cssText = 'position: fixed; left: -9999px; width: 856px; height: 540px;';
+                        tempDiv.innerHTML = createCardSVG(state.generatedCards[index].code);
+                        document.body.appendChild(tempDiv);
+                        
+                        await new Promise(r => setTimeout(r, 500));
+                        
+                        const canvas = await html2canvas(tempDiv, {
+                            scale: 2,
+                            useCORS: true,
+                            logging: false
+                        });
+                        
+                        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', x, y, CARD_WIDTH, CARD_HEIGHT);
+                        document.body.removeChild(tempDiv);
+                    }
+                }
+            }
+            
+            // Store PDF
+            const filename = `strategy_cards_${state.generatedCards.length}cards_${formatDate(new Date(), 'yyyyMMdd-HHmmss')}.pdf`;
+            state.pdfBlob = pdf.output('blob');
+            state.pdfFilename = filename;
+            
+            // Show download alert
+            showDownloadAlert();
+            
+            // Show success modal
+            document.getElementById('pdfFilename').textContent = filename;
+            document.getElementById('successModal').classList.add('active');
+            
+            // Confetti!
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        }
+
+        function showDownloadAlert() {
+            const alert = document.getElementById('downloadAlert');
+            alert.className = 'alert alert-warning';
+            alert.innerHTML = `
+                <div style="display: flex; align-items: start; gap: 0.75rem;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    <div style="flex: 1;">
+                        <p style="font-weight: 600; margin-bottom: 0.5rem;">Your PDF is ready to download</p>
+                        <p style="font-size: 0.875rem; margin-bottom: 1rem;">Download your PDF now or you will lose access to these cards.</p>
+                        <button class="btn btn-primary" onclick="downloadPDF()" style="width: 100%;">
+                            Download PDF Now
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function downloadPDF() {
+            if (state.pdfBlob && state.pdfFilename) {
+                const url = URL.createObjectURL(state.pdfBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = state.pdfFilename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                document.getElementById('downloadAlert').classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

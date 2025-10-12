@@ -499,6 +499,64 @@
     border-radius: 12px !important;
     overflow: auto !important;
 }
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.modal-close:hover {
+    background: #f3f4f6;
+}
+
+.modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-feature-details {
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.modal-feature-details .feature-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.modal-feature-details h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
     </style>
 </head>
 
