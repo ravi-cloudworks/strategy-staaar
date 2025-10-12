@@ -361,6 +361,212 @@
     font-weight: 600;
 }
 
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+}
+
+.modal-container {
+    background: white;
+    border-radius: 12px;
+    max-width: 800px;
+    width: 100%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.modal-close:hover {
+    background: #f3f4f6;
+}
+
+.modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-feature-details {
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.modal-feature-details .feature-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.modal-feature-details h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Comment Form */
+.comment-form {
+    margin-bottom: 2rem;
+}
+
+.comment-form-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+/* Comments Section */
+.comments-section {
+    margin-top: 2rem;
+}
+
+.comment-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.comment-item:last-child {
+    border-bottom: none;
+}
+
+.comment-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.comment-content {
+    flex: 1;
+}
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.comment-author {
+    font-weight: 600;
+    color: #111827;
+    font-size: 14px;
+}
+
+.comment-date {
+    color: #9ca3af;
+    font-size: 12px;
+}
+
+.comment-text {
+    color: #374151;
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.comment-actions {
+    margin-top: 0.5rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.comment-action-btn {
+    background: none;
+    border: none;
+    color: #6b7280;
+    font-size: 12px;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.comment-action-btn:hover {
+    color: #374151;
+}
+
+.empty-comments {
+    text-align: center;
+    padding: 2rem;
+    color: #9ca3af;
+}
+
+.empty-comments i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Comment count badge in list */
+.comment-count-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #6b7280;
+    font-size: 13px;
+    margin-left: 0.5rem;
+}
+
+.comment-count-badge i {
+    font-size: 14px;
+}
+
+/* Make feature items clickable */
+.feature-item {
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.feature-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+}
     </style>
 </head>
 
@@ -439,7 +645,7 @@
             </form>
 <!-- 
             <div class="insighto-footer">
-                Powered by <a href="#" target="_blank">Insighto</a>
+                Powered by <a href="#" target="_blank">Strategy Staaar</a>
             </div> -->
         </div>
 
@@ -453,6 +659,72 @@
             </div>
         </div>
     </div>
+
+     <!-- Comments Modal -->
+    <div class="modal-overlay" id="commentsModal" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalFeatureTitle">Feature Request</h2>
+                <button class="modal-close" onclick="featureManager.closeCommentsModal()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <!-- Feature Details -->
+                <div class="modal-feature-details">
+                    <div class="feature-header">
+                        <h3 id="modalFeatureTitleDetail"></h3>
+                        <div class="vote-section">
+                            <button class="vote-btn" id="modalVoteBtn" disabled>
+                                <i class="bi bi-arrow-up"></i>
+                            </button>
+                            <span class="vote-count" id="modalVoteCount">0</span>
+                        </div>
+                    </div>
+                    <p class="feature-description" id="modalFeatureDesc"></p>
+                    <div class="feature-meta">
+                        <span class="feature-type" id="modalFeatureType"></span>
+                        <span id="modalFeatureStatus"></span>
+                        <span id="modalFeatureDate"></span>
+                    </div>
+                </div>
+
+                <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #e5e7eb;">
+
+                <!-- Add Comment Form -->
+                <div class="comment-form">
+                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 1rem;">Add a comment</h3>
+                    <textarea 
+                        id="commentInput" 
+                        class="form-input" 
+                        placeholder="Share your thoughts..."
+                        maxlength="1000"
+                        rows="3"></textarea>
+                    <div class="comment-form-footer">
+                        <div class="char-count" id="commentCharCount">0/1000</div>
+                        <button class="create-btn" id="addCommentBtn" style="width: auto; padding: 0.75rem 1.5rem;">
+                            Post Comment
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Comments List -->
+                <div class="comments-section">
+                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 1rem;">
+                        Comments (<span id="commentCount">0</span>)
+                    </h3>
+                    <div id="commentsList">
+                        <div class="loading-state">
+                            <i class="bi bi-hourglass-split"></i>
+                            <div>Loading comments...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
