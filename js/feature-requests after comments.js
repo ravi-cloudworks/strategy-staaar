@@ -1,4 +1,4 @@
-// Feature Requests Manager - Clean Layout with Tabs
+// Feature Requests Manager - Using Direct Fetch
 class FeatureRequestManager {
     constructor() {
         this.SUPABASE_URL = 'https://yxicubfthxkwqcihrdhe.supabase.co';
@@ -6,7 +6,6 @@ class FeatureRequestManager {
         this.currentUser = null;
         this.featureRequests = [];
         this.currentFeature = null;
-        this.activeTab = 'all'; // 'all' or 'mine'
     }
 
     async init() {
@@ -113,34 +112,20 @@ class FeatureRequestManager {
         }
     }
 
-    switchTab(tabName) {
-        this.activeTab = tabName;
-        
-        // Update tab buttons
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            if (btn.dataset.tab === tabName) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
-        });
-
-        // Re-render with filter
-        this.renderFeatureRequests();
-    }
-
     getAuthHeaders() {
         const headers = {
             'apikey': this.SUPABASE_KEY,
             'Content-Type': 'application/json'
         };
         
+        // Get session from localStorage
         try {
             const authStorage = localStorage.getItem('sb-yxicubfthxkwqcihrdhe-auth-token');
             if (authStorage) {
                 const session = JSON.parse(authStorage);
                 if (session?.access_token) {
                     headers['Authorization'] = `Bearer ${session.access_token}`;
+                    console.log('🔑 Using user JWT token');
                     return headers;
                 }
             }
@@ -149,6 +134,8 @@ class FeatureRequestManager {
         }
         
         headers['Authorization'] = `Bearer ${this.SUPABASE_KEY}`;
+        console.log('🔑 Using anon key');
+        
         return headers;
     }
 
@@ -178,20 +165,12 @@ class FeatureRequestManager {
             const data = await response.json();
             console.log('✅ Loaded:', data.length, 'feature requests');
 
-            // Get user names from users_login table
-            const userIds = [...new Set(data.map(item => item.created_by))];
-            const usersData = await this.fetchUsers(userIds);
-
             this.featureRequests = data
                 .map(item => ({
                     ...item,
                     vote_count: Array.isArray(item.upvoter_emails) ? item.upvoter_emails.length : 0,
                     status: item.status || 'open',
-                    comment_count: item.comment_count || 0,
-                    creator: usersData[item.created_by] || {
-                        name: 'User',
-                        avatar_url: `https://ui-avatars.com/api/?name=User&background=667eea&color=fff`
-                    }
+                    comment_count: item.comment_count || 0
                 }))
                 .sort((a, b) => {
                     if (b.vote_count !== a.vote_count) {
@@ -210,42 +189,6 @@ class FeatureRequestManager {
         }
     }
 
-    async fetchUsers(userIds) {
-        if (userIds.length === 0) return {};
-
-        try {
-            const headers = this.getAuthHeaders();
-            const idsFilter = userIds.map(id => `user_id.eq.${id}`).join(',');
-            
-            const response = await fetch(
-                `${this.SUPABASE_URL}/rest/v1/users_login?or=(${idsFilter})&select=user_id,name,avatar_url`,
-                { headers }
-            );
-
-            if (!response.ok) {
-                console.warn('Failed to fetch users');
-                return {};
-            }
-
-            const users = await response.json();
-            
-            // Create lookup object
-            const usersMap = {};
-            users.forEach(user => {
-                usersMap[user.user_id] = {
-                    name: user.name || 'User',
-                    avatar_url: user.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=667eea&color=fff`
-                };
-            });
-
-            return usersMap;
-
-        } catch (error) {
-            console.error('Error fetching users:', error);
-            return {};
-        }
-    }
-
     async createFeatureRequest() {
         const title = document.getElementById('featureTitle').value.trim();
         const description = document.getElementById('featureDescription').value.trim();
@@ -256,13 +199,23 @@ class FeatureRequestManager {
             return;
         }
 
-        if (title.length > 100 || title.length < 5) {
-            this.showError('Title must be between 5-100 characters');
+        if (title.length > 100) {
+            this.showError('Title must be 100 characters or less');
             return;
         }
 
-        if (description.length > 500 || description.length < 10) {
-            this.showError('Description must be between 10-500 characters');
+        if (title.length < 5) {
+            this.showError('Title must be at least 5 characters');
+            return;
+        }
+
+        if (description.length > 500) {
+            this.showError('Description must be 500 characters or less');
+            return;
+        }
+
+        if (description.length < 10) {
+            this.showError('Description must be at least 10 characters');
             return;
         }
 
@@ -304,10 +257,6 @@ class FeatureRequestManager {
             document.getElementById('descCount').textContent = '0/500';
 
             await this.loadFeatureRequests();
-            
-            // Switch to "My Requests" tab to show the new item
-            this.switchTab('mine');
-            
             this.showSuccess('Feature request created!');
 
         } catch (error) {
@@ -355,6 +304,7 @@ class FeatureRequestManager {
 
         this.currentFeature = feature;
 
+        // Populate modal with feature details
         document.getElementById('modalFeatureTitle').textContent = feature.title;
         document.getElementById('modalFeatureTitleDetail').textContent = feature.title;
         document.getElementById('modalFeatureDesc').textContent = feature.description;
@@ -368,7 +318,7 @@ class FeatureRequestManager {
         voteBtn.onclick = () => {
             this.toggleVote(feature.id, hasVoted);
             setTimeout(() => {
-                this.openCommentsModal(featureId);
+                this.openCommentsModal(featureId); // Refresh modal
             }, 500);
         };
         
@@ -380,9 +330,11 @@ class FeatureRequestManager {
         
         document.getElementById('modalFeatureDate').textContent = this.formatDate(feature.created_at);
 
+        // Show modal
         document.getElementById('commentsModal').style.display = 'flex';
         document.body.style.overflow = 'hidden';
 
+        // Load comments
         this.loadComments(featureId);
     }
 
@@ -391,6 +343,7 @@ class FeatureRequestManager {
         document.body.style.overflow = 'auto';
         this.currentFeature = null;
         
+        // Clear comment input
         document.getElementById('commentInput').value = '';
         document.getElementById('commentCharCount').textContent = '0/1000';
     }
@@ -468,8 +421,18 @@ class FeatureRequestManager {
     async addComment() {
         const commentText = document.getElementById('commentInput').value.trim();
 
-        if (!commentText || commentText.length < 1 || commentText.length > 1000) {
-            this.showError('Comment must be between 1-1000 characters');
+        if (!commentText) {
+            this.showError('Please enter a comment');
+            return;
+        }
+
+        if (commentText.length > 1000) {
+            this.showError('Comment must be 1000 characters or less');
+            return;
+        }
+
+        if (commentText.length < 1) {
+            this.showError('Comment cannot be empty');
             return;
         }
 
@@ -501,11 +464,13 @@ class FeatureRequestManager {
 
             console.log('✅ Comment added');
 
+            // Clear input
             document.getElementById('commentInput').value = '';
             document.getElementById('commentCharCount').textContent = '0/1000';
 
+            // Reload comments
             await this.loadComments(this.currentFeature.id);
-            await this.loadFeatureRequests();
+            await this.loadFeatureRequests(); // Refresh list to update comment count
 
             this.showSuccess('Comment added!');
 
@@ -521,28 +486,18 @@ class FeatureRequestManager {
     renderFeatureRequests() {
         const container = document.getElementById('featuresList');
 
-        // Filter based on active tab
-        let filteredRequests = this.featureRequests;
-        if (this.activeTab === 'mine') {
-            filteredRequests = this.featureRequests.filter(f => f.created_by === this.currentUser.id);
-        }
-
-        if (filteredRequests.length === 0) {
-            const emptyMessage = this.activeTab === 'mine' 
-                ? 'You haven\'t created any feature requests yet'
-                : 'No feature requests yet';
-            
+        if (this.featureRequests.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
                     <i class="bi bi-lightbulb"></i>
-                    <h3>${emptyMessage}</h3>
-                    <p>${this.activeTab === 'mine' ? 'Create one using the form on the left!' : 'Be the first to suggest a feature!'}</p>
+                    <h3>No feature requests yet</h3>
+                    <p>Be the first to suggest a feature!</p>
                 </div>
             `;
             return;
         }
 
-        const html = filteredRequests.map(feature => {
+        const html = this.featureRequests.map(feature => {
             const hasVoted = feature.upvoter_emails?.includes(this.currentUser.email) || false;
             const voteCount = feature.vote_count || 0;
             const isOwn = feature.created_by === this.currentUser.id;
@@ -556,49 +511,34 @@ class FeatureRequestManager {
             return `
                 <div class="feature-item ${isVotingDisabled ? 'disabled-voting' : ''}" 
                      onclick="featureManager.openCommentsModal('${feature.id}')">
-                    
-                    <!-- Header: Title + Vote -->
                     <div class="feature-header">
                         <h3 class="feature-title">${this.escapeHtml(feature.title)}</h3>
                         <div class="vote-section">
                             <button 
                                 class="vote-btn ${hasVoted ? 'voted' : ''}"
                                 onclick="event.stopPropagation(); featureManager.toggleVote('${feature.id}', ${hasVoted})"
-                                title="${isVotingDisabled ? 'Voting closed' : hasVoted ? 'Remove vote' : 'Vote'}"
+                                title="${isVotingDisabled ? 'Voting closed - ' + this.formatStatus(status) : hasVoted ? 'Remove your vote' : 'Vote for this request'}"
                                 ${isVotingDisabled ? 'disabled' : ''}>
                                 <i class="bi bi-arrow-up"></i>
                             </button>
                             <span class="vote-count">${voteCount}</span>
                         </div>
                     </div>
-
-                    <!-- Description -->
                     <div class="feature-description">${this.escapeHtml(feature.description)}</div>
-
-                    <!-- Footer: Author + Metadata -->
-                    <div class="feature-footer">
-                        <div class="feature-author">
-                            <img src="${feature.creator.avatar_url}" 
-                                 alt="${this.escapeHtml(feature.creator.name)}" 
-                                 class="author-avatar">
-                            <div class="author-info">
-                                <div class="author-name">${this.escapeHtml(feature.creator.name)}</div>
-                                <div class="feature-badges">
-                                    <span class="feature-type ${feature.type}">${feature.type}</span>
-                                    ${statusBadge}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="feature-stats">
-                            <div class="stat-item">
+                    <div class="feature-meta">
+                        <div>
+                            <span class="feature-type ${feature.type}">${feature.type}</span>
+                            ${statusBadge}
+                            <span style="margin-left: 0.5rem; color: #6b7280;">
+                                ${isOwn ? 'by you' : 'by user'}
+                            </span>
+                            <span class="comment-count-badge">
                                 <i class="bi bi-chat-left-text"></i>
                                 ${commentCount}
-                            </div>
-                            <div class="stat-item">
-                                <i class="bi bi-clock"></i>
-                                ${this.formatDate(feature.created_at)}
-                            </div>
+                            </span>
+                        </div>
+                        <div style="color: #9ca3af; font-size: 12px;">
+                            ${this.formatDate(feature.created_at)}
                         </div>
                     </div>
                 </div>
@@ -636,12 +576,12 @@ class FeatureRequestManager {
             if (diffHours === 0) {
                 const diffMins = Math.floor(diffMs / (1000 * 60));
                 if (diffMins === 0) return 'Just now';
-                return `${diffMins}m ago`;
+                return `${diffMins} min${diffMins > 1 ? 's' : ''} ago`;
             }
-            return `${diffHours}h ago`;
+            return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
         }
         if (diffDays === 1) return 'Yesterday';
-        if (diffDays < 7) return `${diffDays}d ago`;
+        if (diffDays < 7) return `${diffDays} days ago`;
         
         return date.toLocaleDateString();
     }
