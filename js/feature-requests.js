@@ -45,7 +45,7 @@ class FeatureRequestManager {
             titleInput.addEventListener('input', (e) => {
                 const length = e.target.value.length;
                 titleCount.textContent = `${length}/100`;
-                
+
                 if (length > 90) {
                     titleCount.classList.add('error');
                     titleCount.classList.remove('warning');
@@ -62,7 +62,7 @@ class FeatureRequestManager {
             descInput.addEventListener('input', (e) => {
                 const length = e.target.value.length;
                 descCount.textContent = `${length}/500`;
-                
+
                 if (length > 475) {
                     descCount.classList.add('error');
                     descCount.classList.remove('warning');
@@ -83,7 +83,7 @@ class FeatureRequestManager {
             commentInput.addEventListener('input', (e) => {
                 const length = e.target.value.length;
                 commentCharCount.textContent = `${length}/1000`;
-                
+
                 if (length > 950) {
                     commentCharCount.classList.add('error');
                     commentCharCount.classList.remove('warning');
@@ -115,7 +115,7 @@ class FeatureRequestManager {
 
     switchTab(tabName) {
         this.activeTab = tabName;
-        
+
         // Update tab buttons
         document.querySelectorAll('.tab-btn').forEach(btn => {
             if (btn.dataset.tab === tabName) {
@@ -134,7 +134,7 @@ class FeatureRequestManager {
             'apikey': this.SUPABASE_KEY,
             'Content-Type': 'application/json'
         };
-        
+
         try {
             const authStorage = localStorage.getItem('sb-yxicubfthxkwqcihrdhe-auth-token');
             if (authStorage) {
@@ -147,14 +147,14 @@ class FeatureRequestManager {
         } catch (e) {
             console.warn('Failed to get token from storage:', e);
         }
-        
+
         headers['Authorization'] = `Bearer ${this.SUPABASE_KEY}`;
         return headers;
     }
 
     async loadFeatureRequests() {
         const container = document.getElementById('featuresList');
-        
+
         container.innerHTML = `
             <div class="loading-state">
                 <i class="bi bi-hourglass-split"></i>
@@ -216,7 +216,7 @@ class FeatureRequestManager {
         try {
             const headers = this.getAuthHeaders();
             const idsFilter = userIds.map(id => `user_id.eq.${id}`).join(',');
-            
+
             const response = await fetch(
                 `${this.SUPABASE_URL}/rest/v1/users_login?or=(${idsFilter})&select=user_id,name,avatar_url`,
                 { headers }
@@ -228,7 +228,7 @@ class FeatureRequestManager {
             }
 
             const users = await response.json();
-            
+
             // Create lookup object
             const usersMap = {};
             users.forEach(user => {
@@ -304,10 +304,10 @@ class FeatureRequestManager {
             document.getElementById('descCount').textContent = '0/500';
 
             await this.loadFeatureRequests();
-            
+
             // Switch to "My Requests" tab to show the new item
             this.switchTab('mine');
-            
+
             this.showSuccess('Feature request created!');
 
         } catch (error) {
@@ -350,17 +350,34 @@ class FeatureRequestManager {
     }
 
     openCommentsModal(featureId) {
+        console.log('🔍 Opening modal for feature:', featureId);
+
         const feature = this.featureRequests.find(f => f.id === featureId);
-        if (!feature) return;
+        console.log('🔍 Found feature:', feature);
+
+        if (!feature) {
+            console.error('❌ Feature not found!');
+            return;
+        }
 
         this.currentFeature = feature;
+
+        // Check if modal elements exist
+        const modal = document.getElementById('commentsModal');
+        console.log('🔍 Modal element:', modal);
+
+        if (!modal) {
+            console.error('❌ Modal element not found! Did you add the modal HTML?');
+            alert('Error: Modal HTML not found. Check the console.');
+            return;
+        }
 
         document.getElementById('modalFeatureTitle').textContent = feature.title;
         document.getElementById('modalFeatureTitleDetail').textContent = feature.title;
         document.getElementById('modalFeatureDesc').textContent = feature.description;
         document.getElementById('modalFeatureType').textContent = feature.type;
         document.getElementById('modalFeatureType').className = `feature-type ${feature.type}`;
-        
+
         const hasVoted = feature.upvoter_emails?.includes(this.currentUser.email) || false;
         const voteBtn = document.getElementById('modalVoteBtn');
         voteBtn.className = `vote-btn ${hasVoted ? 'voted' : ''}`;
@@ -371,18 +388,20 @@ class FeatureRequestManager {
                 this.openCommentsModal(featureId);
             }, 500);
         };
-        
+
         document.getElementById('modalVoteCount').textContent = feature.vote_count;
-        
-        const statusHtml = feature.status !== 'open' ? 
+
+        const statusHtml = feature.status !== 'open' ?
             `<span class="status-badge ${feature.status}">${this.formatStatus(feature.status)}</span>` : '';
         document.getElementById('modalFeatureStatus').innerHTML = statusHtml;
-        
+
         document.getElementById('modalFeatureDate').textContent = this.formatDate(feature.created_at);
 
-        document.getElementById('commentsModal').style.display = 'flex';
+        console.log('🔍 Showing modal...');
+        modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
 
+        console.log('✅ Modal should be visible now');
         this.loadComments(featureId);
     }
 
@@ -390,14 +409,14 @@ class FeatureRequestManager {
         document.getElementById('commentsModal').style.display = 'none';
         document.body.style.overflow = 'auto';
         this.currentFeature = null;
-        
+
         document.getElementById('commentInput').value = '';
         document.getElementById('commentCharCount').textContent = '0/1000';
     }
 
     async loadComments(featureId) {
         const container = document.getElementById('commentsList');
-        
+
         container.innerHTML = `
             <div class="loading-state">
                 <i class="bi bi-hourglass-split"></i>
@@ -528,10 +547,10 @@ class FeatureRequestManager {
         }
 
         if (filteredRequests.length === 0) {
-            const emptyMessage = this.activeTab === 'mine' 
+            const emptyMessage = this.activeTab === 'mine'
                 ? 'You haven\'t created any feature requests yet'
                 : 'No feature requests yet';
-            
+
             container.innerHTML = `
                 <div class="empty-state">
                     <i class="bi bi-lightbulb"></i>
@@ -550,7 +569,7 @@ class FeatureRequestManager {
             const isVotingDisabled = status !== 'open';
             const commentCount = feature.comment_count || 0;
 
-            const statusBadge = status !== 'open' ? 
+            const statusBadge = status !== 'open' ?
                 `<span class="status-badge ${status}">${this.formatStatus(status)}</span>` : '';
 
             return `
@@ -642,7 +661,7 @@ class FeatureRequestManager {
         }
         if (diffDays === 1) return 'Yesterday';
         if (diffDays < 7) return `${diffDays}d ago`;
-        
+
         return date.toLocaleDateString();
     }
 
