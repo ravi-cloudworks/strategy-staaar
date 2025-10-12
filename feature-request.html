@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <!-- CSP to prevent XSS and allow required external resources -->
@@ -11,8 +12,8 @@
                img-src 'self' data: https: blob:; 
                media-src 'self' blob: data:; 
                connect-src 'self' https://yxicubfthxkwqcihrdhe.supabase.co https://*.supabase.co https://www.linkedin.com https://*.linkedin.com;">    -->
-               
-               <!-- Prevent MIME type sniffing -->
+
+    <!-- Prevent MIME type sniffing -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <!-- Referrer policy -->
     <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -239,111 +240,130 @@
             text-decoration: none;
             font-weight: 500;
         }
+
         /* Toast Notifications */
-.toast {
-    background: white;
-    border-radius: 8px;
-    padding: 1rem 1.5rem;
-    margin-bottom: 0.5rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    opacity: 0;
-    transform: translateX(400px);
-    transition: all 0.3s ease;
-    min-width: 300px;
-    display: flex;
-    align-items: center;
-    border-left: 4px solid #3b82f6;
-}
+        .toast {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            transform: translateX(400px);
+            transition: all 0.3s ease;
+            min-width: 300px;
+            display: flex;
+            align-items: center;
+            border-left: 4px solid #3b82f6;
+        }
 
-.toast.show {
-    opacity: 1;
-    transform: translateX(0);
-}
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
 
-.toast.success {
-    border-left-color: #10b981;
-}
+        .toast.success {
+            border-left-color: #10b981;
+        }
 
-.toast.error {
-    border-left-color: #ef4444;
-}
+        .toast.error {
+            border-left-color: #ef4444;
+        }
 
-.toast-content {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    width: 100%;
-}
+        .toast-content {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            width: 100%;
+        }
 
-.toast-content i {
-    font-size: 1.25rem;
-}
+        .toast-content i {
+            font-size: 1.25rem;
+        }
 
-.toast.success i {
-    color: #10b981;
-}
+        .toast.success i {
+            color: #10b981;
+        }
 
-.toast.error i {
-    color: #ef4444;
-}
+        .toast.error i {
+            color: #ef4444;
+        }
 
-.toast-close {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: #9ca3af;
-    cursor: pointer;
-    padding: 0;
-    margin-left: auto;
-    line-height: 1;
-}
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #9ca3af;
+            cursor: pointer;
+            padding: 0;
+            margin-left: auto;
+            line-height: 1;
+        }
 
-.toast-close:hover {
-    color: #374151;
-}
+        .toast-close:hover {
+            color: #374151;
+        }
 
-/* Status Badges */
-.status-badge {
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-weight: 500;
+        /* Status Badges */
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 12px;
+            margin-left: 0.5rem;
+        }
+
+        .status-badge.in_progress {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-badge.completed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.closed {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        /* Disabled voting state */
+        .vote-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f3f4f6 !important;
+            border-color: #e5e7eb !important;
+        }
+
+        .vote-btn:disabled:hover {
+            background: #f3f4f6 !important;
+            border-color: #e5e7eb !important;
+        }
+
+        .feature-item.disabled-voting {
+            opacity: 0.85;
+        }
+
+        .char-count {
+    text-align: right;
     font-size: 12px;
-    margin-left: 0.5rem;
+    color: #9ca3af;
+    margin-top: 0.25rem;
 }
 
-.status-badge.in_progress {
-    background: #fef3c7;
-    color: #92400e;
+.char-count.warning {
+    color: #f59e0b;
 }
 
-.status-badge.completed {
-    background: #d1fae5;
-    color: #065f46;
+.char-count.error {
+    color: #ef4444;
+    font-weight: 600;
 }
 
-.status-badge.closed {
-    background: #f3f4f6;
-    color: #6b7280;
-}
-
-/* Disabled voting state */
-.vote-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    background: #f3f4f6 !important;
-    border-color: #e5e7eb !important;
-}
-
-.vote-btn:disabled:hover {
-    background: #f3f4f6 !important;
-    border-color: #e5e7eb !important;
-}
-
-.feature-item.disabled-voting {
-    opacity: 0.85;
-}
     </style>
 </head>
+
 <body>
     <!-- Header (copied from dashboard.html) -->
     <header class="modern-header">
@@ -388,12 +408,17 @@
             <form id="featureForm">
                 <div class="form-group">
                     <label class="form-label">Short, descriptive title</label>
-                    <input type="text" id="featureTitle" class="form-input" placeholder="Login button color to green" required>
+                    <input type="text" id="featureTitle" class="form-input" placeholder="Login button color to green"
+                        required maxlength="100">
+                    <div class="char-count" id="titleCount">0/100</div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Description</label>
-                    <textarea id="featureDescription" class="form-input form-textarea" placeholder="The login button color should be green to match our brand colors." required></textarea>
+                    <textarea id="featureDescription" class="form-input form-textarea"
+                        placeholder="The login button color should be green to match our brand colors." required
+                        maxlength="500"></textarea>
+                    <div class="char-count" id="descCount">0/500</div>
                 </div>
 
                 <div class="form-group">
@@ -437,4 +462,5 @@
     <script src="js/auth.js"></script>
     <script src="js/feature-requests.js"></script>
 </body>
+
 </html>

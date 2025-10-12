@@ -24,15 +24,55 @@ class FeatureRequestManager {
         console.log('✅ Init completed');
     }
 
-    setupEventListeners() {
-        const form = document.getElementById('featureForm');
-        if (form) {
-            form.addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.createFeatureRequest();
-            });
-        }
+setupEventListeners() {
+    const form = document.getElementById('featureForm');
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.createFeatureRequest();
+        });
     }
+
+    // Character counters
+    const titleInput = document.getElementById('featureTitle');
+    const descInput = document.getElementById('featureDescription');
+    const titleCount = document.getElementById('titleCount');
+    const descCount = document.getElementById('descCount');
+
+    if (titleInput && titleCount) {
+        titleInput.addEventListener('input', (e) => {
+            const length = e.target.value.length;
+            titleCount.textContent = `${length}/100`;
+            
+            if (length > 90) {
+                titleCount.classList.add('error');
+                titleCount.classList.remove('warning');
+            } else if (length > 75) {
+                titleCount.classList.add('warning');
+                titleCount.classList.remove('error');
+            } else {
+                titleCount.classList.remove('warning', 'error');
+            }
+        });
+    }
+
+    if (descInput && descCount) {
+        descInput.addEventListener('input', (e) => {
+            const length = e.target.value.length;
+            descCount.textContent = `${length}/500`;
+            
+            if (length > 475) {
+                descCount.classList.add('error');
+                descCount.classList.remove('warning');
+            } else if (length > 400) {
+                descCount.classList.add('warning');
+                descCount.classList.remove('error');
+            } else {
+                descCount.classList.remove('warning', 'error');
+            }
+        });
+    }
+}
 
     getAuthHeaders() {
         const headers = {
@@ -119,10 +159,32 @@ class FeatureRequestManager {
         const description = document.getElementById('featureDescription').value.trim();
         const type = document.querySelector('input[name="type"]:checked').value;
 
-        if (!title || !description) {
-            this.showError('Please fill in all fields');
-            return;
-        }
+ // Validation
+    if (!title || !description) {
+        this.showError('Please fill in all fields');
+        return;
+    }
+
+    if (title.length > 100) {
+        this.showError('Title must be 100 characters or less');
+        return;
+    }
+
+    if (title.length < 5) {
+        this.showError('Title must be at least 5 characters');
+        return;
+    }
+
+    if (description.length > 500) {
+        this.showError('Description must be 500 characters or less');
+        return;
+    }
+
+    if (description.length < 10) {
+        this.showError('Description must be at least 10 characters');
+        return;
+    }
+
 
         const createBtn = document.getElementById('createBtn');
         createBtn.disabled = true;
