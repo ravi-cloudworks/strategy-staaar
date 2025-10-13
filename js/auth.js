@@ -57,7 +57,15 @@ class AuthManager {
             if (!data.is_active && data.attempts_remaining <= 0) {
                 Utils.showStatus('⚠️ All 3 trial days used! Subscribe to continue.', 'error');
                 alert('⚠️ All 3 trial days used! Subscribe to continue.');
-                this.redirectToLogin();
+
+
+                // Sign out immediately to prevent dashboard access
+                await this.supabaseClient.auth.signOut();
+                window.location.href = 'index.html';
+
+                // Stop all script execution
+                throw new Error('Trial expired');
+
             }
         } catch (err) {
             console.error('Trial check failed:', err);
