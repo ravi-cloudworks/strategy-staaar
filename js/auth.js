@@ -159,8 +159,49 @@ class AuthManager {
                     .update({ login_count: loginCount + 1 })
                     .eq("user_id", userId);
             }
+            // ✅ ADD THIS NEW CODE HERE:
+            await this.activateTrial(userId);
+
         } catch (error) {
             console.error("Error updating user login:", error);
+        }
+
+    }
+
+    // ✅ ADD THIS NEW METHOD AFTER updateUserLogin():
+    async activateTrial(userId) {
+        try {
+            console.log('🎯 Attempting trial activation...');
+
+            const { data, error } = await this.supabaseClient.rpc('activate_daily_trial');
+
+            if (error) {
+                console.error('Trial activation error:', error);
+                return;
+            }
+
+            console.log('Trial activation result:', data);
+
+            if (data?.success && !data.already_active) {
+                const { attempts_used, attempts_allowed, is_first_attempt, is_last_attempt } = data;
+
+                let message = '';
+                if (is_first_attempt) {
+                    message = `🎉 Trial Day 1 of ${attempts_allowed} activated!`;
+                } else if (is_last_attempt) {
+                    message = `⚠️ Final trial day activated!`;
+                } else {
+                    message = `✅ Trial Day ${attempts_used} of ${attempts_allowed} activated!`;
+                }
+
+                console.log(message);
+                // Show toast if showToast function exists
+                if (typeof showToast === 'function') {
+                    showToast(message, 'success');
+                }
+            }
+        } catch (err) {
+            console.error('Trial activation exception:', err);
         }
     }
 
