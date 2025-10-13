@@ -241,6 +241,33 @@
     <!-- Core Scripts -->
     <script src="js/utils.js"></script>
     <script src="js/auth.js"></script>
+    <script>
+// Initialize Supabase client
+const SUPABASE_URL = "https://yxicubfthxkwqcihrdhe.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4aWN1YmZ0aHhrd3FjaWhyZGhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgyMjg3NDEsImV4cCI6MjA3MzgwNDc0MX0.-w4VQhAIF0kYLHv87JazGLxgX-r4VXCJaPVSmOUher4";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Check and activate trial on dashboard load
+async function checkAndActivateTrial() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session?.user) return;
+
+    try {
+        // Try to activate trial (will work on first login or next day)
+        const { data, error } = await supabaseClient.rpc('activate_daily_trial');
+        
+        if (data?.success && !data.already_active) {
+            const { attempts_used, attempts_allowed } = data;
+            showToast(`Trial Day ${attempts_used} of ${attempts_allowed} activated!`, 'success');
+        }
+    } catch (err) {
+        console.error('Trial activation error:', err);
+    }
+}
+
+// Run on page load
+checkAndActivateTrial();
+</script>
     <script src="js/strategy-loader.js"></script>
     <script src="js/main.js"></script>
 </body>
