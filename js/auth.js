@@ -1,10 +1,11 @@
 // Authentication Handler
 class AuthManager {
     constructor() {
+
         this.SUPABASE_URL = "https://yxicubfthxkwqcihrdhe.supabase.co";
         this.SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4aWN1YmZ0aHhrd3FjaWhyZGhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgyMjg3NDEsImV4cCI6MjA3MzgwNDc0MX0.-w4VQhAIF0kYLHv87JazGLxgX-r4VXCJaPVSmOUher4";
         this.supabaseClient = supabase.createClient(this.SUPABASE_URL, this.SUPABASE_KEY);
-
+        this.trialActivated = false; // ADD THIS
         this.init();
     }
 
@@ -15,29 +16,46 @@ class AuthManager {
         this.setupSessionTimeout();
     }
 
-    async checkUser() {
-        try {
-            const { data: { session }, error } = await this.supabaseClient.auth.getSession();
-            if (error) {
-                console.error("Auth error:", error.message);
-                this.redirectToLogin();
-                return;
-            }
+   async checkUser() {
+    try {
+        const { data: { session }, error } = await this.supabaseClient.auth.getSession();
+        if (error) {
+            console.error("Auth error:", error.message);
+            this.redirectToLogin();
+            return;
+        }
 
-            const user = session?.user;
-            if (user) {
-                console.log("✅ User logged in:", user);
-                this.updateUserProfile(user);
-                await this.updateUserLogin(user);
-            } else {
-                console.log("❌ User not logged in, redirecting to login...");
-                this.redirectToLogin();
-            }
-        } catch (error) {
-            console.error("Error checking user:", error);
+        const user = session?.user;
+        if (user) {
+            console.log("✅ User logged in:", user);
+            this.updateUserProfile(user);
+            await this.updateUserLogin(user);
+            
+            // ADD THIS:
+            await this.checkTrialAccess();
+        } else {
+            console.log("❌ User not logged in, redirecting to login...");
             this.redirectToLogin();
         }
+    } catch (error) {
+        console.error("Error checking user:", error);
+        this.redirectToLogin();
     }
+}
+
+async checkTrialAccess() {
+    const { data, error } = await this.supabaseClient.rpc('get_trial_status');
+    
+    if (error || !data) return;
+    
+    console.log('Trial status check:', data);
+    
+    // Block access if no active trial and no attempts left
+    if (!data.is_active && data.attempts_remaining <= 0) {
+        alert('Your trial has expired. Please upgrade to continue.');
+        this.redirectToLogin();
+    }
+}
 
     updateUserProfile(user) {
         const userProfile = document.getElementById('userProfile');
@@ -170,6 +188,8 @@ class AuthManager {
 
     // ✅ ADD THIS NEW METHOD AFTER updateUserLogin():
     async activateTrial(userId) {
+            if (this.trialActivated) return; // Prevent duplicate calls
+    this.trialActivated = true;
         try {
             console.log('🎯 Attempting trial activation...');
 
