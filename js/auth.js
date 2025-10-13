@@ -44,24 +44,25 @@ class AuthManager {
     }
 
     async checkTrialAccess() {
-    try {
-        const { data, error } = await this.supabaseClient.rpc('get_trial_status');
-        
-        if (error) {
-            console.error('Trial check error:', error);
-            return;
+        try {
+            const { data, error } = await this.supabaseClient.rpc('get_trial_status');
+
+            if (error) {
+                console.error('Trial check error:', error);
+                return;
+            }
+
+            console.log('🔍 Trial check:', data);
+
+            if (!data.is_active && data.attempts_remaining <= 0) {
+                Utils.showStatus('⚠️ All 3 trial days used! Subscribe to continue.', 'error');
+                alert('⚠️ All 3 trial days used! Subscribe to continue.');
+                this.redirectToLogin();
+            }
+        } catch (err) {
+            console.error('Trial check failed:', err);
         }
-        
-        console.log('🔍 Trial check:', data);
-        
-        if (!data.is_active && data.attempts_remaining <= 0) {
-            alert('⚠️ All 3 trial days used. Please upgrade.');
-            this.redirectToLogin();
-        }
-    } catch (err) {
-        console.error('Trial check failed:', err);
     }
-}
 
     updateUserProfile(user) {
         const userProfile = document.getElementById('userProfile');
@@ -166,11 +167,9 @@ class AuthManager {
                         app_metadata: user.app_metadata,
                         identities: user.identities,
                         created_at: user.created_at
-                    },
-                    plan_name: 'daily',
-                    attempts_allowed: 3,
-                    attempts_used: 0
-                }, { onConflict: "user_id" ,
+                    }
+                }, {
+                    onConflict: "user_id",
                     ignoreDuplicates: false
                 })
                 .select();
@@ -214,22 +213,19 @@ class AuthManager {
             console.log('Trial activation result:', data);
 
             if (data?.success && !data.already_active) {
-                const { attempts_used, attempts_allowed, is_first_attempt, is_last_attempt } = data;
+                const { attempts_used, attempts_allowed, attempts_remaining, is_first_attempt, is_last_attempt } = data;
 
                 let message = '';
                 if (is_first_attempt) {
-                    message = `🎉 Trial Day 1 of ${attempts_allowed} activated!`;
+                    message = `🎉 Trial Day 1 activated! You have ${attempts_remaining} more attempts available.`;
                 } else if (is_last_attempt) {
-                    message = `⚠️ Final trial day activated!`;
+                    message = `⚠️ Final trial day activated! This is your last attempt.`;
                 } else {
-                    message = `✅ Trial Day ${attempts_used} of ${attempts_allowed} activated!`;
+                    message = `✅ Attempt ${attempts_used} completed. You have ${attempts_remaining} more ${attempts_remaining === 1 ? 'attempt' : 'attempts'} available.`;
                 }
 
                 console.log(message);
-                // Show toast if showToast function exists
-                if (typeof showToast === 'function') {
-                    showToast(message, 'success');
-                }
+                Utils.showStatus(message, 'success');
             }
         } catch (err) {
             console.error('Trial activation exception:', err);
