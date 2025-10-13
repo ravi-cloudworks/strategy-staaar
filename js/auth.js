@@ -16,44 +16,50 @@ class AuthManager {
         this.setupSessionTimeout();
     }
 
-   async checkUser() {
-    try {
-        const { data: { session }, error } = await this.supabaseClient.auth.getSession();
-        if (error) {
-            console.error("Auth error:", error.message);
+    async checkUser() {
+        try {
+            const { data: { session }, error } = await this.supabaseClient.auth.getSession();
+            if (error) {
+                console.error("Auth error:", error.message);
+                this.redirectToLogin();
+                return;
+            }
+
+            const user = session?.user;
+            if (user) {
+                console.log("✅ User logged in:", user);
+                this.updateUserProfile(user);
+                await this.updateUserLogin(user);
+
+                // ADD THIS:
+                await this.checkTrialAccess();
+            } else {
+                console.log("❌ User not logged in, redirecting to login...");
+                this.redirectToLogin();
+            }
+        } catch (error) {
+            console.error("Error checking user:", error);
             this.redirectToLogin();
+        }
+    }
+
+    async checkTrialAccess() {
+    try {
+        const { data, error } = await this.supabaseClient.rpc('get_trial_status');
+        
+        if (error) {
+            console.error('Trial check error:', error);
             return;
         }
-
-        const user = session?.user;
-        if (user) {
-            console.log("✅ User logged in:", user);
-            this.updateUserProfile(user);
-            await this.updateUserLogin(user);
-            
-            // ADD THIS:
-            await this.checkTrialAccess();
-        } else {
-            console.log("❌ User not logged in, redirecting to login...");
+        
+        console.log('🔍 Trial check:', data);
+        
+        if (!data.is_active && data.attempts_remaining <= 0) {
+            alert('⚠️ All 3 trial days used. Please upgrade.');
             this.redirectToLogin();
         }
-    } catch (error) {
-        console.error("Error checking user:", error);
-        this.redirectToLogin();
-    }
-}
-
-async checkTrialAccess() {
-    const { data, error } = await this.supabaseClient.rpc('get_trial_status');
-    
-    if (error || !data) return;
-    
-    console.log('Trial status check:', data);
-    
-    // Block access if no active trial and no attempts left
-    if (!data.is_active && data.attempts_remaining <= 0) {
-        alert('Your trial has expired. Please upgrade to continue.');
-        this.redirectToLogin();
+    } catch (err) {
+        console.error('Trial check failed:', err);
     }
 }
 
@@ -160,8 +166,13 @@ async checkTrialAccess() {
                         app_metadata: user.app_metadata,
                         identities: user.identities,
                         created_at: user.created_at
-                    }
-                }, { onConflict: "user_id" })
+                    },
+                    plan_name: 'daily',
+                    attempts_allowed: 3,
+                    attempts_used: 0
+                }, { onConflict: "user_id" ,
+                    ignoreDuplicates: false
+                })
                 .select();
 
             if (upsertError) {
@@ -188,8 +199,8 @@ async checkTrialAccess() {
 
     // ✅ ADD THIS NEW METHOD AFTER updateUserLogin():
     async activateTrial(userId) {
-            if (this.trialActivated) return; // Prevent duplicate calls
-    this.trialActivated = true;
+        if (this.trialActivated) return; // Prevent duplicate calls
+        this.trialActivated = true;
         try {
             console.log('🎯 Attempting trial activation...');
 
