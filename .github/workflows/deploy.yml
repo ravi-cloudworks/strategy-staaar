@@ -35,7 +35,7 @@ jobs:
         echo "🔒 Building secure production version..."
 
         # Create dist directory for secure build
-        mkdir -p dist/js dist/mockups
+        mkdir -p dist/js dist/mockups dist/branva/js dist/branva/css dist/branva/data/strategies
 
         # Obfuscate JavaScript files with high security settings
         echo "🔐 Obfuscating JavaScript files..."
@@ -99,6 +99,27 @@ jobs:
           done
         fi
 
+        # Obfuscate Branva JS files if they exist
+        if [ -d "branva/js" ]; then
+          echo "🔐 Obfuscating Branva JavaScript files..."
+          for jsfile in branva/js/*.js; do
+            if [ -f "$jsfile" ]; then
+              filename=$(basename "$jsfile")
+              echo "🔐 Obfuscating branva/js/$filename..."
+              javascript-obfuscator "$jsfile" \
+                --output "dist/branva/js/$filename" \
+                --compact true \
+                --control-flow-flattening true \
+                --control-flow-flattening-threshold 0.75 \
+                --dead-code-injection true \
+                --dead-code-injection-threshold 0.4 \
+                --string-array true \
+                --string-array-encoding 'rc4' \
+                --string-array-threshold 0.75
+            fi
+          done
+        fi
+
         # Minify HTML files
         echo "📄 Minifying HTML files..."
         for htmlfile in *.html; do
@@ -113,6 +134,17 @@ jobs:
           fi
         done
 
+        # Minify Branva HTML file
+        if [ -f "branva/index.html" ]; then
+          echo "📄 Minifying branva/index.html..."
+          html-minifier-terser \
+            --collapse-whitespace \
+            --remove-comments \
+            --minify-css true \
+            --minify-js true \
+            branva/index.html -o dist/branva/index.html
+        fi
+
         # Copy other necessary files
         echo "📋 Copying assets..."
         [ -d "css" ] && cp -r css dist/ || echo "No css directory found"
@@ -122,6 +154,13 @@ jobs:
         [ -d "data" ] && cp -r data dist/ || echo "No data directory found"
         [ -d "mockup-images" ] && cp -r mockup-images dist/ || echo "No mockup-images directory found"
         [ -d "videos" ] && cp -r videos dist/ || echo "No videos directory found"
+
+        # Copy Branva assets
+        echo "📋 Copying Branva assets..."
+        [ -d "branva/css" ] && cp -r branva/css dist/branva/ || echo "No branva/css directory found"
+        [ -d "branva/data" ] && cp -r branva/data dist/branva/ || echo "No branva/data directory found"
+        [ -d "branva/images" ] && cp -r branva/images dist/branva/ || echo "No branva/images directory found"
+        [ -d "branva/assets" ] && cp -r branva/assets dist/branva/ || echo "No branva/assets directory found"
 
         # Copy mockups HTML if exists
         if [ -f "mockups/index.html" ]; then
