@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Test</title>
+</head>
+<body>
+    <h1>Debug Test</h1>
+    <p>Check console for logs</p>
+    <script>
+        console.log('🔧 Basic console test working!');
+    </script>
+    <script src="js/branva-canvas.js"></script>
+    <script>
+        console.log('🔧 After loading branva-canvas.js');
+        setTimeout(() => {
+            if (typeof BranvaCanvas !== 'undefined') {
+                console.log('🔧 BranvaCanvas class is available');
+            } else {
+                console.log('🔧 BranvaCanvas class NOT available');
+            }
+        }, 100);
+    </script>
+</body>
+</html>
