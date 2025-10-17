@@ -1,0 +1,62 @@
+{
+  "title": "Conversion Drop-Off Forensics",
+  "description": "Conversion leak detector",
+  "headers": [
+    {"text": "ATTENTION CAPTURE", "icon": "eye"},
+    {"text": "INTEREST BUILDING", "icon": "lightbulb"},
+    {"text": "DESIRE CREATION", "icon": "heart"},
+    {"text": "TRUST BUILDING", "icon": "shield-check"},
+    {"text": "OBJECTION HANDLING", "icon": "question-circle"},
+    {"text": "ACTION TRIGGER", "icon": "play-circle"}
+  ],
+  "data": [
+    [
+      {"text": "SCROLLS PAST", "icon": "fast-forward-btn"},
+      {"text": "BRIEF PAUSE", "icon": "pause"},
+      {"text": "STOPS SCROLLING", "icon": "hand-index"},
+      {"text": "LEANS FORWARD", "icon": "cursor"},
+      {"text": "FULL FOCUS", "icon": "eye"},
+      {"text": "MESMERIZED", "icon": "star"}
+    ],
+    [
+      {"text": "LOSES INTEREST", "icon": "arrow-down"},
+      {"text": "MILD CURIOSITY", "icon": "question"},
+      {"text": "WANTS TO KNOW MORE", "icon": "search"},
+      {"text": "ACTIVELY ENGAGED", "icon": "heart"},
+      {"text": "DEEPLY INVESTED", "icon": "chat-left-heart"},
+      {"text": "OBSESSIVELY INTERESTED", "icon": "fire"}
+    ],
+    [
+      {"text": "NO WANT", "icon": "x-lg"},
+      {"text": "SLIGHT APPEAL", "icon": "caret-right"},
+      {"text": "GROWING INTEREST", "icon": "graph-up"},
+      {"text": "STRONG CRAVING", "icon": "emoji-heart-eyes"},
+      {"text": "INTENSE LONGING", "icon": "hearts"},
+      {"text": "DESPERATE NEED", "icon": "exclamation-circle"}
+    ],
+    [
+      {"text": "SUSPICIOUS", "icon": "shield-x"},
+      {"text": "SKEPTICAL", "icon": "eye-slash"},
+      {"text": "NEUTRAL", "icon": "dash"},
+      {"text": "BELIEVABLE", "icon": "check2"},
+      {"text": "TRUSTED SOURCE", "icon": "shield"},
+      {"text": "ABSOLUTE FAITH", "icon": "award"}
+    ],
+    [
+      {"text": "MAJOR CONCERNS", "icon": "exclamation-octagon"},
+      {"text": "SOME DOUBTS", "icon": "patch-question"},
+      {"text": "MINOR HESITATION", "icon": "pause-circle"},
+      {"text": "MOSTLY CONVINCED", "icon": "check-circle"},
+      {"text": "FULLY SATISFIED", "icon": "hand-thumbs-up"},
+      {"text": "ZERO RESISTANCE", "icon": "rocket"}
+    ],
+    [
+      {"text": "NO MOTIVATION", "icon": "stop-circle"},
+      {"text": "WEAK PROMPT", "icon": "arrow-right-circle"},
+      {"text": "CLEAR DIRECTION", "icon": "signpost"},
+      {"text": "URGENT CALL", "icon": "bell"},
+      {"text": "IRRESISTIBLE OFFER", "icon": "gift"},
+      {"text": "COMPULSIVE NEED", "icon": "lightning"}
+    ]
+  ]
+}
