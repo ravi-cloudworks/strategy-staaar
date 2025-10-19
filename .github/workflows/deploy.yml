@@ -162,6 +162,7 @@ jobs:
         [ -d "branva/images" ] && cp -r branva/images dist/branva/ || echo "No branva/images directory found"
         [ -d "branva/assets" ] && cp -r branva/assets dist/branva/ || echo "No branva/assets directory found"
         [ -d "branva/videos" ] && cp -r branva/videos dist/branva/ || echo "No branva/videos directory found"
+        [ -d "branva/mockup-images" ] && cp -r branva/mockup-images dist/branva/ || echo "No branva/mockup-images directory found"
 
         # Copy mockups HTML if exists
         if [ -f "mockups/index.html" ]; then
