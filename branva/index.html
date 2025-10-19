@@ -344,6 +344,32 @@
         </div>
     </div>
 
+    <!-- Visual Activations Mockup Templates Modal -->
+    <div class="modal-overlay" id="visualActivationsModal">
+        <div class="modal-content visual-activations-modal-content">
+            <div class="modal-header">
+                <h2 id="visualActivationsTitle">Mockup Templates</h2>
+                <button class="modal-close" id="closeVisualActivationsModal">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="selection-controls">
+                    <button class="btn-secondary" id="selectAllMockupsBtn">Select All</button>
+                    <button class="btn-secondary" id="clearAllMockupsBtn">Clear All</button>
+                    <span class="selection-count" id="mockupSelectionCount">0 selected</span>
+                </div>
+                <div class="visual-activations-preview" id="visualActivationsPreview">
+                    <!-- Mockup templates grid will be rendered here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancelVisualActivationsBtn">Cancel</button>
+                <button class="btn-primary" id="addSelectedMockupsBtn" disabled>Select Templates</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
@@ -357,6 +383,10 @@
     <script src="js/branva-video-drawer.js"></script>
     <script src="js/branva-insights-drawer.js"></script>
     <script src="js/branva-solutions-drawer.js"></script>
+    <script src="js/branva-visual-activations-config.js"></script>
+    <script src="js/branva-visual-activations-workspace.js"></script>
+    <script src="js/branva-visual-activations-processor.js"></script>
+    <script src="js/branva-visual-activations-drawer.js"></script>
     <script src="js/branva-universal-drawers.js"></script>
     <script src="js/branva-canvas.js"></script>
     <script src="js/branva-panels.js"></script>

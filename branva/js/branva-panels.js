@@ -156,7 +156,7 @@ class BranvaPanels {
                 this.openConsumerInsightsDrawer();
                 break;
             case 'mockups':
-                this.openMockupsDrawer();
+                this.openVisualActivationsDrawer();
                 break;
             case 'text':
                 this.openTextDrawer();
@@ -203,6 +203,9 @@ class BranvaPanels {
         if (window.branvaMockupsDrawer && window.branvaMockupsDrawer.isOpen) {
             window.branvaMockupsDrawer.close();
         }
+        if (window.branvaVisualActivationsDrawer && window.branvaVisualActivationsDrawer.isOpen) {
+            window.branvaVisualActivationsDrawer.close();
+        }
         if (window.branvaTextDrawer && window.branvaTextDrawer.isOpen) {
             window.branvaTextDrawer.close();
         }
@@ -226,6 +229,14 @@ class BranvaPanels {
     openMockupsDrawer() {
         if (window.branvaMockupsDrawer) {
             window.branvaMockupsDrawer.open();
+        } else {
+            document.getElementById('mockupsPanel').classList.add('active');
+        }
+    }
+
+    openVisualActivationsDrawer() {
+        if (window.branvaVisualActivationsDrawer) {
+            window.branvaVisualActivationsDrawer.open();
         } else {
             document.getElementById('mockupsPanel').classList.add('active');
         }

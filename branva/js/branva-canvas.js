@@ -527,6 +527,9 @@ class BranvaCanvas {
             case 'mockup':
                 this.renderMockupElement(div, element);
                 break;
+            case 'mockup-template':
+                this.renderMockupTemplateElement(div, element);
+                break;
             case 'strategy-matrix':
                 this.renderStrategyMatrix(element);
                 return; // Don't append to slideContent, it's handled differently
@@ -870,6 +873,285 @@ class BranvaCanvas {
                 </div>
             </div>
         `;
+    }
+
+    renderMockupTemplateElement(div, element) {
+        const content = element.content;
+        const elementId = element.id;
+
+        div.innerHTML = `
+            <div class="mockup-template-container" data-element-id="${elementId}" style="
+                width: 100%;
+                height: 100%;
+                background: #f8fafc;
+                border: 2px solid #e2e8f0;
+                border-radius: 12px;
+                position: relative;
+                overflow: hidden;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                cursor: pointer;
+            ">
+                <div style="
+                    position: absolute;
+                    top: 8px;
+                    left: 8px;
+                    right: 8px;
+                    background: rgba(255, 255, 255, 0.95);
+                    padding: 6px 8px;
+                    border-radius: 6px;
+                    font-size: 11px;
+                    font-weight: 600;
+                    color: #475569;
+                    text-align: center;
+                    z-index: 2;
+                ">
+                    ${content.persona.icon} ${content.persona.name}
+                </div>
+
+                <div class="mockup-workspace" id="mockupWorkspace-${elementId}" style="
+                    position: absolute;
+                    top: 35px;
+                    left: 8px;
+                    right: 8px;
+                    bottom: 35px;
+                    background: #ffffff;
+                    border-radius: 8px;
+                    border: 1px solid #e2e8f0;
+                    overflow: hidden;
+                ">
+                    <div id="canvasContainer-${elementId}" style="
+                        position: relative;
+                        width: 100%;
+                        height: 100%;
+                    ">
+                        <canvas id="mockupCanvas-${elementId}" style="
+                            width: 100%;
+                            height: 100%;
+                            display: block;
+                        "></canvas>
+                    </div>
+                </div>
+
+                <div style="
+                    position: absolute;
+                    bottom: 8px;
+                    left: 8px;
+                    right: 8px;
+                    background: rgba(255, 255, 255, 0.95);
+                    padding: 4px 6px;
+                    border-radius: 6px;
+                    font-size: 9px;
+                    color: #64748b;
+                    text-align: center;
+                    z-index: 2;
+                ">
+                    <div style="font-weight: 600; margin-bottom: 2px;">${content.mockupName}</div>
+                    <div style="font-size: 8px;">
+                        <span class="orientation-badge" style="
+                            background: ${content.orientation === 'portrait' ? '#8B5CF6' : '#06B6D4'};
+                            color: white;
+                            padding: 1px 4px;
+                            border-radius: 3px;
+                            margin-right: 4px;
+                        ">${content.orientation === 'portrait' ? '📱' : '🖥️'}</span>
+                        📍 ${content.locationName}
+                    </div>
+                </div>
+
+                <div class="upload-overlay" style="
+                    position: absolute;
+                    top: 35px;
+                    left: 8px;
+                    right: 8px;
+                    bottom: 35px;
+                    background: rgba(139, 92, 246, 0.1);
+                    border: 2px dashed #8B5CF6;
+                    border-radius: 8px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 10px;
+                    color: #8B5CF6;
+                    font-weight: 600;
+                    z-index: 3;
+                    transition: background-color 0.2s ease;
+                ">
+                    📸 Click to add content
+                </div>
+
+                <input type="file" id="contentInput-${elementId}" accept="image/*" style="display: none;">
+            </div>
+        `;
+
+        // Initialize the mockup canvas
+        setTimeout(() => this.initializeMockupCanvas(element), 100);
+
+        // Add click handler for file upload
+        const container = div.querySelector('.mockup-template-container');
+        const fileInput = div.querySelector(`#contentInput-${elementId}`);
+        const uploadOverlay = div.querySelector('.upload-overlay');
+
+        container.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                this.processUploadedContent(file, element);
+            }
+        });
+
+        // Hover effects
+        container.addEventListener('mouseenter', () => {
+            uploadOverlay.style.backgroundColor = 'rgba(139, 92, 246, 0.15)';
+        });
+
+        container.addEventListener('mouseleave', () => {
+            uploadOverlay.style.backgroundColor = 'rgba(139, 92, 246, 0.1)';
+        });
+    }
+
+    initializeMockupCanvas(element) {
+        const elementId = element.id;
+        const canvas = document.getElementById(`mockupCanvas-${elementId}`);
+
+        if (!canvas) {
+            console.error(`Canvas not found for element ${elementId}`);
+            return;
+        }
+
+        const content = element.content;
+
+        // Load mockup image and initialize canvas
+        const mockupImg = new Image();
+        mockupImg.crossOrigin = 'anonymous';
+        mockupImg.onload = () => {
+            // Set canvas size to actual mockup image dimensions for accurate processing
+            canvas.width = mockupImg.width;
+            canvas.height = mockupImg.height;
+
+            console.log(`📐 Canvas initialized: ${canvas.width}x${canvas.height} for mockup: ${content.mockupName}`);
+
+            // Draw the mockup template
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Detect transparent area for content placement
+            if (window.detectTransparentArea) {
+                const corners = window.detectTransparentArea(mockupImg);
+                if (corners && window.drawAdvancedMockup) {
+                    // Draw mockup with placeholder
+                    window.drawAdvancedMockup(mockupImg, null, canvas, corners, elementId);
+
+                    // Store corners for later use
+                    element.detectedCorners = corners;
+                } else {
+                    // Fallback to simple drawing
+                    ctx.drawImage(mockupImg, 0, 0);
+                }
+            } else {
+                // Basic mockup display
+                ctx.drawImage(mockupImg, 0, 0);
+            }
+        };
+
+        mockupImg.onerror = () => {
+            console.error(`Failed to load mockup image: ${content.mockupImage}`);
+        };
+
+        mockupImg.src = content.mockupImage;
+    }
+
+    processUploadedContent(file, element) {
+        const elementId = element.id;
+        const uploadOverlay = document.querySelector(`[data-element-id="${elementId}"] .upload-overlay`);
+        const canvas = document.getElementById(`mockupCanvas-${elementId}`);
+
+        if (!canvas) {
+            console.error(`Canvas not found for element ${elementId}`);
+            return;
+        }
+
+        // Hide upload overlay
+        if (uploadOverlay) {
+            uploadOverlay.style.display = 'none';
+        }
+
+        // Read the uploaded file
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const contentImg = new Image();
+            contentImg.onload = () => {
+                // Start the 30-second AI processing animation
+                if (window.startAIProcessingAnimation && element.detectedCorners) {
+                    console.log('🎭 Starting 30-second AI processing animation...');
+
+                    // Create container for animation
+                    const workspace = document.getElementById(`mockupWorkspace-${elementId}`);
+                    if (workspace) {
+                        workspace.style.position = 'relative';
+
+                        // Start animation with callback to apply content after 30 seconds
+                        window.startAIProcessingAnimation(elementId, element.detectedCorners, () => {
+                            this.applyContentToMockup(contentImg, element);
+                        });
+                    } else {
+                        // No animation container, apply content immediately
+                        this.applyContentToMockup(contentImg, element);
+                    }
+                } else {
+                    // No advanced processing available, apply content immediately
+                    this.applyContentToMockup(contentImg, element);
+                }
+            };
+            contentImg.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    applyContentToMockup(contentImg, element) {
+        const elementId = element.id;
+        const canvas = document.getElementById(`mockupCanvas-${elementId}`);
+        const content = element.content;
+
+        if (!canvas) return;
+
+        // Load mockup image again
+        const mockupImg = new Image();
+        mockupImg.crossOrigin = 'anonymous';
+        mockupImg.onload = () => {
+            console.log(`🎯 Applying content to mockup: ${content.mockupName}`);
+            console.log(`📐 Canvas size: ${canvas.width}x${canvas.height}`);
+            console.log(`🔍 Detected corners:`, element.detectedCorners);
+            console.log(`🖼️ Content image size: ${contentImg.width}x${contentImg.height}`);
+            console.log(`🔮 OpenCV available:`, !!(window.cv && cv.Mat));
+            console.log(`🎨 drawAdvancedMockup available:`, !!window.drawAdvancedMockup);
+
+            if (window.drawAdvancedMockup && element.detectedCorners) {
+                // Use advanced processing with perspective transformation
+                console.log('🚀 Using advanced mockup processing with perspective transformation');
+                window.drawAdvancedMockup(mockupImg, contentImg, canvas, element.detectedCorners, elementId);
+            } else {
+                // Fallback to simple overlay
+                console.log('⚡ Using fallback simple overlay method');
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Simple content placement in center
+                const centerX = canvas.width * 0.3;
+                const centerY = canvas.height * 0.3;
+                const width = canvas.width * 0.4;
+                const height = canvas.height * 0.4;
+
+                ctx.drawImage(contentImg, centerX, centerY, width, height);
+                ctx.drawImage(mockupImg, 0, 0);
+            }
+
+            console.log(`✅ Content applied to mockup: ${content.mockupName}`);
+        };
+        mockupImg.src = content.mockupImage;
     }
 
     renderStrategyMatrix(element) {
