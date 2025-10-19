@@ -320,22 +320,25 @@ video {
 }
 
 .toast {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
+    background: #1e293b;
+    color: white;
+    border: none;
     border-radius: 8px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    padding: 16px 20px;
-    margin-bottom: 12px;
-    pointer-events: auto; /* Allow interaction with individual toasts */
-    max-width: 400px;
-    min-width: 300px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    pointer-events: auto;
+    max-width: 350px;
+    min-width: 250px;
     font-size: 14px;
     font-weight: 500;
     position: relative;
-    pointer-events: auto;
     transform: translateX(100%);
     opacity: 0;
     transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .toast.show {
@@ -344,18 +347,27 @@ video {
 }
 
 .toast.success {
-    border-left: 4px solid #10b981;
-    color: #065f46;
+    background: #10b981;
+    color: white;
+    border: none;
 }
 
 .toast.error {
-    border-left: 4px solid #ef4444;
-    color: #991b1b;
+    background: #ef4444;
+    color: white;
+    border: none;
 }
 
 .toast.info {
-    border-left: 4px solid #3b82f6;
-    color: #1e40af;
+    background: #3b82f6;
+    color: white;
+    border: none;
+}
+
+.toast.warning {
+    background: #f59e0b;
+    color: white;
+    border: none;
 }
 
 .toast::before {
