@@ -204,6 +204,49 @@ window.BranvaData = {
             defaultSize: { width: 60, height: 60 },
             configurable: false,
             tags: ["voice", "phone", "touchpoint"]
+        },
+
+        // Video Analysis
+        {
+            id: "video-frame-capture",
+            name: "Video Frame Capture",
+            category: "video",
+            iconClass: "bi-camera-video",
+            toolType: "interactive",
+            defaultSize: { width: 300, height: 200 },
+            configurable: true,
+            tags: ["video", "capture", "frame", "analysis"],
+            action: "openVideoModal"
+        },
+        {
+            id: "video-timeline",
+            name: "Video Timeline",
+            category: "video",
+            iconClass: "bi-stopwatch",
+            toolType: "interactive",
+            defaultSize: { width: 400, height: 60 },
+            configurable: true,
+            tags: ["video", "timeline", "scrub", "analysis"]
+        },
+        {
+            id: "video-annotations",
+            name: "Video Annotations",
+            category: "video",
+            iconClass: "bi-chat-square-text",
+            toolType: "interactive",
+            defaultSize: { width: 250, height: 150 },
+            configurable: true,
+            tags: ["video", "annotations", "notes", "analysis"]
+        },
+        {
+            id: "frame-comparison",
+            name: "Frame Comparison",
+            category: "video",
+            iconClass: "bi-layout-split",
+            toolType: "interactive",
+            defaultSize: { width: 400, height: 200 },
+            configurable: true,
+            tags: ["video", "comparison", "frames", "analysis"]
         }
     ],
 
@@ -390,9 +433,260 @@ window.BranvaData.getInsightsByCategory = function(category) {
     if (category === 'data') return this.insights.filter(i => i.category === 'data');
     if (category === 'journey') return this.insights.filter(i => i.category === 'journey');
     if (category === 'touchpoints') return this.insights.filter(i => i.category === 'touchpoints');
+    if (category === 'video') return this.insights.filter(i => i.category === 'video');
     return this.insights;
 };
 
 window.BranvaData.getMockupsByPersona = function(personaId) {
     return this.mockups[personaId] || [];
 };
+
+// Multi-Matrix Image Storage System
+// Global image data storage for all matrices across slides
+window.branvaImageData = {
+    matrices: {},
+
+    // Initialize storage for a new matrix
+    initMatrix: function(matrixId) {
+        if (!this.matrices[matrixId]) {
+            this.matrices[matrixId] = {
+                id: matrixId,
+                images: {},
+                crops: {},
+                metadata: {
+                    created: new Date().toISOString(),
+                    lastModified: new Date().toISOString(),
+                    totalImages: 0
+                }
+            };
+            console.log(`🗂️ Matrix storage initialized: ${matrixId}`);
+        }
+        return this.matrices[matrixId];
+    },
+
+    // Store image for specific matrix and position
+    storeImage: function(matrixId, imageKey, imageData) {
+        const matrix = this.initMatrix(matrixId);
+
+        matrix.images[imageKey] = {
+            src: imageData.src,
+            originalSrc: imageData.originalSrc || imageData.src,
+            mode: imageData.mode || 'fit',
+            transform: imageData.transform || '',
+            position: imageData.position || {},
+            metadata: {
+                created: imageData.created || new Date().toISOString(),
+                lastModified: new Date().toISOString(),
+                fileSize: this.estimateImageSize(imageData.src),
+                dimensions: imageData.dimensions || null
+            }
+        };
+
+        matrix.metadata.lastModified = new Date().toISOString();
+        matrix.metadata.totalImages = Object.keys(matrix.images).length;
+
+        console.log(`🖼️ Image stored: ${matrixId}/${imageKey}`);
+        this.saveToLocalStorage();
+        return matrix.images[imageKey];
+    },
+
+    // Get image from specific matrix
+    getImage: function(matrixId, imageKey) {
+        const matrix = this.matrices[matrixId];
+        return matrix ? matrix.images[imageKey] : null;
+    },
+
+    // Get all images for a matrix
+    getMatrixImages: function(matrixId) {
+        const matrix = this.matrices[matrixId];
+        return matrix ? matrix.images : {};
+    },
+
+    // Remove image from matrix
+    removeImage: function(matrixId, imageKey) {
+        const matrix = this.matrices[matrixId];
+        if (matrix && matrix.images[imageKey]) {
+            delete matrix.images[imageKey];
+            if (matrix.crops[imageKey]) {
+                delete matrix.crops[imageKey];
+            }
+            matrix.metadata.lastModified = new Date().toISOString();
+            matrix.metadata.totalImages = Object.keys(matrix.images).length;
+
+            console.log(`🗑️ Image removed: ${matrixId}/${imageKey}`);
+            this.saveToLocalStorage();
+            return true;
+        }
+        return false;
+    },
+
+    // Clear all images from a matrix
+    clearMatrix: function(matrixId) {
+        if (this.matrices[matrixId]) {
+            this.matrices[matrixId].images = {};
+            this.matrices[matrixId].crops = {};
+            this.matrices[matrixId].metadata.lastModified = new Date().toISOString();
+            this.matrices[matrixId].metadata.totalImages = 0;
+
+            console.log(`🧹 Matrix cleared: ${matrixId}`);
+            this.saveToLocalStorage();
+            return true;
+        }
+        return false;
+    },
+
+    // Store crop data for image
+    storeCrop: function(matrixId, imageKey, cropData) {
+        const matrix = this.initMatrix(matrixId);
+
+        if (!matrix.crops) {
+            matrix.crops = {};
+        }
+
+        matrix.crops[imageKey] = {
+            ...cropData,
+            created: new Date().toISOString()
+        };
+
+        matrix.metadata.lastModified = new Date().toISOString();
+        this.saveToLocalStorage();
+
+        console.log(`✂️ Crop stored: ${matrixId}/${imageKey}`);
+        return matrix.crops[imageKey];
+    },
+
+    // Get crop data for image
+    getCrop: function(matrixId, imageKey) {
+        const matrix = this.matrices[matrixId];
+        return matrix?.crops?.[imageKey] || null;
+    },
+
+    // Get matrix statistics
+    getMatrixStats: function(matrixId) {
+        const matrix = this.matrices[matrixId];
+        if (!matrix) return null;
+
+        return {
+            id: matrixId,
+            totalImages: Object.keys(matrix.images).length,
+            totalCrops: Object.keys(matrix.crops || {}).length,
+            created: matrix.metadata.created,
+            lastModified: matrix.metadata.lastModified,
+            estimatedSizeKB: Object.values(matrix.images).reduce((total, img) =>
+                total + (img.metadata?.fileSize || 0), 0)
+        };
+    },
+
+    // Get all matrices overview
+    getAllMatrices: function() {
+        return Object.keys(this.matrices).map(matrixId => this.getMatrixStats(matrixId));
+    },
+
+    // Estimate image size in KB
+    estimateImageSize: function(dataUrl) {
+        if (!dataUrl || typeof dataUrl !== 'string') return 0;
+
+        try {
+            // Remove data URL prefix and calculate base64 size
+            const base64 = dataUrl.split(',')[1] || dataUrl;
+            const bytes = (base64.length * 3) / 4;
+            return Math.round(bytes / 1024); // Convert to KB
+        } catch (e) {
+            return 0;
+        }
+    },
+
+    // Export matrix data
+    exportMatrix: function(matrixId) {
+        const matrix = this.matrices[matrixId];
+        if (!matrix) return null;
+
+        return {
+            matrix: JSON.parse(JSON.stringify(matrix)),
+            exportedAt: new Date().toISOString(),
+            version: '1.0'
+        };
+    },
+
+    // Import matrix data
+    importMatrix: function(matrixId, exportedData) {
+        try {
+            if (exportedData.matrix && exportedData.matrix.id === matrixId) {
+                this.matrices[matrixId] = exportedData.matrix;
+                this.matrices[matrixId].metadata.lastModified = new Date().toISOString();
+                this.saveToLocalStorage();
+
+                console.log(`📥 Matrix imported: ${matrixId}`);
+                return true;
+            }
+        } catch (e) {
+            console.error('❌ Error importing matrix:', e);
+        }
+        return false;
+    },
+
+    // Save to localStorage
+    saveToLocalStorage: function() {
+        try {
+            // Only save metadata and image references, not full base64 data
+            const lightData = {};
+            Object.keys(this.matrices).forEach(matrixId => {
+                lightData[matrixId] = {
+                    metadata: this.matrices[matrixId].metadata,
+                    imageKeys: Object.keys(this.matrices[matrixId].images),
+                    cropKeys: Object.keys(this.matrices[matrixId].crops || {})
+                };
+            });
+
+            localStorage.setItem('branva_image_storage', JSON.stringify(lightData));
+        } catch (e) {
+            console.warn('⚠️ Could not save to localStorage:', e);
+        }
+    },
+
+    // Load from localStorage
+    loadFromLocalStorage: function() {
+        try {
+            const saved = localStorage.getItem('branva_image_storage');
+            if (saved) {
+                const lightData = JSON.parse(saved);
+
+                // Restore matrix structure without images (images are session-only)
+                Object.keys(lightData).forEach(matrixId => {
+                    if (!this.matrices[matrixId]) {
+                        this.initMatrix(matrixId);
+                        this.matrices[matrixId].metadata = lightData[matrixId].metadata;
+                    }
+                });
+
+                console.log('💾 Matrix storage loaded from localStorage');
+                return true;
+            }
+        } catch (e) {
+            console.warn('⚠️ Could not load from localStorage:', e);
+        }
+        return false;
+    },
+
+    // Cleanup old matrices
+    cleanup: function(activeMatrixIds = []) {
+        const allMatrixIds = Object.keys(this.matrices);
+        const toRemove = allMatrixIds.filter(id => !activeMatrixIds.includes(id));
+
+        toRemove.forEach(matrixId => {
+            delete this.matrices[matrixId];
+            console.log(`🧹 Cleaned up inactive matrix: ${matrixId}`);
+        });
+
+        if (toRemove.length > 0) {
+            this.saveToLocalStorage();
+        }
+
+        return toRemove.length;
+    }
+};
+
+// Initialize image storage on load
+window.branvaImageData.loadFromLocalStorage();
+
+console.log('🗂️ Multi-matrix image storage system initialized');

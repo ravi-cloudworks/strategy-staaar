@@ -147,7 +147,7 @@
 
 /* Left Sidebar */
 .left-sidebar {
-    width: 320px;
+    width: 120px;
     background: #1e293b;
     display: flex;
     flex-direction: column;
@@ -158,7 +158,7 @@
     display: flex;
     flex-direction: column;
     background: #0f172a;
-    width: 80px;
+    width: 120px;
     padding: 16px 0;
 }
 
@@ -183,7 +183,8 @@
 .sidebar-tab.active {
     color: #8B5CF6;
     background: #1e293b;
-    border-right: 2px solid #8B5CF6;
+    border-right: 3px solid #8B5CF6;
+    box-shadow: inset 0 0 10px rgba(139, 92, 246, 0.1);
 }
 
 .sidebar-tab i {
@@ -203,9 +204,9 @@
 }
 
 .panel {
-    display: none;
+    display: none !important; /* Force hide all panels - drawers replace them */
     height: 100%;
-    padding: 20px;
+    padding: 16px; /* Reduced from 20px for tighter spacing */
 }
 
 .panel.active {
@@ -601,6 +602,361 @@
     font-weight: 500;
 }
 
+/* Video Analysis Drawer */
+.video-drawer {
+    position: fixed;
+    left: 120px; /* Position next to the left sidebar */
+    top: 60px;
+    width: 300px;
+    height: calc(100vh - 120px);
+    background: white;
+    border-right: 1px solid #e2e8f0;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+    transform: translateX(-100%); /* Hide initially by sliding left */
+    visibility: hidden; /* Ensure completely hidden initially */
+}
+
+.video-drawer.open {
+    transform: translateX(0); /* Slide in to show */
+    visibility: visible; /* Make visible when open */
+}
+
+.drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px; /* Reduced from 16px 20px */
+    border-bottom: 1px solid #e2e8f0;
+    background: linear-gradient(90deg, rgba(139, 92, 246, 0.05) 0%, #f8fafc 100%);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.drawer-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 16px;
+}
+
+.drawer-title i {
+    color: #8b5cf6;
+    font-size: 18px;
+}
+
+.drawer-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: #e2e8f0;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.drawer-close:hover {
+    background: #cbd5e1;
+}
+
+.drawer-content {
+    padding: 16px; /* Reduced from 20px for tighter spacing */
+}
+
+.video-selection-section h4,
+.row-buttons-section h4 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.server-videos h5 {
+    margin: 16px 0 8px 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: #6b7280;
+}
+
+.upload-option .upload-btn {
+    width: 100%;
+    padding: 12px;
+    border: 1px dashed #cbd5e1;
+    background: white;
+    color: #64748b;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.upload-option .upload-btn:hover {
+    border-color: #8b5cf6;
+    color: #8b5cf6;
+    background: #f8fafc;
+}
+
+.videos-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.video-item {
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 12px;
+}
+
+.video-item:hover {
+    border-color: #8b5cf6;
+    background: #f8fafc;
+}
+
+.video-item-title {
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 4px;
+    font-size: 13px;
+}
+
+.video-item-desc {
+    color: #64748b;
+    font-size: 11px;
+}
+
+.video-player-section {
+    margin: 16px 0;
+}
+
+.row-buttons-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.row-btn {
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    font-size: 13px;
+}
+
+.row-btn:hover {
+    border-color: #8b5cf6;
+    background: #f8fafc;
+}
+
+.row-btn.capturing {
+    border-color: #10b981;
+    background: #ecfdf5;
+    color: #059669;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.row-btn-header {
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.row-btn-desc {
+    color: #64748b;
+    font-size: 11px;
+}
+
+/* Consumer Insights Drawer */
+.insights-drawer {
+    position: fixed;
+    left: 120px; /* Position next to the left sidebar */
+    top: 60px;
+    width: 350px; /* Slightly wider for better content layout */
+    height: calc(100vh - 120px);
+    background: white;
+    border-right: 1px solid #e2e8f0;
+    border-left: 3px solid #8B5CF6; /* Visual linkage with sidebar */
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+    transform: translateX(-100%); /* Hide initially by sliding left */
+    visibility: hidden; /* Ensure completely hidden initially */
+}
+
+.insights-drawer.open {
+    transform: translateX(0); /* Slide in to show */
+    visibility: visible; /* Make visible when open */
+}
+
+/* Category Tabs */
+.category-tabs {
+    padding: 12px; /* Reduced from 16px */
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.category-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 10px; /* Reduced from 10px 12px */
+    margin-bottom: 3px; /* Reduced from 4px */
+    border: none;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 13px;
+    color: #475569;
+    text-align: left;
+}
+
+.category-tab:hover {
+    background: #f1f5f9;
+    color: #374151;
+}
+
+.category-tab.active {
+    background: #8b5cf6;
+    color: white;
+}
+
+.category-tab i {
+    font-size: 14px;
+    width: 16px;
+    text-align: center;
+}
+
+/* Content Sections */
+.category-content {
+    padding: 16px; /* Reduced from 20px for tighter spacing */
+}
+
+.content-section {
+    display: none;
+}
+
+.content-section.active {
+    display: block;
+}
+
+/* Insight Tools */
+.insight-tools {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.insight-tool {
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.insight-tool:hover {
+    border-color: #8b5cf6;
+    background: #f8fafc;
+    transform: translateY(-1px);
+}
+
+.tool-icon {
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+.tool-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #374151;
+}
+
+/* Video Analysis in Insights Drawer */
+.video-selection-section,
+.video-player-section,
+.capture-controls-section {
+    margin-bottom: 16px; /* Reduced from 20px for tighter spacing */
+}
+
+.capture-buttons-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.capture-btn {
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    font-size: 13px;
+}
+
+.capture-btn:hover {
+    border-color: #8b5cf6;
+    background: #f8fafc;
+}
+
+.capture-btn.capturing {
+    border-color: #10b981;
+    background: #ecfdf5;
+    color: #059669;
+    animation: pulse 1s infinite;
+}
+
+.capture-btn-header {
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.capture-btn-desc {
+    color: #64748b;
+    font-size: 11px;
+}
+
 /* Canvas Area */
 .canvas-area {
     flex: 1;
@@ -608,6 +964,447 @@
     flex-direction: column;
     background: #f1f5f9;
     overflow: hidden;
+    transition: margin-left 0.3s ease;
+    margin-left: 0; /* Remove any default gap - content starts right after sidebar */
+}
+
+.canvas-area.with-drawer {
+    margin-left: 420px; /* 120px (sidebar) + 300px (video drawer) */
+}
+
+.canvas-area.with-insights-drawer {
+    margin-left: 470px; /* 120px (sidebar) + 350px (insights drawer) */
+}
+
+/* Solutions Drawer */
+.solutions-drawer {
+    position: fixed;
+    left: 120px; /* Position next to the left sidebar */
+    top: 60px;
+    width: 350px;
+    height: calc(100vh - 120px);
+    background: white;
+    border-right: 1px solid #e2e8f0;
+    border-left: 3px solid #8B5CF6; /* Visual linkage with sidebar */
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+    transform: translateX(-100%); /* Hide initially by sliding left */
+    visibility: hidden; /* Ensure completely hidden initially */
+}
+
+.solutions-drawer.open {
+    transform: translateX(0); /* Slide in to show */
+    visibility: visible; /* Make visible when open */
+}
+
+.canvas-area.with-solutions-drawer {
+    margin-left: 470px; /* 120px (sidebar) + 350px (solutions drawer) */
+}
+
+/* Search Section */
+.search-section {
+    margin-bottom: 16px;
+}
+
+.search-section .search-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: white;
+    font-size: 14px;
+    color: #374151;
+}
+
+.search-section .search-input:focus {
+    outline: none;
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+/* Filter Tabs */
+.filter-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.filter-tab {
+    padding: 6px 12px;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.filter-tab:hover {
+    background: #e2e8f0;
+    color: #475569;
+}
+
+.filter-tab.active {
+    background: #8b5cf6;
+    color: white;
+    border-color: #8b5cf6;
+}
+
+/* Solutions Grid */
+.solutions-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.solution-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.solution-card:hover {
+    border-color: #8b5cf6;
+    background: #f8fafc;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.solution-title {
+    color: #1e293b;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    line-height: 1.4;
+}
+
+.solution-description {
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.4;
+    margin-bottom: 12px;
+}
+
+.solution-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.badge.urgency-high {
+    background: #ef4444;
+    color: white;
+}
+
+.badge.role-agency {
+    background: #3b82f6;
+    color: white;
+}
+
+.badge.role-advertiser {
+    background: #10b981;
+    color: white;
+}
+
+.badge.role-achiever {
+    background: #f59e0b;
+    color: white;
+}
+
+.badge.default {
+    background: #64748b;
+    color: white;
+}
+
+/* Universal Drawer Styles for other drawers */
+.mockups-drawer,
+.text-drawer,
+.brand-drawer,
+.tools-drawer {
+    position: fixed;
+    left: 120px;
+    top: 60px;
+    width: 350px;
+    height: calc(100vh - 120px);
+    background: white;
+    border-right: 1px solid #e2e8f0;
+    border-left: 3px solid #8B5CF6; /* Visual linkage with sidebar */
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+    transform: translateX(-100%);
+    visibility: hidden;
+}
+
+.mockups-drawer.open,
+.text-drawer.open,
+.brand-drawer.open,
+.tools-drawer.open {
+    transform: translateX(0);
+    visibility: visible;
+}
+
+.canvas-area.with-mockups-drawer,
+.canvas-area.with-text-drawer,
+.canvas-area.with-brand-drawer,
+.canvas-area.with-tools-drawer {
+    margin-left: 470px; /* 120px (sidebar) + 350px (drawer) */
+}
+
+/* Universal Drawer Content Styles */
+
+/* Personas Section */
+.personas-section h4,
+.mockups-section h4,
+.brand-colors h4,
+.brand-assets h4,
+.typography h4,
+.shape-tools h4,
+.drawing-tools h4,
+.utility-tools h4 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.personas-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.persona-card {
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.persona-card:hover {
+    border-color: #8b5cf6;
+    background: #f8fafc;
+}
+
+.persona-card.active {
+    border-color: #8b5cf6;
+    background: #f0f4ff;
+}
+
+.persona-avatar {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.persona-name {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+.persona-desc {
+    font-size: 11px;
+    color: #64748b;
+}
+
+/* Text Tools */
+.text-tools {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.text-tool {
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.text-tool:hover {
+    border-color: #8b5cf6;
+    background: #f8fafc;
+}
+
+.text-preview.heading {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.text-preview.subheading {
+    font-size: 16px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.text-preview.body {
+    font-size: 14px;
+    color: #475569;
+}
+
+.text-preview.bullet {
+    font-size: 14px;
+    color: #475569;
+}
+
+.text-preview.caption {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.text-preview.quote {
+    font-size: 14px;
+    font-style: italic;
+    color: #374151;
+}
+
+.text-desc {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 4px;
+}
+
+/* Brand Kit */
+.color-palette {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.color-swatch {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.color-swatch:hover {
+    border-color: #374151;
+    transform: scale(1.1);
+}
+
+.upload-section {
+    margin-bottom: 16px;
+}
+
+.upload-section .upload-btn {
+    width: 100%;
+    padding: 12px;
+    border: 1px dashed #cbd5e1;
+    background: white;
+    color: #64748b;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.upload-section .upload-btn:hover {
+    border-color: #8b5cf6;
+    color: #8b5cf6;
+    background: #f8fafc;
+}
+
+.font-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.font-option {
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.font-option:hover {
+    border-color: #8b5cf6;
+    background: #f8fafc;
+}
+
+.font-preview {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 4px;
+}
+
+.font-desc {
+    font-size: 11px;
+    color: #64748b;
+}
+
+/* Tools */
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.tool-btn {
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.tool-btn:hover {
+    border-color: #8b5cf6;
+    background: #f8fafc;
+    transform: translateY(-1px);
+}
+
+.tool-btn i {
+    font-size: 18px;
+    color: #64748b;
+}
+
+.tool-btn span {
+    font-size: 11px;
+    font-weight: 500;
+    color: #374151;
 }
 
 .canvas-toolbar {
@@ -937,6 +1734,175 @@
 
 .strategy-matrix .image-cell {
     background: #f8fafc !important;
+}
+
+/* Make image-placeholder fill complete cell with no white space */
+.strategy-matrix .image-cell .image-placeholder {
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+}
+
+/* Minimal fix: Make images use more space within existing placeholders */
+.strategy-matrix .captured-image.fit-complete {
+    background: transparent;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* Enhanced Image Controls for Matrix - Override table.css */
+.strategy-matrix .image-controls.matrix-controls,
+.strategy-matrix .image-controls {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    background: rgba(0, 0, 0, 0.7) !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: opacity 0.3s ease, visibility 0.3s ease !important;
+    z-index: 15 !important;
+    border-radius: 0 !important;
+    grid-template-columns: none !important;
+    grid-template-rows: none !important;
+}
+
+.strategy-matrix .image-placeholder:hover .image-controls {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.strategy-matrix .image-controls .large-btn {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 2px solid #4BC0C0 !important;
+    border-radius: 8px !important;
+    padding: 12px 16px !important;
+    color: #1e293b !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    transition: all 0.5s ease !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 4px !important;
+    min-width: 60px !important;
+    backdrop-filter: blur(5px) !important;
+    width: auto !important;
+    height: auto !important;
+    opacity: 0 !important;
+    transform: translateY(20px) !important;
+}
+
+/* Sequential button animations - corrected order */
+.strategy-matrix .image-placeholder:hover .large-btn[data-mode="fit"] {
+    animation: slideInButton 0.5s ease forwards !important;
+    animation-delay: 0s !important;
+}
+
+.strategy-matrix .image-placeholder:hover .large-btn[data-mode="pan"] {
+    animation: slideInButton 0.5s ease forwards !important;
+    animation-delay: 5s !important;
+}
+
+.strategy-matrix .image-placeholder:hover .large-btn[data-mode="move"] {
+    animation: slideInButton 0.5s ease forwards !important;
+    animation-delay: 10s !important;
+}
+
+@keyframes slideInButton {
+    0% {
+        opacity: 0 !important;
+        transform: translateY(20px) scale(0.8) !important;
+    }
+    100% {
+        opacity: 1 !important;
+        transform: translateY(0) scale(1) !important;
+    }
+}
+
+/* Reset animations when not hovering */
+.strategy-matrix .image-placeholder:not(:hover) .large-btn {
+    animation: none !important;
+    opacity: 0 !important;
+    transform: translateY(20px) !important;
+}
+
+/* IMMEDIATE FIX: Show all buttons on hover - override the hidden state */
+.strategy-matrix .image-placeholder:hover .large-btn {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+/* FIXED: Make controls properly visible */
+.strategy-matrix .image-controls {
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 9999 !important;
+}
+
+.strategy-matrix .large-btn {
+    opacity: 1 !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: #333 !important;
+    border: 2px solid #ddd !important;
+}
+
+
+
+.strategy-matrix .image-controls .large-btn:hover {
+    background: #4BC0C0;
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(75, 192, 192, 0.4);
+}
+
+.strategy-matrix .image-controls .large-btn.active {
+    background: #4BC0C0;
+    color: white;
+    border-color: #369899;
+}
+
+.strategy-matrix .image-controls .large-btn i {
+    font-size: 18px;
+    margin-bottom: 2px;
+}
+
+.strategy-matrix .image-controls .btn-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* Ensure controls are always on top */
+.strategy-matrix .image-placeholder.has-image {
+    position: relative;
+    z-index: 1;
+}
+
+/* Hide old small controls in matrix */
+.strategy-matrix .image-controls:not(.large-controls) {
+    display: none;
+}
+
+/* Matrix controls should be hidden by default - only show on hover */
+.strategy-matrix .image-controls.matrix-controls {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: opacity 0.3s ease, visibility 0.3s ease !important;
+}
+
+/* Show matrix controls on hover with higher specificity */
+.strategy-matrix .image-placeholder:hover .image-controls.matrix-controls,
+.strategy-matrix .image-placeholder:hover .image-controls {
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 .strategy-matrix .text-cell:hover {

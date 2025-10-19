@@ -1,5 +1,4 @@
 // Branva Canvas - Drag and Drop Functionality
-console.log('🔧 BranvaCanvas file loaded!');
 
 class BranvaCanvas {
     constructor() {
@@ -345,7 +344,6 @@ class BranvaCanvas {
 
     async applySolutionTemplate(solution, createNewSlide = false) {
         try {
-            console.log('🔧 applySolutionTemplate CALLED!', solution, createNewSlide);
             if (createNewSlide) {
                 this.addNewSlide();
             } else {
@@ -361,14 +359,14 @@ class BranvaCanvas {
             return;
         }
 
-        // Add editable title
+        // Add slide title header (full width, more height for long titles)
         const titleElement = {
             id: this.generateId(),
             type: 'text',
-            position: { x: 5, y: 1, width: 90, height: 4, rotation: 0, zIndex: 2 },
+            position: { x: 1, y: 1, width: 98, height: 8, rotation: 0, zIndex: 2 },
             content: {
                 text: solution.name,
-                fontSize: 20,
+                fontSize: 16,
                 fontWeight: 'bold',
                 color: '#1e293b',
                 fontFamily: 'Inter, sans-serif',
@@ -377,17 +375,24 @@ class BranvaCanvas {
             }
         };
 
+        console.log('📝 TITLE ELEMENT CREATED:', {
+            id: titleElement.id,
+            text: titleElement.content.text,
+            position: titleElement.position,
+            fontSize: titleElement.content.fontSize
+        });
+
         this.addElementToSlide(titleElement);
         this.renderElement(titleElement);
 
-        // Add editable description
+        // Add slide description (full width, more height for long descriptions)
         const descriptionElement = {
             id: this.generateId(),
             type: 'text',
-            position: { x: 5, y: 5, width: 90, height: 3, rotation: 0, zIndex: 2 },
+            position: { x: 1, y: 9, width: 98, height: 10, rotation: 0, zIndex: 2 },
             content: {
                 text: solution.description,
-                fontSize: 12,
+                fontSize: 10,
                 fontWeight: 'normal',
                 color: '#64748b',
                 fontFamily: 'Inter, sans-serif',
@@ -396,19 +401,39 @@ class BranvaCanvas {
             }
         };
 
+        console.log('📝 DESCRIPTION ELEMENT CREATED:', {
+            id: descriptionElement.id,
+            text: descriptionElement.content.text.substring(0, 100) + '...',
+            position: descriptionElement.position,
+            fontSize: descriptionElement.content.fontSize
+        });
+
         this.addElementToSlide(descriptionElement);
         this.renderElement(descriptionElement);
+
+        // Calculate matrix height based on content - start after title/description (y: 20)
+        const numRows = strategyContent.data.length;
+        const matrixStartY = 20; // Start after title (8%) + description (10%) + margin (2%)
+        const availableSpace = 100 - matrixStartY; // Available space from matrix start to bottom
+        const maxHeight = 78; // Maximum height percentage to fit remaining space
+        const heightPerRow = numRows <= 4 ? 18 : (numRows <= 6 ? 14 : 12); // Adjusted for smaller space
+        const calculatedMatrixHeight = Math.min(maxHeight, Math.min(availableSpace, numRows * heightPerRow));
 
         // Create the strategy matrix table
         const matrixElement = {
             id: this.generateId(),
             type: 'strategy-matrix',
-            position: { x: 5, y: 8, width: 90, height: 90, rotation: 0, zIndex: 1 },
+            position: { x: 1, y: matrixStartY, width: 98, height: calculatedMatrixHeight, rotation: 0, zIndex: 1 },
             content: {
                 gridSize: solution.gridSize,
                 solutionId: solution.id,
                 solutionName: solution.name,
-                strategyContent: strategyContent
+                strategyContent: strategyContent,
+                metadata: {
+                    name: solution.name,
+                    description: solution.description,
+                    id: solution.id
+                }
             }
         };
 
@@ -470,12 +495,24 @@ class BranvaCanvas {
             position: absolute;
             left: ${element.position.x}%;
             top: ${element.position.y}%;
-            width: ${element.position.width}px;
-            height: ${element.position.height}px;
+            width: ${element.position.width}%;
+            height: ${element.position.height}%;
             transform: rotate(${element.position.rotation}deg);
             z-index: ${element.position.zIndex};
-            cursor: move;
+            cursor: ${element.type === 'text' ? 'text' : 'move'};
         `;
+
+        console.log('🎯 ELEMENT RENDERED:', {
+            type: element.type,
+            id: element.id,
+            position: element.position,
+            computedStyle: {
+                left: element.position.x + '%',
+                top: element.position.y + '%',
+                width: element.position.width + '%',
+                height: element.position.height + '%'
+            }
+        });
 
         switch (element.type) {
             case 'text':
@@ -502,67 +539,224 @@ class BranvaCanvas {
         const content = element.content;
         const isEditable = content.isEditable !== false; // Default to true
 
+        console.log('📝 RENDERING TEXT ELEMENT:', {
+            id: element.id,
+            text: content.text.substring(0, 50) + '...',
+            fontSize: content.fontSize,
+            position: element.position,
+            containerSize: {
+                width: element.position.width + '%',
+                height: element.position.height + '%'
+            }
+        });
+
         div.innerHTML = `
-            <div contenteditable="${isEditable}" style="
-                width: 100%;
-                height: 100%;
-                font-family: ${content.fontFamily};
-                font-size: ${content.fontSize}px;
-                font-weight: ${content.fontWeight};
-                color: ${content.color};
-                text-align: ${content.alignment};
-                line-height: 1.4;
-                outline: none;
-                border: ${isEditable ? '2px dashed transparent' : 'none'};
-                padding: 4px;
-                box-sizing: border-box;
-                cursor: ${isEditable ? 'text' : 'move'};
-                transition: all 0.2s;
+            <div class="text-content" contenteditable="${isEditable}" style="
+                width: calc(100% - 16px) !important;
+                height: calc(100% - 16px) !important;
+                font-family: ${content.fontFamily} !important;
+                font-size: ${content.fontSize}px !important;
+                font-weight: ${content.fontWeight} !important;
+                color: ${content.color} !important;
+                text-align: ${content.alignment} !important;
+                line-height: 1.3 !important;
+                outline: none !important;
+                border: none !important;
+                padding: 8px !important;
+                margin: 0 !important;
+                box-sizing: border-box !important;
+                cursor: text !important;
+                transition: all 0.2s !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+                white-space: normal !important;
+                overflow: hidden !important;
+                background: transparent !important;
+                position: relative !important;
+                z-index: 2 !important;
             "
             placeholder="${content.placeholder || 'Click to edit...'}"
             >${content.text}</div>
         `;
 
-        const textDiv = div.querySelector('[contenteditable]');
+        const textDiv = div.querySelector('.text-content');
 
         if (isEditable) {
+            console.log('📝 MAKING TEXT EDITABLE:', element.id);
+
             // Add editing visual feedback
             textDiv.addEventListener('focus', () => {
-                textDiv.style.border = '2px dashed #8B5CF6';
-                textDiv.style.background = 'rgba(139, 92, 246, 0.05)';
+                console.log('📝 TEXT ELEMENT FOCUSED:', element.id);
+                textDiv.style.setProperty('border', '2px solid #3b82f6', 'important');
+                textDiv.style.setProperty('background', 'rgba(59, 130, 246, 0.05)', 'important');
+                textDiv.style.setProperty('box-shadow', '0 0 0 2px rgba(59, 130, 246, 0.1)', 'important');
+                // Select all text for easy replacement
+                setTimeout(() => {
+                    const range = document.createRange();
+                    range.selectNodeContents(textDiv);
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }, 10);
             });
 
             textDiv.addEventListener('blur', () => {
-                textDiv.style.border = '2px dashed transparent';
-                textDiv.style.background = 'transparent';
-                element.content.text = textDiv.textContent;
+                console.log('📝 TEXT ELEMENT BLURRED:', element.id, 'New text:', textDiv.textContent);
+                textDiv.style.setProperty('border', 'none', 'important');
+                textDiv.style.setProperty('background', 'transparent', 'important');
+                textDiv.style.setProperty('box-shadow', 'none', 'important');
 
-                // Show save feedback
-                if (window.showToast) {
-                    window.showToast('Text updated', 'success');
+                // Save the new text
+                const oldText = element.content.text;
+                const newText = textDiv.textContent.trim();
+
+                if (oldText !== newText) {
+                    element.content.text = newText;
+                    // Show save feedback
+                    if (window.showToast) {
+                        window.showToast('Text updated successfully', 'success');
+                    }
+                    console.log('📝 TEXT SAVED:', { id: element.id, oldText: oldText.substring(0, 30) + '...', newText: newText.substring(0, 30) + '...' });
                 }
             });
 
             // Handle keyboard shortcuts
             textDiv.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                    e.preventDefault();
                     textDiv.blur();
                 } else if (e.key === 'Escape') {
                     textDiv.textContent = element.content.text; // Revert changes
                     textDiv.blur();
+                } else if (e.key === 'Enter' && !e.shiftKey) {
+                    // For single-line text, Enter saves
+                    e.preventDefault();
+                    textDiv.blur();
                 }
             });
 
-            // Show editing hint on hover
+            // Show editing hint on hover over text
+            textDiv.addEventListener('mouseenter', () => {
+                if (!textDiv.matches(':focus')) {
+                    textDiv.style.setProperty('border', '1px dashed #94a3b8', 'important');
+                    textDiv.style.setProperty('background', 'rgba(148, 163, 184, 0.02)', 'important');
+                }
+            });
+
+            textDiv.addEventListener('mouseleave', () => {
+                if (!textDiv.matches(':focus')) {
+                    textDiv.style.setProperty('border', 'none', 'important');
+                    textDiv.style.setProperty('background', 'transparent', 'important');
+                }
+            });
+
+            // Create professional move icon above text box
+            const moveIcon = document.createElement('div');
+            moveIcon.innerHTML = '<i class="bi bi-arrows-move"></i>'; // Bootstrap move icon
+            moveIcon.style.cssText = `
+                position: absolute !important;
+                top: -12px !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                font-size: 14px !important;
+                background: rgba(255, 255, 255, 0.95) !important;
+                border: 1px solid #d1d5db !important;
+                border-radius: 6px !important;
+                padding: 6px 8px !important;
+                cursor: move !important;
+                z-index: 10 !important;
+                opacity: 0 !important;
+                transition: all 0.2s ease !important;
+                user-select: none !important;
+                pointer-events: auto !important;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+                color: #6b7280 !important;
+            `;
+            div.appendChild(moveIcon);
+
+            // Show move icon on hover (when not editing)
             div.addEventListener('mouseenter', () => {
                 if (!textDiv.matches(':focus')) {
-                    textDiv.style.border = '2px dashed #cbd5e1';
+                    moveIcon.style.setProperty('opacity', '1', 'important');
+                    moveIcon.style.setProperty('transform', 'translateX(-50%) scale(1.05)', 'important');
+                    console.log('🎯 MOVE ICON SHOWN');
                 }
             });
 
             div.addEventListener('mouseleave', () => {
                 if (!textDiv.matches(':focus')) {
-                    textDiv.style.border = '2px dashed transparent';
+                    moveIcon.style.setProperty('opacity', '0', 'important');
+                    moveIcon.style.setProperty('transform', 'translateX(-50%) scale(1)', 'important');
+                    console.log('🎯 MOVE ICON HIDDEN');
+                }
+            });
+
+            // Hide move icon when editing
+            textDiv.addEventListener('focus', () => {
+                moveIcon.style.setProperty('opacity', '0', 'important');
+            });
+
+            // Move icon hover effect
+            moveIcon.addEventListener('mouseenter', () => {
+                moveIcon.style.setProperty('background', 'rgba(255, 255, 255, 1)', 'important');
+                moveIcon.style.setProperty('border-color', '#9ca3af', 'important');
+                moveIcon.style.setProperty('transform', 'translateX(-50%) scale(1.1)', 'important');
+            });
+
+            moveIcon.addEventListener('mouseleave', () => {
+                moveIcon.style.setProperty('background', 'rgba(255, 255, 255, 0.95)', 'important');
+                moveIcon.style.setProperty('border-color', '#d1d5db', 'important');
+                moveIcon.style.setProperty('transform', 'translateX(-50%) scale(1.05)', 'important');
+            });
+
+            // Move icon drag functionality
+            let isDragging = false;
+            let dragStart = { x: 0, y: 0 };
+
+            moveIcon.addEventListener('mousedown', (e) => {
+                console.log('🎯 MOVE ICON CLICKED');
+                e.preventDefault();
+                e.stopPropagation();
+                isDragging = true;
+                dragStart = { x: e.clientX, y: e.clientY };
+                document.body.style.cursor = 'move';
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    const deltaX = e.clientX - dragStart.x;
+                    const deltaY = e.clientY - dragStart.y;
+
+                    // Update element position (this would need to be integrated with your existing drag system)
+                    const newLeft = parseFloat(div.style.left) + (deltaX / window.innerWidth * 100);
+                    const newTop = parseFloat(div.style.top) + (deltaY / window.innerHeight * 100);
+
+                    div.style.left = newLeft + '%';
+                    div.style.top = newTop + '%';
+
+                    dragStart = { x: e.clientX, y: e.clientY };
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    console.log('🎯 MOVE DRAG ENDED');
+                    isDragging = false;
+                    document.body.style.cursor = '';
+                }
+            });
+
+
+            // Prevent dragging when editing text
+            textDiv.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+            });
+
+            // Handle clicking outside to blur text
+            document.addEventListener('click', (e) => {
+                if (!div.contains(e.target) && textDiv.matches(':focus')) {
+                    console.log('📝 CLICKED OUTSIDE, BLURRING TEXT:', element.id);
+                    textDiv.blur();
                 }
             });
         }
@@ -679,32 +873,22 @@ class BranvaCanvas {
     }
 
     renderStrategyMatrix(element) {
-        console.log('🔧 renderStrategyMatrix CALLED!', element);
         const div = document.createElement('div');
         div.className = 'canvas-element strategy-matrix';
         div.dataset.elementId = element.id;
 
         const content = element.content;
         const strategyContent = content.strategyContent;
+        const metadata = content.metadata || {}; // Get metadata from element
 
-        // Calculate responsive sizing based on number of rows - ensure all rows are visible
+        // Calculate responsive sizing based on number of rows - ensure all rows are visible and fit in container
         const numRows = strategyContent.data.length;
-        const maxHeight = 90; // Maximum height percentage (increased further)
-        const heightPerRow = numRows <= 4 ? 18 : (numRows <= 6 ? 16 : 14); // More generous height per row
+        const matrixTop = element.position.y; // Get actual position Y
+        const availableSpace = 100 - matrixTop; // Available space from top position to bottom
+        const maxHeight = Math.min(92, availableSpace - 1); // Leave 1% margin, ensure fits in container
+        const heightPerRow = numRows <= 4 ? 22 : (numRows <= 6 ? 18 : 16); // Reduced height per row for 6+ rows
         const calculatedHeight = Math.min(maxHeight, numRows * heightPerRow);
 
-        // DEBUG: Log matrix sizing calculations
-        console.log('🔧 MATRIX DEBUG:', {
-            numRows,
-            heightPerRow,
-            calculatedHeight,
-            maxHeight,
-            matrixPosition: element.position,
-            containerDimensions: {
-                slideContentHeight: this.slideContent.offsetHeight,
-                slideContentWidth: this.slideContent.offsetWidth
-            }
-        });
 
         div.style.cssText = `
             position: absolute;
@@ -721,20 +905,21 @@ class BranvaCanvas {
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         `;
 
-        // Calculate font sizes based on number of rows
-        const baseFontSize = numRows > 5 ? 10 : 12;
-        const iconSize = numRows > 5 ? 14 : 16;
-        const categoryIconSize = numRows > 5 ? 12 : 16;
 
-        // Create the table structure like in dashboard.html
-        let tableHTML = `<table class="insight-table" style="width: 100%; height: 100%; border-collapse: collapse; font-size: ${baseFontSize}px; table-layout: fixed; display: table;">`;
+        // Calculate font sizes based on number of rows - optimize for readability now that sizing works
+        const baseFontSize = numRows > 5 ? 11 : (numRows > 4 ? 12 : 14);
+        const iconSize = numRows > 5 ? 16 : (numRows > 4 ? 18 : 20);
+        const categoryIconSize = numRows > 5 ? 14 : (numRows > 4 ? 16 : 18);
+
+        // Create the table structure - full height since no header
+        const expectedTableHeightPx = this.slideContent.offsetHeight * (calculatedHeight / 100);
+        let tableHTML = `<table class="insight-table" style="width: 100%; height: ${expectedTableHeightPx}px; max-height: ${expectedTableHeightPx}px; border-collapse: collapse !important; border-spacing: 0 !important; font-size: ${baseFontSize}px; table-layout: fixed; display: table; overflow: hidden;">`;
 
         // Generate rows
         strategyContent.data.forEach((row, rowIndex) => {
             const baseRowHeight = 100 / numRows; // evenly divide full height
             const rowHeight = baseRowHeight;     // all rows same height, use full 100%
-            console.log(`🔧 ROW ${rowIndex}: height ${rowHeight}%, total rows: ${numRows}`);
-            tableHTML += `<tr data-row="${rowIndex}" style="height: ${rowHeight}%;">`;
+            tableHTML += `<tr data-row="${rowIndex}" style="height: ${rowHeight}%; max-height: ${rowHeight}%; overflow: hidden;">`;
 
 
             // Category cell (first column)
@@ -744,7 +929,7 @@ class BranvaCanvas {
                 categoryHTML = `
                     <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; height: 100%; padding: 4px;">
                         <i class="bi bi-${header.icon}" style="font-size: ${categoryIconSize}px; color: white; display: block; margin-bottom: 2px;"></i>
-                        <div style="font-size: ${Math.max(7, baseFontSize - 3)}px; line-height: 1.1; font-weight: 600; color: white;">${header.text}</div>
+                        <div style="font-size: ${Math.max(8, baseFontSize - 2)}px; line-height: 1.2; font-weight: 600; color: white;">${header.text}</div>
                     </div>
                 `;
             } else {
@@ -762,25 +947,31 @@ class BranvaCanvas {
                     font-weight: 600;
                     font-size: ${baseFontSize}px;
                     vertical-align: middle;
+                    min-height: auto !important;
+                    height: auto !important;
                 ">${categoryHTML}</td>
             `;
 
-            // Image cell (second column)
-            const imageSize = numRows > 5 ? 30 : 40;
+            // Image cell (second column) - responsive sizing, optimized for visibility
+            const imageSize = numRows > 5 ? 35 : Math.max(30, Math.min(45, 200 / numRows)); // Larger for better visibility
             tableHTML += `
                 <td class="image-cell" style="
                     background: #f8fafc;
                     border: 1px solid #e2e8f0;
-                    padding: 4px;
+                    padding: ${numRows > 5 ? '1px' : '4px'};
                     width: 10%;
                     text-align: center;
                     vertical-align: middle;
+                    height: auto !important;
+                    min-height: auto !important;
                 ">
                     <div class="image-placeholder" style="
                         width: ${imageSize}px;
                         height: ${imageSize}px;
+                        max-width: 100%;
+                        max-height: 80%;
                         background: #e2e8f0;
-                        border-radius: 4px;
+                        border-radius: 3px;
                         display: flex;
                         align-items: center;
                         justify-content: center;
@@ -798,14 +989,16 @@ class BranvaCanvas {
                     <td class="text-cell" style="
                         background: white;
                         border: 1px solid #e2e8f0;
-                        padding: 3px;
+                        padding: ${numRows > 5 ? '1px' : '3px'};
                         text-align: center;
                         width: ${75 / row.length}%;
                         vertical-align: middle;
+                        min-height: auto !important;
+                        height: auto !important;
                     ">
-                        <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; padding: 2px;">
-                            <i class="bi bi-${cell.icon}" style="font-size: ${iconSize}px; color: #3b82f6; display: block; margin-bottom: 2px;"></i>
-                            <div style="font-size: ${Math.max(7, baseFontSize - 2)}px; line-height: 1.1; font-weight: 600; color: #1e293b; word-break: break-word;">${cell.text}</div>
+                        <div style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; padding: ${numRows > 5 ? '2px' : '4px'};">
+                            <i class="bi bi-${cell.icon}" style="font-size: ${iconSize}px; color: #3b82f6; display: block; margin-bottom: ${numRows > 5 ? '3px' : '4px'};"></i>
+                            <div style="font-size: ${Math.max(9, baseFontSize - 1)}px; line-height: ${numRows > 5 ? '1.1' : '1.2'}; font-weight: 600; color: #1e293b; word-break: break-word;">${cell.text}</div>
                         </div>
                     </td>
                 `;
@@ -817,28 +1010,9 @@ class BranvaCanvas {
         tableHTML += '</table>';
         div.innerHTML = tableHTML;
 
+
         this.slideContent.appendChild(div);
 
-        // DEBUG: Log final matrix element dimensions after rendering
-        setTimeout(() => {
-            console.log('🔧 FINAL MATRIX DIMENSIONS:', {
-                matrixElement: {
-                    offsetWidth: div.offsetWidth,
-                    offsetHeight: div.offsetHeight,
-                    scrollHeight: div.scrollHeight,
-                    clientHeight: div.clientHeight
-                },
-                table: {
-                    offsetHeight: div.querySelector('table')?.offsetHeight,
-                    scrollHeight: div.querySelector('table')?.scrollHeight
-                },
-                allRows: Array.from(div.querySelectorAll('tr')).map((tr, i) => ({
-                    row: i,
-                    offsetHeight: tr.offsetHeight,
-                    visible: tr.getBoundingClientRect().bottom <= div.getBoundingClientRect().bottom
-                }))
-            });
-        }, 100);
     }
 
     // Slide Management
@@ -931,6 +1105,12 @@ class BranvaCanvas {
         if (welcomeMsg) {
             welcomeMsg.remove();
         }
+    }
+
+    // Get current matrices on the slide
+    getCurrentMatrices() {
+        const slide = this.getCurrentSlide();
+        return slide.elements.filter(element => element.type === 'strategy-matrix');
     }
 
     // Utility Methods

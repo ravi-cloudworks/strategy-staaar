@@ -139,17 +139,137 @@ class BranvaPanels {
         });
         document.querySelector(`[data-panel="${panelName}"]`).classList.add('active');
 
-        // Update panel content
+        // Close all existing drawers first
+        this.closeAllDrawers();
+
+        // Hide all panel content when using drawer system
         document.querySelectorAll('.panel').forEach(panel => {
             panel.classList.remove('active');
         });
-        document.getElementById(`${panelName}Panel`).classList.add('active');
+
+        // Open appropriate drawer based on panel
+        switch (panelName) {
+            case 'solutions':
+                this.openSolutionsDrawer();
+                break;
+            case 'insights':
+                this.openConsumerInsightsDrawer();
+                break;
+            case 'mockups':
+                this.openMockupsDrawer();
+                break;
+            case 'text':
+                this.openTextDrawer();
+                break;
+            case 'brand':
+                this.openBrandDrawer();
+                break;
+            case 'tools':
+                this.openToolsDrawer();
+                break;
+            default:
+                // Fallback to old panel system if drawer doesn't exist
+                document.getElementById(`${panelName}Panel`).classList.add('active');
+        }
 
         this.currentPanel = panelName;
+    }
 
-        // Load panel-specific content if needed
-        if (panelName === 'insights') {
-            this.loadInsights('maps'); // Default to maps category
+    closeAllDrawers() {
+        // Clear all canvas area drawer classes first to prevent flicker
+        const canvasArea = document.getElementById('canvasArea');
+        if (canvasArea) {
+            canvasArea.classList.remove(
+                'with-drawer',
+                'with-insights-drawer',
+                'with-solutions-drawer',
+                'with-mockups-drawer',
+                'with-text-drawer',
+                'with-brand-drawer',
+                'with-tools-drawer'
+            );
+        }
+
+        // Close all existing drawers
+        if (window.branvaInsightsDrawer && window.branvaInsightsDrawer.isOpen) {
+            window.branvaInsightsDrawer.close();
+        }
+        if (window.branvaVideoDrawer && window.branvaVideoDrawer.isOpen) {
+            window.branvaVideoDrawer.close();
+        }
+        if (window.bravaSolutionsDrawer && window.bravaSolutionsDrawer.isOpen) {
+            window.bravaSolutionsDrawer.close();
+        }
+        if (window.branvaMockupsDrawer && window.branvaMockupsDrawer.isOpen) {
+            window.branvaMockupsDrawer.close();
+        }
+        if (window.branvaTextDrawer && window.branvaTextDrawer.isOpen) {
+            window.branvaTextDrawer.close();
+        }
+        if (window.branvaBrandDrawer && window.branvaBrandDrawer.isOpen) {
+            window.branvaBrandDrawer.close();
+        }
+        if (window.branvaToolsDrawer && window.branvaToolsDrawer.isOpen) {
+            window.branvaToolsDrawer.close();
+        }
+    }
+
+    openSolutionsDrawer() {
+        if (window.bravaSolutionsDrawer) {
+            window.bravaSolutionsDrawer.open();
+        } else {
+            // Fallback to panel until drawer is created
+            document.getElementById('solutionsPanel').classList.add('active');
+        }
+    }
+
+    openMockupsDrawer() {
+        if (window.branvaMockupsDrawer) {
+            window.branvaMockupsDrawer.open();
+        } else {
+            document.getElementById('mockupsPanel').classList.add('active');
+        }
+    }
+
+    openTextDrawer() {
+        if (window.branvaTextDrawer) {
+            window.branvaTextDrawer.open();
+        } else {
+            document.getElementById('textPanel').classList.add('active');
+        }
+    }
+
+    openBrandDrawer() {
+        if (window.branvaBrandDrawer) {
+            window.branvaBrandDrawer.open();
+        } else {
+            document.getElementById('brandPanel').classList.add('active');
+        }
+    }
+
+    openToolsDrawer() {
+        if (window.branvaToolsDrawer) {
+            window.branvaToolsDrawer.open();
+        } else {
+            document.getElementById('toolsPanel').classList.add('active');
+        }
+    }
+
+    openConsumerInsightsDrawer() {
+        // Close video drawer if open
+        if (window.branvaVideoDrawer && window.branvaVideoDrawer.isOpen) {
+            window.branvaVideoDrawer.close();
+        }
+
+        // Get current matrices for video analysis functionality
+        const currentMatrices = window.branvaCanvas ? window.branvaCanvas.getCurrentMatrices() : [];
+        const matrixId = currentMatrices.length > 0 ? currentMatrices[0].id : null;
+
+        // Open Consumer Insights drawer
+        if (window.branvaInsightsDrawer) {
+            window.branvaInsightsDrawer.open(matrixId);
+        } else {
+            this.showToast('Consumer Insights drawer not available', 'error');
         }
     }
 
@@ -325,9 +445,34 @@ class BranvaPanels {
         const insight = window.BranvaData.insights.find(i => i.id === insightId);
         if (!insight) return;
 
+        // Handle special video analysis actions
+        if (insight.action === 'openVideoModal') {
+            this.openVideoAnalysisModal();
+            return;
+        }
+
         if (window.branvaCanvas) {
             window.branvaCanvas.addInsightElement(insight);
             this.showToast(`${insight.name} added to slide`, 'success');
+        }
+    }
+
+    // Video Analysis Drawer
+    openVideoAnalysisModal() {
+        // Check if we have matrices on the current slide
+        const currentMatrices = window.branvaCanvas ? window.branvaCanvas.getCurrentMatrices() : [];
+
+        if (currentMatrices.length === 0) {
+            this.showToast('Add a strategy matrix first to capture video frames', 'warning');
+            return;
+        }
+
+        // Open the video drawer with matrix context
+        if (window.branvaVideoDrawer) {
+            window.branvaVideoDrawer.open(currentMatrices[0].id); // Use first matrix ID
+            this.showToast('Video analysis drawer opened', 'success');
+        } else {
+            this.showToast('Video analysis not available', 'error');
         }
     }
 

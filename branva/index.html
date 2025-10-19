@@ -64,15 +64,15 @@
             <div class="sidebar-tabs">
                 <button class="sidebar-tab active" data-panel="solutions">
                     <i class="bi bi-grid-3x3-gap"></i>
-                    <span>Solutions</span>
+                    <span>Strategy Solutions</span>
                 </button>
                 <button class="sidebar-tab" data-panel="insights">
                     <i class="bi bi-geo-alt"></i>
-                    <span>Insights</span>
+                    <span>Consumer Insights</span>
                 </button>
                 <button class="sidebar-tab" data-panel="mockups">
                     <i class="bi bi-phone"></i>
-                    <span>Mockups</span>
+                    <span>Visual Activations</span>
                 </button>
                 <button class="sidebar-tab" data-panel="text">
                     <i class="bi bi-type"></i>
@@ -90,38 +90,19 @@
 
             <!-- Panel Content -->
             <div class="panel-content">
-                <!-- Solutions Panel -->
-                <div class="panel solutions-panel active" id="solutionsPanel">
+                <!-- Solutions Panel - Hidden (replaced by drawer) -->
+                <div class="panel solutions-panel" id="solutionsPanel" style="display: none;">
                     <div class="panel-header">
-                        <h3>Solution Templates</h3>
-                        <input type="text" class="search-input" placeholder="Search solutions...">
-                        <div class="filter-tabs">
-                            <button class="filter-tab active" data-filter="all">All</button>
-                            <button class="filter-tab" data-filter="agency">Agency</button>
-                            <button class="filter-tab" data-filter="advertiser">Advertiser</button>
-                            <button class="filter-tab" data-filter="achiever">Achiever</button>
-                            <button class="filter-tab" data-filter="high">High Urgency</button>
-                        </div>
-                    </div>
-                    <div class="solutions-grid" id="solutionsGrid">
-                        <!-- Solutions will be loaded here -->
+                        <h3>Strategy Solutions - Using Drawer</h3>
+                        <p style="color: #64748b; font-size: 14px; padding: 20px;">Strategy Solutions now opens as a unified drawer.</p>
                     </div>
                 </div>
 
-                <!-- Insights Panel -->
-                <div class="panel insights-panel" id="insightsPanel">
+                <!-- Insights Panel - Hidden (replaced by drawer) -->
+                <div class="panel insights-panel" id="insightsPanel" style="display: none;">
                     <div class="panel-header">
-                        <h3>Consumer Insights</h3>
-                        <div class="insight-categories">
-                            <button class="category-tab active" data-category="maps">Maps & Geography</button>
-                            <button class="category-tab" data-category="behavior">Consumer Behavior</button>
-                            <button class="category-tab" data-category="data">Data Visualization</button>
-                            <button class="category-tab" data-category="journey">Journey Mapping</button>
-                            <button class="category-tab" data-category="touchpoints">Touchpoints</button>
-                        </div>
-                    </div>
-                    <div class="insights-grid" id="insightsGrid">
-                        <!-- Insights will be loaded here -->
+                        <h3>Consumer Insights - Using Drawer</h3>
+                        <p style="color: #64748b; font-size: 14px; padding: 20px;">Consumer Insights now opens as a unified drawer.</p>
                     </div>
                 </div>
 
@@ -212,8 +193,58 @@
             </div>
         </aside>
 
+        <!-- Video Analysis Drawer -->
+        <div class="video-drawer" id="videoDrawer">
+            <div class="drawer-header">
+                <div class="drawer-title">
+                    <i class="bi bi-camera-video"></i>
+                    <span>Video Analysis</span>
+                </div>
+                <button class="drawer-close" id="closeVideoDrawer">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+
+            <div class="drawer-content">
+                <!-- Video Selection Section -->
+                <div class="video-selection-section">
+                    <h4>Select Video</h4>
+
+                    <!-- Upload Option -->
+                    <div class="upload-option">
+                        <input type="file" id="drawerVideoInput" accept="video/*" style="display: none;">
+                        <button class="upload-btn" id="drawerUploadBtn">
+                            <i class="bi bi-cloud-upload"></i>
+                            Upload Video
+                        </button>
+                    </div>
+
+                    <!-- Server Videos -->
+                    <div class="server-videos">
+                        <h5>Sample Videos</h5>
+                        <div id="drawerVideosList" class="videos-list">
+                            <!-- Videos will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Player Section -->
+                <div class="video-player-section" id="drawerVideoPlayerSection" style="display: none;">
+                    <video id="drawerVideoPlayer" controls style="width: 100%; max-height: 200px; border-radius: 8px;"></video>
+                </div>
+
+                <!-- Row Buttons Section -->
+                <div class="row-buttons-section" id="drawerRowButtons" style="display: none;">
+                    <h4>Capture to Matrix Row</h4>
+                    <div class="row-buttons-grid" id="rowButtonsGrid">
+                        <!-- Row buttons will be generated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Main Canvas Area -->
-        <main class="canvas-area">
+        <main class="canvas-area" id="canvasArea">
             <div class="canvas-toolbar">
                 <div class="zoom-controls">
                     <button class="zoom-btn" id="zoomOut">
@@ -321,6 +352,12 @@
     <script src="js/branva-strategy-loader.js"></script>
     <script src="js/branva-matrix-renderer.js"></script>
     <script src="js/branva-data.js"></script>
+    <script src="js/branva-image-manipulation.js"></script>
+    <script src="js/branva-matrix-controls.js"></script>
+    <script src="js/branva-video-drawer.js"></script>
+    <script src="js/branva-insights-drawer.js"></script>
+    <script src="js/branva-solutions-drawer.js"></script>
+    <script src="js/branva-universal-drawers.js"></script>
     <script src="js/branva-canvas.js"></script>
     <script src="js/branva-panels.js"></script>
     <script src="js/branva-main.js"></script>

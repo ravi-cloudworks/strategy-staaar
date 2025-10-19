@@ -3,12 +3,25 @@
 class Utils {
     // Toast notification system
     static showStatus(message, type = 'success') {
+        const timestamp = new Date().toLocaleTimeString();
+        const toastId = Math.random().toString(36).substr(2, 9);
+
+        console.log(`🍞 UTILS.showStatus CALLED [${toastId}] at ${timestamp}:`, {
+            message,
+            type,
+            duration: '5000ms'
+        });
+
         const toastContainer = document.getElementById('toastContainer');
-        if (!toastContainer) return;
+        if (!toastContainer) {
+            console.log(`❌ UTILS: TOAST CONTAINER NOT FOUND`);
+            return;
+        }
 
         // Create toast element
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
+        toast.dataset.toastId = toastId;
 
         toast.innerHTML = `
             <div class="toast-message">${message}</div>
@@ -17,26 +30,38 @@ class Utils {
 
         // Add to container
         toastContainer.appendChild(toast);
+        console.log(`🍞 UTILS: TOAST ADDED TO DOM [${toastId}]`);
 
         // Trigger show animation
         setTimeout(() => {
             toast.classList.add('show');
+            console.log(`🍞 UTILS: TOAST SHOW ANIMATION [${toastId}]`);
         }, 10);
 
         // Auto remove after 5 seconds
         setTimeout(() => {
+            console.log(`🍞 UTILS: TOAST AUTO-REMOVING [${toastId}] after 5 seconds`);
             Utils.removeToast(toast);
         }, 5000);
     }
 
     static removeToast(toast) {
+        const toastId = toast?.dataset?.toastId || 'unknown';
+        console.log(`🍞 UTILS: removeToast CALLED [${toastId}]`);
+
         if (toast && toast.parentElement) {
             toast.classList.remove('show');
+            console.log(`🍞 UTILS: TOAST HIDE ANIMATION [${toastId}]`);
             setTimeout(() => {
                 if (toast.parentElement) {
                     toast.parentElement.removeChild(toast);
+                    console.log(`🍞 UTILS: TOAST REMOVED FROM DOM [${toastId}]`);
+                } else {
+                    console.log(`⚠️ UTILS: TOAST ALREADY REMOVED [${toastId}]`);
                 }
             }, 300);
+        } else {
+            console.log(`❌ UTILS: No toast or parent element [${toastId}]`);
         }
     }
 

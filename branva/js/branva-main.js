@@ -104,6 +104,7 @@ class BranvaApp {
         this.updateSlideDisplay();
     }
 
+
     addNewSlide() {
         if (window.branvaCanvas) {
             window.branvaCanvas.addNewSlide();
@@ -321,14 +322,24 @@ class BranvaApp {
     }
 
     showToast(message, type = 'info') {
+        const timestamp = new Date().toLocaleTimeString();
+        const toastId = Math.random().toString(36).substr(2, 9);
+
+        console.log(`🍞 TOAST CREATED [${toastId}] at ${timestamp}:`, {
+            message,
+            type,
+            duration: '6000ms'
+        });
+
         const toastContainer = document.getElementById('toastContainer');
         if (!toastContainer) {
-            console.log(`${type.toUpperCase()}: ${message}`);
+            console.log(`❌ TOAST CONTAINER NOT FOUND: ${type.toUpperCase()}: ${message}`);
             return;
         }
 
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
+        toast.dataset.toastId = toastId;
 
         const icon = type === 'success' ? 'bi-check-circle' :
                     type === 'error' ? 'bi-x-circle' :
@@ -341,18 +352,45 @@ class BranvaApp {
         `;
 
         toastContainer.appendChild(toast);
+        console.log(`🍞 TOAST ADDED TO DOM [${toastId}]:`, toast);
 
-        // Auto remove after 3 seconds
+        // Trigger show animation
         setTimeout(() => {
-            toast.remove();
-        }, 3000);
+            toast.classList.add('show');
+            console.log(`🍞 TOAST SHOW ANIMATION [${toastId}]`);
+        }, 10);
+
+        // Auto remove after 6 seconds (longer for better visibility)
+        const timeoutId = setTimeout(() => {
+            const removeTimestamp = new Date().toLocaleTimeString();
+            console.log(`🍞 TOAST AUTO-REMOVING [${toastId}] at ${removeTimestamp} after 6 seconds`);
+            if (toast.parentElement) {
+                toast.classList.remove('show');
+                console.log(`🍞 TOAST HIDE ANIMATION [${toastId}]`);
+                setTimeout(() => {
+                    if (toast.parentElement) {
+                        toast.remove();
+                        console.log(`🍞 TOAST REMOVED FROM DOM [${toastId}]`);
+                    } else {
+                        console.log(`⚠️ TOAST ALREADY REMOVED [${toastId}]`);
+                    }
+                }, 300);
+            } else {
+                console.log(`⚠️ TOAST ALREADY REMOVED [${toastId}]`);
+            }
+        }, 6000);
+
+        console.log(`🍞 TOAST TIMEOUT SET [${toastId}]:`, timeoutId);
     }
 }
 
 // Global toast function for other modules
 window.showToast = function(message, type = 'info') {
+    console.log(`🍞 GLOBAL TOAST CALLED:`, { message, type, branvaAppExists: !!window.branvaApp });
     if (window.branvaApp) {
         window.branvaApp.showToast(message, type);
+    } else {
+        console.log(`❌ window.branvaApp not available, toast not shown: ${message}`);
     }
 };
 
