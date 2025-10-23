@@ -2491,3 +2491,246 @@
     border-color: #8B5CF6;
     box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
 }
+
+/* Strategy Cluster Cards (same style as persona cards) */
+.clusters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    padding: 16px 0;
+}
+
+.cluster-card {
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.cluster-card:hover {
+    border-color: #8B5CF6;
+    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.1);
+    transform: translateY(-2px);
+}
+
+.cluster-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+}
+
+.cluster-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 8px 0;
+}
+
+.cluster-description {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0 0 12px 0;
+    line-height: 1.4;
+}
+
+.cluster-stats {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Strategy Templates Grid */
+.strategy-templates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    padding: 16px 0;
+}
+
+.strategy-template-card {
+    position: relative;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: white;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.strategy-template-card.selectable {
+    cursor: pointer;
+}
+
+.strategy-template-card:hover {
+    border-color: #8B5CF6;
+    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.1);
+}
+
+.strategy-template-card.selected {
+    border-color: #8B5CF6;
+    background: #f0f4ff;
+}
+
+.strategy-template-card .selection-checkbox {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+}
+
+.strategy-template-card .strategy-checkbox {
+    opacity: 0;
+    position: absolute;
+    z-index: -1;
+}
+
+.strategy-template-card .checkbox-overlay {
+    display: block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #d1d5db;
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.strategy-template-card .strategy-checkbox:checked + .checkbox-overlay {
+    background: #8B5CF6;
+    border-color: #8B5CF6;
+}
+
+.strategy-template-card .strategy-checkbox:checked + .checkbox-overlay::after {
+    content: '✓';
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.strategy-content {
+    padding: 16px;
+}
+
+.strategy-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    gap: 12px;
+}
+
+.strategy-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+    flex: 1;
+    line-height: 1.3;
+}
+
+.strategy-badges {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-end;
+}
+
+.strategy-badges .badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.strategy-badges .badge.urgency-high {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.strategy-badges .badge.urgency-medium {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.strategy-badges .badge.pricing {
+    background: #f0f9ff;
+    color: #0369a1;
+}
+
+.strategy-description {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0 0 12px 0;
+    line-height: 1.4;
+}
+
+.strategy-meta {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.strategy-template-card .selection-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(139, 92, 246, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.strategy-template-card.selected .selection-overlay {
+    opacity: 1;
+}
+
+.strategy-template-card .selection-overlay i {
+    font-size: 32px;
+    color: #8B5CF6;
+}
+
+/* Strategy Matrix Element Styles */
+.canvas-element.strategy-matrix {
+    border: 2px solid transparent;
+    transition: border-color 0.2s ease;
+    background: white;
+    border-radius: 8px;
+}
+
+.canvas-element.strategy-matrix:hover {
+    border-color: #8B5CF6;
+}
+
+.canvas-element.strategy-matrix.selected {
+    border-color: #8B5CF6;
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}

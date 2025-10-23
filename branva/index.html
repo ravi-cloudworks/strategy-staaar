@@ -5,7 +5,7 @@
     <!-- Prevent clickjacking -->
     <!-- CSP to prevent XSS and allow required external resources -->
     <meta http-equiv="Content-Security-Policy"
-          content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net data:; img-src 'self' data: https: blob:; media-src 'self' blob: data:; connect-src 'self' https://*.supabase.co; frame-ancestors 'self';">
+          content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://docs.opencv.org; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net data:; img-src 'self' data: https: blob:; media-src 'self' blob: data:; connect-src 'self' https://*.supabase.co; frame-ancestors 'self';">
 
     <!-- Prevent MIME type sniffing -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
@@ -366,6 +366,32 @@
             <div class="modal-footer">
                 <button class="btn-secondary" id="cancelVisualActivationsBtn">Cancel</button>
                 <button class="btn-primary" id="addSelectedMockupsBtn" disabled>Select Templates</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Solutions Modal -->
+    <div class="modal-overlay" id="solutionsModal">
+        <div class="modal-content solutions-modal-content">
+            <div class="modal-header">
+                <h2 id="solutionsTitle">Strategy Solutions</h2>
+                <button class="modal-close" id="closeSolutionsModal">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="selection-controls">
+                    <button class="btn-secondary" id="selectAllStrategiesBtn">Select All</button>
+                    <button class="btn-secondary" id="clearAllStrategiesBtn">Clear All</button>
+                    <span class="selection-count" id="strategySelectionCount">0 selected</span>
+                </div>
+                <div class="solutions-preview" id="solutionsPreview">
+                    <!-- Strategy templates grid will be rendered here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancelSolutionsBtn">Cancel</button>
+                <button class="btn-primary" id="addSelectedStrategiesBtn" disabled>Select Strategies</button>
             </div>
         </div>
     </div>

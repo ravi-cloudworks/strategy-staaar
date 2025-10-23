@@ -40,9 +40,18 @@ function detectTransparentArea(img) {
     const bottomLeft = pixels.reduce((p, c) => (c.y - c.x > p.y - p.x ? c : p));
     const bottomRight = pixels.reduce((p, c) => (c.x + c.y > p.x + p.y ? c : p));
 
+    // Calculate tilt angle for debugging
+    const bottomDeltaX = bottomRight.x - bottomLeft.x;
+    const bottomDeltaY = bottomRight.y - bottomLeft.y;
+    const bottomAngleRad = Math.atan2(bottomDeltaY, bottomDeltaX);
+    const bottomAngleDeg = bottomAngleRad * 180 / Math.PI;
+    let tiltAngle = Math.abs(bottomAngleDeg);
+    if (tiltAngle > 90) tiltAngle = 180 - tiltAngle;
+
     console.log("=== TRANSPARENCY DETECTION ===");
     console.log("Total transparent pixels:", pixels.length);
     console.log("Corners:", { topLeft, topRight, bottomRight, bottomLeft });
+    console.log("Calculated tilt angle:", tiltAngle.toFixed(2) + "°");
     console.log("==============================");
 
     return { topLeft, topRight, bottomRight, bottomLeft };
@@ -57,6 +66,8 @@ function drawAdvancedMockup(mockupImage, contentImage, canvas, detectedCorners, 
 
     if (contentImage && detectedCorners && window.cv && cv.Mat) {
         console.log('🔮 Applying perspective transformation with OpenCV');
+        console.log('📐 Detected corners for transformation:', detectedCorners);
+        console.log('🖼️ Content image dimensions:', contentImage.width, 'x', contentImage.height);
 
         try {
             // Create temporary canvas for content processing
@@ -143,28 +154,49 @@ function drawAdvancedMockup(mockupImage, contentImage, canvas, detectedCorners, 
     }
 }
 
-// Simple content overlay as fallback
+// Simple content overlay as fallback with angle compensation
 function drawSimpleContentOverlay(ctx, contentImage, detectedCorners) {
+    console.log('📐 Using simple overlay with angle compensation');
+
     const centerX = (detectedCorners.topLeft.x + detectedCorners.topRight.x +
                     detectedCorners.bottomLeft.x + detectedCorners.bottomRight.x) / 4;
     const centerY = (detectedCorners.topLeft.y + detectedCorners.topRight.y +
                     detectedCorners.bottomLeft.y + detectedCorners.bottomRight.y) / 4;
 
-    const width = detectedCorners.topRight.x - detectedCorners.topLeft.x;
-    const height = detectedCorners.bottomLeft.y - detectedCorners.topLeft.y;
+    // Calculate rotation angle from bottom edge
+    const bl = detectedCorners.bottomLeft;
+    const br = detectedCorners.bottomRight;
+    const bottomDeltaX = br.x - bl.x;
+    const bottomDeltaY = br.y - bl.y;
+    const rotationAngle = Math.atan2(bottomDeltaY, bottomDeltaX);
+
+    console.log(`🔄 Applying rotation angle: ${(rotationAngle * 180 / Math.PI).toFixed(2)}°`);
+
+    // Calculate area dimensions
+    const width = Math.sqrt(Math.pow(bottomDeltaX, 2) + Math.pow(bottomDeltaY, 2));
+    const height = Math.sqrt(Math.pow(detectedCorners.topLeft.x - detectedCorners.bottomLeft.x, 2) +
+                            Math.pow(detectedCorners.topLeft.y - detectedCorners.bottomLeft.y, 2));
 
     // Scale content to fit the detected area
     const scaleX = width / contentImage.width;
     const scaleY = height / contentImage.height;
-    const scale = Math.min(scaleX, scaleY);
+    const scale = Math.min(scaleX, scaleY) * 0.9; // Slightly smaller to fit within bounds
 
     const scaledWidth = contentImage.width * scale;
     const scaledHeight = contentImage.height * scale;
 
-    const x = centerX - scaledWidth / 2;
-    const y = centerY - scaledHeight / 2;
+    // Apply rotation and draw
+    ctx.save();
+    ctx.translate(centerX, centerY);
+    ctx.rotate(rotationAngle);
+
+    const x = -scaledWidth / 2;
+    const y = -scaledHeight / 2;
 
     ctx.drawImage(contentImage, x, y, scaledWidth, scaledHeight);
+    ctx.restore();
+
+    console.log(`✅ Content fitted with rotation at ${centerX}, ${centerY}`);
 }
 
 // Draw placeholder overlay when no content is selected

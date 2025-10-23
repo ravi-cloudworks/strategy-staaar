@@ -1040,18 +1040,25 @@ class BranvaCanvas {
 
             // Detect transparent area for content placement
             if (window.detectTransparentArea) {
+                console.log('🔍 Attempting transparent area detection...');
                 const corners = window.detectTransparentArea(mockupImg);
+                console.log('🎯 Detection result:', corners);
+
                 if (corners && window.drawAdvancedMockup) {
+                    console.log('✅ Using advanced mockup processing with detected corners');
                     // Draw mockup with placeholder
                     window.drawAdvancedMockup(mockupImg, null, canvas, corners, elementId);
 
                     // Store corners for later use
                     element.detectedCorners = corners;
+                    console.log('💾 Corners stored for element:', elementId);
                 } else {
+                    console.log('⚠️ Falling back to simple drawing - no corners or drawAdvancedMockup unavailable');
                     // Fallback to simple drawing
                     ctx.drawImage(mockupImg, 0, 0);
                 }
             } else {
+                console.log('❌ detectTransparentArea function not available');
                 // Basic mockup display
                 ctx.drawImage(mockupImg, 0, 0);
             }

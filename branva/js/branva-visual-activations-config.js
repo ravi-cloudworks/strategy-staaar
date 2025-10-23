@@ -450,7 +450,7 @@ const MOCKUP_CONFIG = {
                 id: 'shoppingMall',
                 name: 'Shopping Mall',
                 mockups: [
-                    { id: 'mall_teen_portrait', name: 'Mall - Portrait', image: 'mockup-images/outdoor/mall-digital.png', orientation: 'portrait', description: 'Vertical digital screen' },
+                    { id: 'mall_teen_portrait', name: 'Mall - Portrait', image: 'mockup-images/outdoor/street-kiosk.png', orientation: 'portrait', description: 'Vertical digital screen' },
                     { id: 'mall_teen_landscape', name: 'Mall - Landscape', image: 'mockup-images/teenagers/mall-landscape.png', orientation: 'landscape', description: 'Horizontal digital screen' }
                 ]
             },
@@ -1959,7 +1959,7 @@ const MOCKUP_CONFIG = {
                 mockups: [
                     { id: 'mobileHand', name: 'Mobile in Hand', image: 'mockup-images/at-home/mobile-hand.png', orientation: 'portrait', description: 'Social media, apps, mobile content' },
                     { id: 'computerScreen', name: 'Computer Screen', image: 'mockup-images/at-home/computer-screen.png', orientation: 'landscape', description: 'Websites, email campaigns' },
-                    { id: 'tvScreen', name: 'TV Screen', image: 'mockup-images/at-home/tv-screen.png', orientation: 'landscape', description: 'Video ads, streaming content' }
+                    { id: 'tvScreen', name: 'TV Screen', image: 'mockup-images/at-home/computer-screen.png', orientation: 'landscape', description: 'Video ads, streaming content' }
                 ]
             },
             outdoor: {
@@ -1969,7 +1969,7 @@ const MOCKUP_CONFIG = {
                     { id: 'streetKiosk', name: 'Street Kiosk', image: 'mockup-images/outdoor/street-kiosk.png', orientation: 'portrait', description: 'Vertical street advertising' },
                     { id: 'highwayBillboard', name: 'Highway Billboard', image: 'mockup-images/outdoor/highway-billboard.png', orientation: 'landscape', description: 'Large outdoor advertising' },
                     { id: 'busShelter', name: 'Bus Shelter', image: 'mockup-images/outdoor/bus-shelter.png', orientation: 'landscape', description: 'Transit advertising' },
-                    { id: 'mallDigital', name: 'Mall Digital Screen', image: 'mockup-images/outdoor/mall-digital.png', orientation: 'portrait', description: 'Indoor digital advertising' },
+                    { id: 'mallDigital', name: 'Mall Digital Screen', image: 'mockup-images/outdoor/street-kiosk.png', orientation: 'portrait', description: 'Indoor digital advertising' },
                     { id: 'instoreVeg', name: 'In-Store Grocery', image: 'mockup-images/outdoor/instore-ad-veg.png', orientation: 'landscape', description: 'Indoor digital advertising' },
                     { id: 'wembleyStadium', name: 'Wembley Stadium', image: 'mockup-images/outdoor/wembley-stadium-ad.png', orientation: 'landscape', description: 'Stadium advertising' },
                     { id: 'outdoorAirport', name: 'Outdoor Airport', image: 'mockup-images/outdoor/outdoor-airport.png', orientation: 'landscape', description: 'Airport outdoor advertising' },
