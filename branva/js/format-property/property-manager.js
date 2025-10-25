@@ -87,6 +87,7 @@ class BranvaPropertyManager {
     }
 
     handleElementSelection(element, elementData) {
+
         this.selectedElement = element;
         const elementType = elementData?.type || this.detectElementType(element);
 
@@ -189,6 +190,7 @@ class BranvaPropertyManager {
     }
 
     open() {
+
         if (this.propertyPanel) {
             this.propertyPanel.classList.add('open');
 

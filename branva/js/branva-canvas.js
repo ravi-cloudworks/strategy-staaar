@@ -113,6 +113,14 @@ class BranvaCanvas {
         const element = e.target.closest('.canvas-element');
         if (!element) return;
 
+        // Don't auto-select if user is clicking on interactive elements within insight tools
+        const isInsightTool = element.classList.contains('insight-tool-element');
+        const isInteractiveElement = e.target.closest('.insight-circle-container, .insight-circle, .uploaded-image, input[type="file"]');
+
+        if (isInsightTool && isInteractiveElement) {
+            return;
+        }
+
         this.selectElement(element);
         this.isDragging = true;
         this.draggedElement = element;
@@ -190,6 +198,7 @@ class BranvaCanvas {
     }
 
     selectElement(elementDiv) {
+
         this.clearSelection();
         elementDiv.classList.add('selected');
         this.selectedElements = [elementDiv];
@@ -1095,16 +1104,10 @@ class BranvaCanvas {
 
                 // Load specific CSS and JS for this template
                 this.loadInsightCSS(templateName);
-                this.loadInsightJS(templateName);
+                this.loadInsightJS(templateName, div);
 
-                // Initialize the interactive functionality immediately and also after timeout
-                // Immediate initialization for instant functionality
+                // Initialize immediately if script is already loaded
                 this.initializeSpecificInsightTool(div, templateName);
-
-                // Also set up with timeout in case scripts need time to load
-                setTimeout(() => {
-                    this.initializeSpecificInsightTool(div, templateName);
-                }, 200);
             } else {
                 // Fallback content
                 div.innerHTML = `
@@ -1146,25 +1149,22 @@ class BranvaCanvas {
         // Add canvas event handlers
         div.addEventListener('mousedown', (e) => this.handleMouseDown(e));
 
-        // Background click to open property panel - runs in bubble phase after circle handlers
+        // Background click to open property panel - only on direct canvas background clicks
         div.addEventListener('click', (e) => {
-            // console.log('🔍 Canvas element clicked - checking for property panel');
 
-            // Check if click is NOT on a circle or circle-related element
-            const circleContainer = e.target.closest('.insight-circle-container');
-            const isCircleElement = e.target.classList.contains('insight-circle') ||
-                                   e.target.classList.contains('uploaded-image') ||
-                                   e.target.closest('.insight-circle');
-
-            if (!circleContainer && !isCircleElement) {
-                // console.log('✅ Opening property panel - click on pyramid background');
-                // Click is on tool background - open property panel
-                e.stopPropagation();
-                this.selectElement(div);
-            } else {
-                // console.log('❌ Not opening property panel - click on circle area');
+            // Only open property panel if click is directly on the canvas div (background)
+            // and not on any child elements like circles, buttons, etc.
+            if (e.target !== div) {
+                return;
             }
-        }, { capture: false }); // Use bubble phase to run AFTER circle capture handlers
+
+            // Check for global circle click flag (set by insight tools)
+            if (window.circleClickInProgress) {
+                return;
+            }
+
+            this.selectElement(div);
+        });
 
         this.slideContent.appendChild(div);
     }
@@ -1196,16 +1196,27 @@ class BranvaCanvas {
         document.head.appendChild(link);
     }
 
-    loadInsightJS(templateName) {
+    loadInsightJS(templateName, container) {
         // Check if JS is already loaded for this template
         const jsId = `insight-js-${templateName}`;
         if (document.getElementById(jsId)) {
+            // Script already loaded, initialize immediately if not already done
+            setTimeout(() => {
+                this.initializeSpecificInsightTool(container, templateName);
+            }, 0);
             return;
         }
 
         const script = document.createElement('script');
         script.id = jsId;
         script.src = `./insight-tools/${templateName}/js/script.js`;
+
+        // Initialize the tool once the script loads
+        script.onload = () => {
+            console.log('✅ Script loaded, initializing tool:', templateName);
+            this.initializeSpecificInsightTool(container, templateName);
+        };
+
         document.head.appendChild(script);
     }
 
@@ -1213,13 +1224,17 @@ class BranvaCanvas {
         console.log('🔧 Initializing insight tool:', templateName);
         console.log('🔧 RitualsSymbolismLadder available:', !!window.RitualsSymbolismLadder);
 
-        // Use specific tool class if available, otherwise fallback to generic
+        // Use specific tool class if available
         if (templateName === 'rituals-symbolism-ladder' && window.RitualsSymbolismLadder) {
             console.log('✅ Using specific RitualsSymbolismLadder class');
             new window.RitualsSymbolismLadder(container);
+        } else if (templateName === 'rituals-symbolism-ladder') {
+            // For rituals-symbolism-ladder, wait for the specific script to load
+            // Don't use generic fallback as it will conflict with the specific implementation
+            console.log('⏳ Waiting for RitualsSymbolismLadder script to load...');
         } else {
-            console.log('⚠️ Using generic initialization');
-            // Generic fallback initialization
+            console.log('⚠️ Using generic initialization for unknown template:', templateName);
+            // Only use generic fallback for truly unknown templates
             this.initializeInsightTool(container);
         }
     }

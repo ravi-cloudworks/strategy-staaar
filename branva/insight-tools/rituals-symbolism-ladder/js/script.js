@@ -21,41 +21,36 @@ class RitualsSymbolismLadder {
 
             if (!circle || !input || !img) return;
 
-            // Click to upload - high priority with immediate stop propagation
+            // Click to upload - using global flag system to prevent canvas conflicts
             circleContainer.addEventListener('click', (e) => {
-                console.log('🚀 CIRCLE CLICK HANDLER TRIGGERED! Circle:', circleContainer.dataset.name);
-                console.log('🚀 Event target:', e.target);
-                console.log('🚀 Event phase:', e.eventPhase);
 
-                // IMMEDIATELY stop all event propagation before any other logic
+                // Prevent re-triggering if already processing
+                if (window.circleClickInProgress) {
+                    return;
+                }
+
+                // Set global flag to prevent canvas handler and re-triggering
+                window.circleClickInProgress = true;
+
+                // IMMEDIATELY stop all event propagation
                 e.stopImmediatePropagation();
                 e.preventDefault();
                 e.stopPropagation();
 
-                console.log('🚀 Event propagation stopped, opening file dialog...');
-
-                // Try multiple methods to trigger file dialog
-                try {
-                    // Method 1: Direct click
-                    input.click();
-                    console.log(`🚀 Method 1: input.click() called for: ${circleContainer.dataset.name}`);
-                } catch (e) {
-                    console.error('🚀 Method 1 failed:', e);
-
-                    // Method 2: Dispatch click event
+                // Open file dialog
+                setTimeout(() => {
                     try {
-                        const clickEvent = new MouseEvent('click', {
-                            view: window,
-                            bubbles: true,
-                            cancelable: true
-                        });
-                        input.dispatchEvent(clickEvent);
-                        console.log(`🚀 Method 2: dispatchEvent called for: ${circleContainer.dataset.name}`);
-                    } catch (e2) {
-                        console.error('🚀 Method 2 failed:', e2);
+                        input.click();
+                    } catch (err) {
+console.error('File dialog failed:', err);
                     }
-                }
-            }, { capture: true, passive: false }); // Use capture phase for highest priority
+
+                    // Clear flag after a short delay
+                    setTimeout(() => {
+                        window.circleClickInProgress = false;
+                    }, 100);
+                }, 0);
+            }, { capture: true, passive: false });
 
             // Handle image selection
             input.addEventListener('change', e => {
