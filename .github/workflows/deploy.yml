@@ -35,7 +35,7 @@ jobs:
         echo "🔒 Building secure production version..."
 
         # Create dist directory for secure build
-        mkdir -p dist/js dist/mockups dist/branva/js dist/branva/css dist/branva/data/strategies
+        mkdir -p dist/js dist/mockups dist/branva/js dist/branva/css dist/branva/data/strategies dist/branva/insight-tools dist/branva/spec
 
         # Obfuscate JavaScript files with high security settings
         echo "🔐 Obfuscating JavaScript files..."
@@ -120,6 +120,56 @@ jobs:
           done
         fi
 
+        # Obfuscate Branva JS files in format-property subdirectory
+        if [ -d "branva/js/format-property" ]; then
+          echo "🔐 Obfuscating Branva format-property JavaScript files..."
+          mkdir -p dist/branva/js/format-property
+          for jsfile in branva/js/format-property/*.js; do
+            if [ -f "$jsfile" ]; then
+              filename=$(basename "$jsfile")
+              echo "🔐 Obfuscating branva/js/format-property/$filename..."
+              javascript-obfuscator "$jsfile" \
+                --output "dist/branva/js/format-property/$filename" \
+                --compact true \
+                --control-flow-flattening true \
+                --control-flow-flattening-threshold 0.75 \
+                --dead-code-injection true \
+                --dead-code-injection-threshold 0.4 \
+                --string-array true \
+                --string-array-encoding 'rc4' \
+                --string-array-threshold 0.75
+            fi
+          done
+        fi
+
+        # Obfuscate insight-tools JavaScript files
+        if [ -d "branva/insight-tools" ]; then
+          echo "🔐 Obfuscating insight-tools JavaScript files..."
+          for tooldir in branva/insight-tools/*/; do
+            if [ -d "$tooldir" ] && [ -d "${tooldir}js" ]; then
+              toolname=$(basename "$tooldir")
+              echo "🔐 Processing insight tool: $toolname"
+              mkdir -p "dist/branva/insight-tools/$toolname/js"
+              for jsfile in "${tooldir}js"/*.js; do
+                if [ -f "$jsfile" ]; then
+                  filename=$(basename "$jsfile")
+                  echo "🔐 Obfuscating insight-tools/$toolname/js/$filename..."
+                  javascript-obfuscator "$jsfile" \
+                    --output "dist/branva/insight-tools/$toolname/js/$filename" \
+                    --compact true \
+                    --control-flow-flattening true \
+                    --control-flow-flattening-threshold 0.75 \
+                    --dead-code-injection true \
+                    --dead-code-injection-threshold 0.4 \
+                    --string-array true \
+                    --string-array-encoding 'rc4' \
+                    --string-array-threshold 0.75
+                fi
+              done
+            fi
+          done
+        fi
+
         # Minify HTML files
         echo "📄 Minifying HTML files..."
         for htmlfile in *.html; do
@@ -145,6 +195,36 @@ jobs:
             branva/index.html -o dist/branva/index.html
         fi
 
+        # Minify insight-tools HTML templates
+        if [ -d "branva/insight-tools" ]; then
+          echo "📄 Minifying insight-tools HTML templates..."
+          for tooldir in branva/insight-tools/*/; do
+            if [ -d "$tooldir" ]; then
+              toolname=$(basename "$tooldir")
+              if [ -f "${tooldir}template.html" ]; then
+                echo "📄 Minifying insight-tools/$toolname/template.html..."
+                mkdir -p "dist/branva/insight-tools/$toolname"
+                html-minifier-terser \
+                  --collapse-whitespace \
+                  --remove-comments \
+                  --minify-css true \
+                  --minify-js true \
+                  "${tooldir}template.html" -o "dist/branva/insight-tools/$toolname/template.html"
+              fi
+              if [ -f "${tooldir}index.html" ]; then
+                echo "📄 Minifying insight-tools/$toolname/index.html..."
+                mkdir -p "dist/branva/insight-tools/$toolname"
+                html-minifier-terser \
+                  --collapse-whitespace \
+                  --remove-comments \
+                  --minify-css true \
+                  --minify-js true \
+                  "${tooldir}index.html" -o "dist/branva/insight-tools/$toolname/index.html"
+              fi
+            fi
+          done
+        fi
+
         # Copy other necessary files
         echo "📋 Copying assets..."
         [ -d "css" ] && cp -r css dist/ || echo "No css directory found"
@@ -163,6 +243,47 @@ jobs:
         [ -d "branva/assets" ] && cp -r branva/assets dist/branva/ || echo "No branva/assets directory found"
         [ -d "branva/videos" ] && cp -r branva/videos dist/branva/ || echo "No branva/videos directory found"
         [ -d "branva/mockup-images" ] && cp -r branva/mockup-images dist/branva/ || echo "No branva/mockup-images directory found"
+        [ -d "branva/spec" ] && cp -r branva/spec dist/branva/ || echo "No branva/spec directory found"
+
+        # Copy insight-tools with all non-JS files (CSS, HTML, images, etc.)
+        if [ -d "branva/insight-tools" ]; then
+          echo "📋 Copying insight-tools assets..."
+          for tooldir in branva/insight-tools/*/; do
+            if [ -d "$tooldir" ]; then
+              toolname=$(basename "$tooldir")
+              echo "📋 Copying insight tool assets: $toolname"
+              mkdir -p "dist/branva/insight-tools/$toolname"
+
+              # Copy CSS files and directories
+              if [ -d "${tooldir}css" ]; then
+                cp -r "${tooldir}css" "dist/branva/insight-tools/$toolname/" || true
+              fi
+
+              # Copy any loose CSS files
+              for cssfile in "${tooldir}"*.css; do
+                if [ -f "$cssfile" ]; then
+                  cp "$cssfile" "dist/branva/insight-tools/$toolname/" || true
+                fi
+              done
+
+              # Copy other asset directories
+              if [ -d "${tooldir}images" ]; then
+                cp -r "${tooldir}images" "dist/branva/insight-tools/$toolname/" || true
+              fi
+              if [ -d "${tooldir}assets" ]; then
+                cp -r "${tooldir}assets" "dist/branva/insight-tools/$toolname/" || true
+              fi
+
+              # Copy any other files (but HTML will be minified separately above)
+              for file in "${tooldir}"*; do
+                if [ -f "$file" ] && [[ ! "$file" =~ \.(js|html)$ ]]; then
+                  filename=$(basename "$file")
+                  cp "$file" "dist/branva/insight-tools/$toolname/$filename" || true
+                fi
+              done
+            fi
+          done
+        fi
 
         # Copy mockups HTML if exists
         if [ -f "mockups/index.html" ]; then
