@@ -1,0 +1,304 @@
+/* Rituals & Symbolism Ladder - Elements of Value Pyramid Styles */
+.insight-tool-container * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.insight-header {
+    text-align: center;
+    padding: 15px 20px 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.insight-header h1 {
+    font-size: 1.5em;
+    font-weight: 700;
+    margin-bottom: 2px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+.insight-header p {
+    font-size: 0.7em;
+    color: rgba(255,255,255,0.9);
+    margin: 0;
+}
+
+.insight-pyramid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: white;
+    padding: 15px 20px 20px;
+    height: calc(100% - 60px);
+    overflow-y: auto;
+}
+
+.insight-layer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.insight-layer-title {
+    font-size: 0.8em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    padding-bottom: 4px;
+}
+
+.insight-layer-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 2px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    border-radius: 1px;
+}
+
+.insight-layer:nth-child(1) .insight-layer-title { color: #e74c3c; }
+.insight-layer:nth-child(2) .insight-layer-title { color: #e67e22; }
+.insight-layer:nth-child(3) .insight-layer-title { color: #3498db; }
+.insight-layer:nth-child(4) .insight-layer-title { color: #27ae60; }
+
+.insight-values {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    max-width: 100%;
+    padding: 5px;
+}
+
+.insight-circle-container {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 50px;
+}
+
+.insight-circle-container:hover {
+    transform: translateY(-2px);
+}
+
+.insight-circle-container.active {
+    transform: scale(1.12);
+}
+
+.insight-circle-container.active:hover {
+    transform: scale(1.12) translateY(-2px);
+}
+
+.insight-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e8e8e8 0%, #d0d0d0 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    overflow: visible;
+}
+
+.insight-circle::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    transition: border-color 0.3s ease;
+}
+
+.insight-circle-container:hover .insight-circle::before {
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+.insight-circle.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6), 0 0 0 2px rgba(102, 126, 234, 0.2);
+    width: 56px;
+    height: 56px;
+}
+
+.insight-circle.active::after {
+    content: '\F26B';
+    font-family: 'bootstrap-icons';
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 10px;
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4);
+    z-index: 10;
+    animation: checkmarkPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes checkmarkPop {
+    0% {
+        transform: scale(0) rotate(-180deg);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+.insight-circle .default-icon {
+    font-size: 20px;
+    color: #999;
+    transition: all 0.3s ease;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.insight-circle.active .default-icon {
+    display: none;
+}
+
+.insight-circle .uploaded-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: none;
+}
+
+.insight-circle.active .uploaded-image {
+    display: block;
+}
+
+.insight-circle canvas {
+    display: none !important;
+}
+
+.insight-circle-label {
+    text-align: center;
+    font-size: 0.5em;
+    font-weight: 600;
+    color: #444;
+    line-height: 1.1;
+    max-width: 50px;
+    word-wrap: break-word;
+    transition: color 0.3s ease;
+    min-height: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.insight-circle-container:hover .insight-circle-label {
+    color: #667eea;
+}
+
+.insight-circle-container.active .insight-circle-label {
+    color: #667eea;
+    font-weight: 700;
+}
+
+.insight-hidden-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.insight-circle-container.dragging .insight-circle {
+    border: 2px dashed #667eea;
+    background: rgba(102, 126, 234, 0.1);
+}
+
+/* Interaction disabled state */
+.insight-tool-container.interaction-disabled {
+    position: relative;
+}
+
+.insight-tool-container.interaction-disabled::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 12px;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.insight-tool-container.interaction-disabled .insight-circle-container {
+    pointer-events: none;
+}
+
+.insight-tool-container.interaction-disabled .insight-header::after {
+    content: '🔒 Selection Mode';
+    position: absolute;
+    top: 8px;
+    right: 15px;
+    font-size: 0.6em;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Hidden title/description states */
+.insight-header.title-hidden h1 {
+    display: none !important;
+}
+
+.insight-header.description-hidden p {
+    display: none !important;
+}
+
+.insight-header.title-hidden.description-hidden {
+    display: none !important;
+}
+
+.insight-header.title-hidden:not(.description-hidden) {
+    padding: 8px 20px;
+}
+
+.insight-header.description-hidden:not(.title-hidden) {
+    padding: 12px 20px 8px;
+}

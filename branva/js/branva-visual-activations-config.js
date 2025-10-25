@@ -6,7 +6,7 @@ const MOCKUP_CONFIG = {
     athleticMen: {
         id: 'athleticMen',
         name: 'Athletic Men',
-        icon: '💪',
+        icon: '<i class="bi bi-heart-pulse-fill"></i>',
         description: 'Target fitness-focused male audience',
         locations: {
             gymFitness: {
@@ -87,7 +87,7 @@ const MOCKUP_CONFIG = {
     athleticWomen: {
         id: 'athleticWomen',
         name: 'Athletic Women',
-        icon: '🏃‍♀️',
+        icon: '<i class="bi bi-person-running"></i>',
         description: 'Target fitness-focused female audience',
         locations: {
             gymFitness: {
@@ -176,7 +176,7 @@ const MOCKUP_CONFIG = {
     housewives: {
         id: 'housewives',
         name: 'Housewives/Homemakers',
-        icon: '🏡',
+        icon: '<i class="bi bi-house-fill"></i>',
         description: 'Target homemaker audience',
         locations: {
             groceryStore: {
@@ -265,7 +265,7 @@ const MOCKUP_CONFIG = {
     workingProfessionals: {
         id: 'workingProfessionals',
         name: 'Working Professionals',
-        icon: '💼',
+        icon: '<i class="bi bi-briefcase-fill"></i>',
         description: 'Target business professionals',
         locations: {
             airport: {
@@ -354,7 +354,7 @@ const MOCKUP_CONFIG = {
     children: {
         id: 'children',
         name: 'Children (6-12 years)',
-        icon: '🎈',
+        icon: '<i class="bi bi-balloon-fill"></i>',
         description: 'Target children audience',
         locations: {
             toyStore: {
@@ -443,7 +443,7 @@ const MOCKUP_CONFIG = {
     teenagers: {
         id: 'teenagers',
         name: 'Teenagers (13-18 years)',
-        icon: '🎮',
+        icon: '<i class="bi bi-controller"></i>',
         description: 'Target teenage audience',
         locations: {
             shoppingMall: {
@@ -532,7 +532,7 @@ const MOCKUP_CONFIG = {
     collegeStudents: {
         id: 'collegeStudents',
         name: 'College Students',
-        icon: '🎓',
+        icon: '<i class="bi bi-mortarboard-fill"></i>',
         description: 'Target college/university students',
         locations: {
             universityCampus: {
@@ -621,7 +621,7 @@ const MOCKUP_CONFIG = {
     travelers: {
         id: 'travelers',
         name: 'Travelers/Tourists',
-        icon: '✈️',
+        icon: '<i class="bi bi-airplane-fill"></i>',
         description: 'Target travelers and tourists',
         locations: {
             airport: {
@@ -710,7 +710,7 @@ const MOCKUP_CONFIG = {
     commuters: {
         id: 'commuters',
         name: 'Commuters',
-        icon: '🚇',
+        icon: '<i class="bi bi-train-front-fill"></i>',
         description: 'Target daily commuters',
         locations: {
             subwayMetro: {
@@ -791,7 +791,7 @@ const MOCKUP_CONFIG = {
     seniors: {
         id: 'seniors',
         name: 'Seniors (65+ years)',
-        icon: '👴',
+        icon: '<i class="bi bi-person-badge-fill"></i>',
         description: 'Target senior citizen audience',
         locations: {
             pharmacy: {
@@ -880,7 +880,7 @@ const MOCKUP_CONFIG = {
     parentsYoungKids: {
         id: 'parentsYoungKids',
         name: 'Parents with Young Kids',
-        icon: '👨‍👩‍👧‍👦',
+        icon: '<i class="bi bi-people-fill"></i>',
         description: 'Target parents with young children',
         locations: {
             pediatricClinic: {
@@ -969,7 +969,7 @@ const MOCKUP_CONFIG = {
     foodEnthusiasts: {
         id: 'foodEnthusiasts',
         name: 'Food Enthusiasts',
-        icon: '🍽️',
+        icon: '<i class="bi bi-cup-hot-fill"></i>',
         description: 'Target food lovers and culinary fans',
         locations: {
             restaurant: {
@@ -1058,7 +1058,7 @@ const MOCKUP_CONFIG = {
     fashionShoppers: {
         id: 'fashionShoppers',
         name: 'Fashion Shoppers',
-        icon: '👗',
+        icon: '<i class="bi bi-bag-heart-fill"></i>',
         description: 'Target fashion-conscious shoppers',
         locations: {
             clothingStore: {
@@ -1139,7 +1139,7 @@ const MOCKUP_CONFIG = {
     techEnthusiasts: {
         id: 'techEnthusiasts',
         name: 'Tech Enthusiasts',
-        icon: '💻',
+        icon: '<i class="bi bi-laptop-fill"></i>',
         description: 'Target technology fans',
         locations: {
             electronicsStore: {
@@ -1212,7 +1212,7 @@ const MOCKUP_CONFIG = {
     healthConscious: {
         id: 'healthConscious',
         name: 'Health Conscious',
-        icon: '🥗',
+        icon: '<i class="bi bi-heart-fill"></i>',
         description: 'Target health-focused individuals',
         locations: {
             healthFoodStore: {
@@ -1301,7 +1301,7 @@ const MOCKUP_CONFIG = {
     sportsFans: {
         id: 'sportsFans',
         name: 'Sports Fans',
-        icon: '⚽',
+        icon: '<i class="bi bi-circle-fill"></i>',
         description: 'Target sports enthusiasts',
         locations: {
             sportsStadium: {
@@ -1382,7 +1382,7 @@ const MOCKUP_CONFIG = {
     musicLovers: {
         id: 'musicLovers',
         name: 'Music Lovers',
-        icon: '🎵',
+        icon: '<i class="bi bi-music-note-beamed"></i>',
         description: 'Target music enthusiasts',
         locations: {
             concertVenue: {
@@ -1455,7 +1455,7 @@ const MOCKUP_CONFIG = {
     gamers: {
         id: 'gamers',
         name: 'Gamers',
-        icon: '🎮',
+        icon: '<i class="bi bi-controller"></i>',
         description: 'Target gaming enthusiasts',
         locations: {
             gamingStore: {
@@ -1528,7 +1528,7 @@ const MOCKUP_CONFIG = {
     petOwners: {
         id: 'petOwners',
         name: 'Pet Owners',
-        icon: '🐕',
+        icon: '<i class="bi bi-heart-fill"></i>',
         description: 'Target pet owners',
         locations: {
             petStore: {
@@ -1601,7 +1601,7 @@ const MOCKUP_CONFIG = {
     luxuryShoppers: {
         id: 'luxuryShoppers',
         name: 'Luxury Shoppers',
-        icon: '💎',
+        icon: '<i class="bi bi-gem"></i>',
         description: 'Target high-end luxury consumers',
         locations: {
             highEndMall: {
@@ -1690,7 +1690,7 @@ const MOCKUP_CONFIG = {
     nightlifeSeekers: {
         id: 'nightlifeSeekers',
         name: 'Night Life Seekers',
-        icon: '🍸',
+        icon: '<i class="bi bi-cup-straw"></i>',
         description: 'Target nightlife and entertainment seekers',
         locations: {
             bar: {
@@ -1779,7 +1779,7 @@ const MOCKUP_CONFIG = {
     outdoorEnthusiasts: {
         id: 'outdoorEnthusiasts',
         name: 'Outdoor Enthusiasts',
-        icon: '⛰️',
+        icon: '<i class="bi bi-mountains"></i>',
         description: 'Target outdoor adventure lovers',
         locations: {
             campingStore: {
@@ -1868,7 +1868,7 @@ const MOCKUP_CONFIG = {
     businessOwners: {
         id: 'businessOwners',
         name: 'Business Owners',
-        icon: '🏢',
+        icon: '<i class="bi bi-building-fill"></i>',
         description: 'Target entrepreneurs and business owners',
         locations: {
             chamberCommerce: {
@@ -1950,7 +1950,7 @@ const MOCKUP_CONFIG = {
     general: {
         id: 'general',
         name: 'General Audience',
-        icon: '🌐',
+        icon: '<i class="bi bi-globe"></i>',
         description: 'Broad audience reach',
         locations: {
             atHome: {

@@ -16,13 +16,13 @@ class BranvaMatrixControls {
     }
 
     init() {
-        console.log('🎮 Initializing Branva Matrix Controls');
+        // console.log('🎮 Initializing Branva Matrix Controls');
         this.setupGlobalDragListeners();
     }
 
     // Main method to handle image modes (called from branva-image-manipulation.js)
     handleImageMode(mode, img, controls, placeholder) {
-        console.log(`🎮 Matrix Controls: Handling ${mode} mode`);
+        // console.log(`🎮 Matrix Controls: Handling ${mode} mode`);
 
         // Update active button
         controls.querySelectorAll('.image-btn').forEach(btn => {
@@ -74,7 +74,7 @@ class BranvaMatrixControls {
 
         console.log('✅ FIT mode applied - showing complete original image');
         if (window.showToast) {
-            window.showToast('FIT mode: Complete original image displayed', 'success');
+            // window.showToast('FIT mode: Complete original image displayed', 'success');
         }
     }
 
@@ -92,7 +92,7 @@ class BranvaMatrixControls {
             this.enablePanInteraction(img, placeholder);
 
             if (window.showToast) {
-                window.showToast('PAN mode: Click and drag to adjust focus area', 'success');
+                // window.showToast('PAN mode: Click and drag to adjust focus area', 'success');
             }
         } catch (error) {
             console.error('❌ Error in PAN mode:', error);
@@ -119,7 +119,7 @@ class BranvaMatrixControls {
         }, 3000);
 
         if (window.showToast) {
-            window.showToast('MOVE mode: Drag this image to another column. Matrix is now fixed.', 'success');
+            // window.showToast('MOVE mode: Drag this image to another column. Matrix is now fixed.', 'success');
         }
     }
 
@@ -375,7 +375,7 @@ class BranvaMatrixControls {
         if (targetCell && targetCell !== draggedCell) {
             this.reorderColumns(draggedCell, targetCell);
             if (window.showToast) {
-                window.showToast('Image moved to new column!', 'success');
+                // window.showToast('Image moved to new column!', 'success');
             }
         } else {
             if (window.showToast) {
@@ -497,4 +497,4 @@ class BranvaMatrixControls {
 window.BranvaMatrixControls = BranvaMatrixControls;
 window.branvaMatrixControls = new BranvaMatrixControls();
 
-console.log('🎮 Branva Matrix Controls loaded and initialized');
+// console.log('🎮 Branva Matrix Controls loaded and initialized');

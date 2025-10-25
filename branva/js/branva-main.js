@@ -47,13 +47,8 @@ class BranvaApp {
             });
         }
 
-        // Present button
-        const presentBtn = document.querySelector('.btn-primary');
-        if (presentBtn && presentBtn.textContent.includes('Present')) {
-            presentBtn.addEventListener('click', () => {
-                this.startPresentation();
-            });
-        }
+        // Present button - Let branva-presentation-canvas.js handle this
+        // Removed duplicate event listener to avoid conflicts
 
         // Profile dropdown (if user is logged in)
         const profileBtn = document.getElementById('profileBtn');
@@ -108,7 +103,7 @@ class BranvaApp {
     addNewSlide() {
         if (window.branvaCanvas) {
             window.branvaCanvas.addNewSlide();
-            this.showToast('New slide added', 'success');
+            // this.showToast('New slide added', 'success');
         }
     }
 
@@ -125,11 +120,11 @@ class BranvaApp {
         const projectName = document.querySelector('.project-name').value || 'Untitled Strategy Presentation';
 
         // For demo purposes, we'll copy a placeholder link to clipboard
-        const shareLink = `https://branva.app/shared/${this.generateShareId()}`;
+        const shareLink = `https://brandva.app/shared/${this.generateShareId()}`;
 
         if (navigator.clipboard) {
             navigator.clipboard.writeText(shareLink).then(() => {
-                this.showToast('Share link copied to clipboard', 'success');
+                // this.showToast('Share link copied to clipboard', 'success');
             }).catch(() => {
                 this.showShareModal(shareLink);
             });
@@ -167,94 +162,20 @@ class BranvaApp {
     }
 
     startPresentation() {
-        if (!window.branvaCanvas || window.branvaCanvas.slides.length === 0) {
-            this.showToast('Create some slides first', 'warning');
-            return;
+        // Delegate to the new canvas-based presentation handler
+        if (window.branvaCanvasPresentation) {
+            window.branvaCanvasPresentation.startPresentation();
+        } else {
+            console.warn('Canvas presentation mode not available');
         }
-
-        // Enter fullscreen presentation mode
-        this.enterPresentationMode();
     }
 
-    enterPresentationMode() {
-        // Create presentation overlay
-        const presentationOverlay = document.createElement('div');
-        presentationOverlay.className = 'presentation-overlay';
-        presentationOverlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: black;
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        `;
-
-        const slideContainer = document.createElement('div');
-        slideContainer.style.cssText = `
-            width: 90vw;
-            height: 90vh;
-            background: white;
-            border-radius: 8px;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        `;
-
-        // Clone current slide content
-        const currentSlideContent = window.branvaCanvas.slideContent.cloneNode(true);
-        currentSlideContent.style.cssText = `
-            width: 100%;
-            height: 100%;
-            transform: scale(${Math.min(slideContainer.offsetWidth / 960, slideContainer.offsetHeight / 540)});
-        `;
-
-        slideContainer.appendChild(currentSlideContent);
-
-        // Add navigation controls
-        const navControls = document.createElement('div');
-        navControls.style.cssText = `
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        `;
-
-        navControls.innerHTML = `
-            <button style="padding: 8px 12px; background: rgba(255,255,255,0.9); border: none; border-radius: 6px; cursor: pointer;" onclick="this.closest('.presentation-overlay').remove()">
-                <i class="bi bi-x"></i> Exit
-            </button>
-            <span style="color: white; font-size: 14px;">1 / ${window.branvaCanvas.slides.length}</span>
-        `;
-
-        presentationOverlay.appendChild(slideContainer);
-        presentationOverlay.appendChild(navControls);
-
-        // Handle ESC key to exit presentation
-        const handleEscape = (e) => {
-            if (e.key === 'Escape') {
-                presentationOverlay.remove();
-                document.removeEventListener('keydown', handleEscape);
-            }
-        };
-        document.addEventListener('keydown', handleEscape);
-
-        document.body.appendChild(presentationOverlay);
-
-        this.showToast('Press ESC to exit presentation', 'info');
-    }
+    // enterPresentationMode() method removed - now handled by branva-presentation-canvas.js
 
     saveProjectName(name) {
         // Save project name to localStorage
         localStorage.setItem('branva_project_name', name);
-        this.showToast('Project name saved', 'success');
+        // this.showToast('Project name saved', 'success');
     }
 
     // Global Keyboard Shortcuts
@@ -300,7 +221,7 @@ class BranvaApp {
         };
 
         localStorage.setItem('branva_presentation', JSON.stringify(presentationData));
-        this.showToast('Presentation saved', 'success');
+        // Removed: Presentation saved toast (too frequent/distracting)
     }
 
     openPresentation() {
@@ -325,15 +246,15 @@ class BranvaApp {
         const timestamp = new Date().toLocaleTimeString();
         const toastId = Math.random().toString(36).substr(2, 9);
 
-        console.log(`🍞 TOAST CREATED [${toastId}] at ${timestamp}:`, {
-            message,
-            type,
-            duration: '6000ms'
-        });
+        // console.log(`🍞 TOAST CREATED [${toastId}] at ${timestamp}:`, {
+        //     message,
+        //     type,
+        //     duration: '6000ms'
+        // });
 
         const toastContainer = document.getElementById('toastContainer');
         if (!toastContainer) {
-            console.log(`❌ TOAST CONTAINER NOT FOUND: ${type.toUpperCase()}: ${message}`);
+            // console.log(`❌ TOAST CONTAINER NOT FOUND: ${type.toUpperCase()}: ${message}`);
             return;
         }
 
@@ -352,45 +273,45 @@ class BranvaApp {
         `;
 
         toastContainer.appendChild(toast);
-        console.log(`🍞 TOAST ADDED TO DOM [${toastId}]:`, toast);
+        // console.log(`🍞 TOAST ADDED TO DOM [${toastId}]:`, toast);
 
         // Trigger show animation
         setTimeout(() => {
             toast.classList.add('show');
-            console.log(`🍞 TOAST SHOW ANIMATION [${toastId}]`);
+            // console.log(`🍞 TOAST SHOW ANIMATION [${toastId}]`);
         }, 10);
 
         // Auto remove after 6 seconds (longer for better visibility)
         const timeoutId = setTimeout(() => {
             const removeTimestamp = new Date().toLocaleTimeString();
-            console.log(`🍞 TOAST AUTO-REMOVING [${toastId}] at ${removeTimestamp} after 6 seconds`);
+            // console.log(`🍞 TOAST AUTO-REMOVING [${toastId}] at ${removeTimestamp} after 6 seconds`);
             if (toast.parentElement) {
                 toast.classList.remove('show');
-                console.log(`🍞 TOAST HIDE ANIMATION [${toastId}]`);
+                // console.log(`🍞 TOAST HIDE ANIMATION [${toastId}]`);
                 setTimeout(() => {
                     if (toast.parentElement) {
                         toast.remove();
-                        console.log(`🍞 TOAST REMOVED FROM DOM [${toastId}]`);
+                        // console.log(`🍞 TOAST REMOVED FROM DOM [${toastId}]`);
                     } else {
-                        console.log(`⚠️ TOAST ALREADY REMOVED [${toastId}]`);
+                        // console.log(`⚠️ TOAST ALREADY REMOVED [${toastId}]`);
                     }
                 }, 300);
             } else {
-                console.log(`⚠️ TOAST ALREADY REMOVED [${toastId}]`);
+                // console.log(`⚠️ TOAST ALREADY REMOVED [${toastId}]`);
             }
         }, 6000);
 
-        console.log(`🍞 TOAST TIMEOUT SET [${toastId}]:`, timeoutId);
+        // console.log(`🍞 TOAST TIMEOUT SET [${toastId}]:`, timeoutId);
     }
 }
 
 // Global toast function for other modules
 window.showToast = function(message, type = 'info') {
-    console.log(`🍞 GLOBAL TOAST CALLED:`, { message, type, branvaAppExists: !!window.branvaApp });
+    // console.log(`🍞 GLOBAL TOAST CALLED:`, { message, type, branvaAppExists: !!window.branvaApp });
     if (window.branvaApp) {
         window.branvaApp.showToast(message, type);
     } else {
-        console.log(`❌ window.branvaApp not available, toast not shown: ${message}`);
+        // console.log(`❌ window.branvaApp not available, toast not shown: ${message}`);
     }
 };
 

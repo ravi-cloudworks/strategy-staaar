@@ -96,10 +96,10 @@ class BranvaSolutionsDrawer {
         this.loadClusters();
 
         if (window.showToast) {
-            window.showToast('Strategy Solutions drawer opened', 'success');
+            // window.showToast('Strategy Solutions drawer opened', 'success');
         }
 
-        console.log('📋 Strategy Solutions drawer opened');
+        // console.log('📋 Strategy Solutions drawer opened');
     }
 
     close() {
@@ -114,7 +114,7 @@ class BranvaSolutionsDrawer {
 
         this.isOpen = false;
 
-        console.log('📋 Strategy Solutions drawer closed');
+        // console.log('📋 Strategy Solutions drawer closed');
     }
 
     loadClusters() {
@@ -140,10 +140,10 @@ class BranvaSolutionsDrawer {
 
     groupStrategiesByCluster(strategies) {
         const clusterIcons = {
-            'Diagnose': '🔍',
-            'Differentiate': '⭐',
-            'Defend': '🛡️',
-            'Disrupt': '🚀'
+            'Diagnose': 'bi-search',
+            'Differentiate': 'bi-star-fill',
+            'Defend': 'bi-shield-fill',
+            'Disrupt': 'bi-rocket-takeoff'
         };
 
         const clusterDescriptions = {
@@ -194,12 +194,19 @@ class BranvaSolutionsDrawer {
         card.className = 'cluster-card';
         card.dataset.clusterName = cluster.name;
 
+        card.className = 'bg-white border border-strategy-200 rounded-lg p-4 hover:shadow-md hover:border-strategy-300 transition-all duration-200 cursor-pointer group cluster-card';
         card.innerHTML = `
-            <div class="cluster-icon">${cluster.icon}</div>
-            <h3 class="cluster-title">${cluster.name}</h3>
-            <p class="cluster-description">${cluster.description}</p>
-            <div class="cluster-stats">
-                <span class="stat-item">${cluster.count} strategies</span>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg cluster-icon bg-strategy-100 text-strategy-600">
+                    <i class="bi ${cluster.icon}"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h3 class="font-strategic text-base font-semibold text-strategy-800 cluster-title">${cluster.name}</h3>
+                    <p class="font-sans text-xs text-strategy-500 mt-1 line-clamp-2 cluster-description">${cluster.description}</p>
+                    <div class="cluster-stats mt-2">
+                        <span class="font-premium text-xs font-medium text-premium-500 stat-item">${cluster.count} strategies</span>
+                    </div>
+                </div>
             </div>
         `;
 
@@ -257,8 +264,13 @@ class BranvaSolutionsDrawer {
             return;
         }
 
-        // Set modal title
-        modalTitle.textContent = `${cluster.icon} ${cluster.name} - Strategy Solutions`;
+        // Set modal title and description
+        modalTitle.innerHTML = `<i class="bi ${cluster.icon}"></i> ${cluster.name} - Strategy Solutions`;
+
+        const modalDescription = document.getElementById('solutionsDescription');
+        if (modalDescription) {
+            modalDescription.textContent = cluster.description || 'Select strategy templates to add to your presentation';
+        }
 
         // Generate strategies grid
         modalPreview.innerHTML = this.generateStrategiesGrid(cluster);
@@ -269,7 +281,7 @@ class BranvaSolutionsDrawer {
         // Show modal
         modal.classList.add('show');
 
-        console.log(`📋 Opened strategies modal for ${cluster.name}`);
+        // console.log(`📋 Opened strategies modal for ${cluster.name}`);
     }
 
     generateStrategiesGrid(cluster) {
@@ -284,27 +296,29 @@ class BranvaSolutionsDrawer {
             const urgencyClass = strategy.marketUrgency === 'HIGH' ? 'urgency-high' : 'urgency-medium';
 
             html += `
-                <div class="strategy-template-card selectable" data-strategy-id="${strategyId}" data-strategy='${JSON.stringify(strategy)}'>
-                    <div class="selection-checkbox">
-                        <input type="checkbox" id="${strategyId}" class="strategy-checkbox">
-                        <label for="${strategyId}" class="checkbox-overlay"></label>
+                <div class="border border-strategy-200 rounded-lg p-4 hover:shadow-md hover:border-analysis-300 transition-all duration-200 cursor-pointer strategy-template-card relative group" data-strategy-id="${strategyId}" data-strategy='${JSON.stringify(strategy)}'>
+                    <!-- Hidden checkbox for form data -->
+                    <input type="checkbox" id="${strategyId}" class="hidden strategy-checkbox">
+
+                    <!-- Hidden selection indicator - only shows when selected -->
+                    <div class="absolute top-3 right-3 w-5 h-5 border-2 border-analysis-500 bg-analysis-500 rounded-full flex items-center justify-center selection-indicator transition-all duration-200 opacity-0 scale-0">
+                        <i class="bi bi-check text-white text-sm"></i>
                     </div>
-                    <div class="strategy-content">
-                        <div class="strategy-header">
-                            <h4 class="strategy-name">${strategy.name}</h4>
-                            <div class="strategy-badges">
-                                <span class="badge ${urgencyClass}">${strategy.marketUrgency}</span>
-                                <span class="badge pricing">${strategy.pricing}</span>
+
+                    <!-- Content -->
+                    <div class="strategy-content pr-8">
+                        <div class="strategy-header mb-2">
+                            <h4 class="font-strategic text-base font-semibold text-strategy-800 mb-2 strategy-name">${strategy.name}</h4>
+                            <div class="strategy-badges flex gap-2 mb-3">
+                                <span class="px-2 py-1 text-xs font-medium rounded-full ${urgencyClass === 'urgency-high' ? 'bg-red-100 text-red-600' : 'bg-yellow-100 text-yellow-600'}">${strategy.marketUrgency}</span>
+                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-premium-100 text-premium-600">${strategy.pricing}</span>
                             </div>
                         </div>
-                        <p class="strategy-description">${strategy.description}</p>
-                        <div class="strategy-meta">
-                            <span class="meta-item">⏱️ ${strategy.speed}</span>
-                            <span class="meta-item">📊 ${strategy.rows}x${strategy.columns}</span>
+                        <p class="font-sans text-sm text-strategy-600 mb-3 strategy-description">${strategy.description}</p>
+                        <div class="strategy-meta flex gap-4">
+                            <span class="font-premium text-xs font-medium text-analysis-600">⏱️ ${strategy.speed}</span>
+                            <span class="font-premium text-xs font-medium text-strategy-500">📊 ${strategy.rows}x${strategy.columns}</span>
                         </div>
-                    </div>
-                    <div class="selection-overlay">
-                        <i class="bi bi-check-circle-fill"></i>
                     </div>
                 </div>
             `;
@@ -331,27 +345,37 @@ class BranvaSolutionsDrawer {
             addButton.disabled = count === 0;
         };
 
-        // Individual checkbox handlers
-        document.querySelectorAll('.strategy-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('change', (e) => {
-                const card = e.target.closest('.strategy-template-card');
+        // Card click handlers for selection
+        document.querySelectorAll('.strategy-template-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                e.preventDefault();
+                const checkbox = card.querySelector('.strategy-checkbox');
+                const indicator = card.querySelector('.selection-indicator');
                 const strategyId = card.dataset.strategyId;
                 const strategyData = JSON.parse(card.dataset.strategy);
 
-                if (e.target.checked) {
+                // Toggle selection
+                checkbox.checked = !checkbox.checked;
+
+                if (checkbox.checked) {
+                    // Add to selection
                     this.selectedStrategies.add({
                         id: strategyId,
                         data: strategyData,
                         cluster: cluster
                     });
-                    card.classList.add('selected');
+                    card.classList.add('selected', 'bg-analysis-50', 'border-analysis-500');
+                    indicator.classList.remove('opacity-0', 'scale-0');
+                    indicator.classList.add('opacity-100', 'scale-100');
                 } else {
-                    // Remove from set
+                    // Remove from selection
                     const toRemove = [...this.selectedStrategies].find(s => s.id === strategyId);
                     if (toRemove) {
                         this.selectedStrategies.delete(toRemove);
                     }
-                    card.classList.remove('selected');
+                    card.classList.remove('selected', 'bg-analysis-50', 'border-analysis-500');
+                    indicator.classList.add('opacity-0', 'scale-0');
+                    indicator.classList.remove('opacity-100', 'scale-100');
                 }
 
                 updateSelectionUI();
@@ -361,10 +385,10 @@ class BranvaSolutionsDrawer {
         // Select All button
         if (selectAllBtn) {
             selectAllBtn.addEventListener('click', () => {
-                document.querySelectorAll('.strategy-checkbox').forEach(checkbox => {
+                document.querySelectorAll('.strategy-template-card').forEach(card => {
+                    const checkbox = card.querySelector('.strategy-checkbox');
                     if (!checkbox.checked) {
-                        checkbox.checked = true;
-                        checkbox.dispatchEvent(new Event('change'));
+                        card.click();
                     }
                 });
             });
@@ -373,10 +397,10 @@ class BranvaSolutionsDrawer {
         // Clear All button
         if (clearAllBtn) {
             clearAllBtn.addEventListener('click', () => {
-                document.querySelectorAll('.strategy-checkbox').forEach(checkbox => {
+                document.querySelectorAll('.strategy-template-card').forEach(card => {
+                    const checkbox = card.querySelector('.strategy-checkbox');
                     if (checkbox.checked) {
-                        checkbox.checked = false;
-                        checkbox.dispatchEvent(new Event('change'));
+                        card.click();
                     }
                 });
             });
@@ -490,7 +514,7 @@ class BranvaSolutionsDrawer {
         this.closeSolutionsModal();
         this.close();
 
-        console.log(`✅ Strategy Solutions: Created ${createdSlides.length} slides`);
+        // console.log(`✅ Strategy Solutions: Created ${createdSlides.length} slides`);
         return createdSlides;
     }
 
@@ -555,5 +579,5 @@ window.BranvaSolutionsDrawer = BranvaSolutionsDrawer;
 // Auto-initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     window.bravaSolutionsDrawer = new BranvaSolutionsDrawer();
-    console.log('📋 Branva Solutions Drawer initialized');
+    // console.log('📋 Branva Solutions Drawer initialized');
 });

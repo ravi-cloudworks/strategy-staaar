@@ -459,7 +459,7 @@ window.branvaImageData = {
                     totalImages: 0
                 }
             };
-            console.log(`🗂️ Matrix storage initialized: ${matrixId}`);
+            // console.log(`🗂️ Matrix storage initialized: ${matrixId}`);
         }
         return this.matrices[matrixId];
     },
@@ -659,7 +659,7 @@ window.branvaImageData = {
                     }
                 });
 
-                console.log('💾 Matrix storage loaded from localStorage');
+                // console.log('💾 Matrix storage loaded from localStorage');
                 return true;
             }
         } catch (e) {
@@ -689,4 +689,4 @@ window.branvaImageData = {
 // Initialize image storage on load
 window.branvaImageData.loadFromLocalStorage();
 
-console.log('🗂️ Multi-matrix image storage system initialized');
+// console.log('🗂️ Multi-matrix image storage system initialized');

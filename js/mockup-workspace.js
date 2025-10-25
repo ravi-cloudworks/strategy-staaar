@@ -730,8 +730,8 @@ function getLocationImage(locationId) {
 
 
 // Export functions to global scope
-console.log('🔧 [TRACE] Exporting mockup functions to global scope...');
+// console.log('🔧 [TRACE] Exporting mockup functions to global scope...');
 window.initializeMockupSlide = initializeMockupSlide;
-console.log('✅ [TRACE] Functions exported:', {
-    initializeMockupSlide: !!window.initializeMockupSlide
-});
+// console.log('✅ [TRACE] Functions exported:', {
+//     initializeMockupSlide: !!window.initializeMockupSlide
+// });

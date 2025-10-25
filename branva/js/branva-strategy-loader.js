@@ -51,7 +51,7 @@ class BranvaStrategyLoader {
     // Load specific strategy content (matrix data)
     async loadStrategyContent(strategyId) {
         try {
-            console.log(`🔄 Loading strategy content for: ${strategyId}`);
+            // console.log(`🔄 Loading strategy content for: ${strategyId}`);
 
             const strategy = this.strategies.find(s => s.id === strategyId);
             if (!strategy) {
@@ -64,7 +64,7 @@ class BranvaStrategyLoader {
             }
 
             const content = await response.json();
-            console.log(`✅ Loaded strategy content for: ${strategyId}`);
+            // console.log(`✅ Loaded strategy content for: ${strategyId}`);
 
             return content;
 

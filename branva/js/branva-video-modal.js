@@ -139,7 +139,7 @@ class BranvaVideoModal {
         this.modal.classList.add('show');
         this.loadServerVideos();
 
-        console.log('🎬 BRANVA VIDEO MODAL OPENED:', { matrixId });
+        // console.log('🎬 BRANVA VIDEO MODAL OPENED:', { matrixId });
     }
 
     close() {
@@ -791,4 +791,4 @@ class BranvaVideoModal {
 // Make it globally available
 window.BranvaVideoModal = BranvaVideoModal;
 
-console.log('🎬 Branva Video Modal class loaded');
+// console.log('🎬 Branva Video Modal class loaded');

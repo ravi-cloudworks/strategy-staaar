@@ -68,10 +68,10 @@ class BranvaVideoDrawer {
 
         // Show success message
         if (window.showToast) {
-            window.showToast('Video analysis drawer opened', 'success');
+            // window.showToast('Video analysis drawer opened', 'success');
         }
 
-        console.log('🎬 Video drawer opened for matrix:', matrixId);
+        // console.log('🎬 Video drawer opened for matrix:', matrixId);
     }
 
     close() {
@@ -91,7 +91,7 @@ class BranvaVideoDrawer {
         this.hideVideoPlayer();
         this.hideRowButtons();
 
-        console.log('🎬 Video drawer closed');
+        // console.log('🎬 Video drawer closed');
     }
 
     async loadServerVideos() {
@@ -192,7 +192,7 @@ class BranvaVideoDrawer {
             }, { once: true });
         }
 
-        console.log('🎬 Video loaded:', metadata);
+        // console.log('🎬 Video loaded:', metadata);
     }
 
     showVideoPlayer() {
@@ -251,7 +251,7 @@ class BranvaVideoDrawer {
             rowButtonsGrid.appendChild(rowBtn);
         });
 
-        console.log(`🎯 Generated ${rows.length} row buttons for matrix ${matrixId}`);
+        // console.log(`🎯 Generated ${rows.length} row buttons for matrix ${matrixId}`);
     }
 
     createRowButton(rowName, rowIndex) {
@@ -408,5 +408,5 @@ window.BranvaVideoDrawer = BranvaVideoDrawer;
 // Auto-initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     window.branvaVideoDrawer = new BranvaVideoDrawer();
-    console.log('🎬 Branva Video Drawer initialized');
+    // console.log('🎬 Branva Video Drawer initialized');
 });

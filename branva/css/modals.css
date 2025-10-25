@@ -894,12 +894,7 @@
     height: 100%;
 }
 
-.insights-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
-    height: 100%;
-}
+/* Removed insights-grid - now using strategy-templates-grid */
 
 .insight-card {
     background: #f8fafc;

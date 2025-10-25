@@ -48,12 +48,12 @@ function initializeMockupSlide(containerId, modalInstance) {
     const mockupArea = document.getElementById(`mockupArea-${containerId}`);
     const canvas = document.getElementById(`resultCanvas-${containerId}`);
 
-    console.log('🔍 DOM Elements Check:', {
-        contentGrid: !!contentGrid,
-        mockupArea: !!mockupArea,
-        canvas: !!canvas,
-        containerId: containerId
-    });
+    // console.log('🔍 DOM Elements Check:', {
+    //     contentGrid: !!contentGrid,
+    //     mockupArea: !!mockupArea,
+    //     canvas: !!canvas,
+    //     containerId: containerId
+    // });
 
     try {
         // 1. Initialize OpenCV for advanced processing
@@ -547,7 +547,7 @@ function initializeOpenCVForMockups() {
     if (window.initializeOpenCV) {
         initializeOpenCV().then(success => {
             if (success) {
-                console.log('✅ OpenCV initialized for mockup processing');
+                // console.log('✅ OpenCV initialized for mockup processing');
             } else {
                 console.log('⚠️ OpenCV initialization failed, using fallback methods');
             }
@@ -730,8 +730,8 @@ function getLocationImage(locationId) {
 
 
 // Export functions to global scope
-console.log('🔧 [TRACE] Exporting mockup functions to global scope...');
+// console.log('🔧 [TRACE] Exporting mockup functions to global scope...');
 window.initializeMockupSlide = initializeMockupSlide;
-console.log('✅ [TRACE] Functions exported:', {
-    initializeMockupSlide: !!window.initializeMockupSlide
-});
+// console.log('✅ [TRACE] Functions exported:', {
+//     initializeMockupSlide: !!window.initializeMockupSlide
+// });

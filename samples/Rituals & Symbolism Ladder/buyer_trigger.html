@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Elements of Value Pyramid</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    color: #333;
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  .container {
+    width: 1920px;
+    height: 1080px;
+    max-width: 100vw;
+    max-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    overflow: hidden;
+  }
+
+  .header {
+    text-align: center;
+    padding: 30px 40px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+  }
+
+  .header h1 {
+    font-size: 3em;
+    font-weight: 700;
+    margin-bottom: 5px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+  }
+
+  .header p {
+    font-size: 1.1em;
+    color: rgba(255,255,255,0.9);
+    margin: 0;
+  }
+
+  .pyramid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: white;
+    padding: 30px 40px 40px;
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .layer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .layer-title {
+    font-size: 1.4em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    padding-bottom: 8px;
+  }
+
+  .layer-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    border-radius: 2px;
+  }
+
+  .layer:nth-child(1) .layer-title { color: #e74c3c; }
+  .layer:nth-child(2) .layer-title { color: #e67e22; }
+  .layer:nth-child(3) .layer-title { color: #3498db; }
+  .layer:nth-child(4) .layer-title { color: #27ae60; }
+
+  .values {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    max-width: 100%;
+    padding: 10px;
+  }
+
+  .circle-container {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 120px;
+  }
+
+  .circle-container:hover {
+    transform: translateY(-5px);
+  }
+
+  .circle-container.active {
+    transform: scale(1.12);
+  }
+
+  .circle-container.active:hover {
+    transform: scale(1.12) translateY(-5px);
+  }
+
+  .circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e8e8e8 0%, #d0d0d0 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    overflow: visible;
+  }
+
+  .circle::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    transition: border-color 0.3s ease;
+  }
+
+  .circle-container:hover .circle::before {
+    border-color: rgba(102, 126, 234, 0.3);
+  }
+
+  .circle.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6), 0 0 0 4px rgba(102, 126, 234, 0.2);
+    width: 135px;
+    height: 135px;
+  }
+
+  .circle.active::after {
+    content: '\F26B';
+    font-family: 'bootstrap-icons';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    z-index: 10;
+    animation: checkmarkPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes checkmarkPop {
+    0% {
+      transform: scale(0) rotate(-180deg);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+    }
+  }
+
+  .circle .default-icon {
+    font-size: 50px;
+    color: #999;
+    transition: all 0.3s ease;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .circle.active .default-icon {
+    display: none;
+  }
+
+  .circle .uploaded-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: none;
+  }
+
+  .circle.active .uploaded-image {
+    display: block;
+  }
+
+  .circle canvas {
+    display: none !important;
+  }
+
+  .circle-label {
+    text-align: center;
+    font-size: 0.75em;
+    font-weight: 600;
+    color: #444;
+    line-height: 1.2;
+    max-width: 120px;
+    word-wrap: break-word;
+    transition: color 0.3s ease;
+    min-height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .circle-container:hover .circle-label {
+    color: #667eea;
+  }
+
+  .circle-container.active .circle-label {
+    color: #667eea;
+    font-weight: 700;
+  }
+
+  .hidden-input {
+    display: none;
+  }
+
+  .circle-container.dragging .circle {
+    border: 3px dashed #667eea;
+    background: rgba(102, 126, 234, 0.1);
+  }
+
+  .instructions {
+    display: none;
+  }
+
+  @media (max-width: 1920px) {
+    .container {
+      transform: scale(calc(100vw / 1920));
+      transform-origin: top left;
+    }
+  }
+
+  @media print {
+    body {
+      background: white;
+    }
+    .container {
+      width: 1920px;
+      height: 1080px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+
+  <div class="pyramid">
+    
+    <!-- SOCIAL IMPACT -->
+    <div class="layer">
+      <div class="layer-title">Social Impact</div>
+      <div class="values">
+        <div class="circle-container" data-name="Self-transcendence">
+          <div class="circle">
+            <i class="bi bi-heart-fill default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+            <canvas></canvas>
+          </div>
+          <div class="circle-label">Self-transcendence</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+      </div>
+    </div>
+
+    <!-- LIFE CHANGING -->
+    <div class="layer">
+      <div class="layer-title">Life Changing</div>
+      <div class="values">
+        <div class="circle-container" data-name="Provides hope">
+          <div class="circle">
+            <i class="bi bi-brightness-high-fill default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Provides hope</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Self-actualization">
+          <div class="circle">
+            <i class="bi bi-trophy-fill default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Self-actualization</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Motivation">
+          <div class="circle">
+            <i class="bi bi-lightning-charge-fill default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Motivation</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Heirloom">
+          <div class="circle">
+            <i class="bi bi-gem default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Heirloom</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Affiliation/belonging">
+          <div class="circle">
+            <i class="bi bi-people-fill default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Affiliation/belonging</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+      </div>
+    </div>
+
+    <!-- EMOTIONAL -->
+    <div class="layer">
+      <div class="layer-title">Emotional</div>
+      <div class="values">
+        <div class="circle-container" data-name="Reduces anxiety">
+          <div class="circle">
+            <i class="bi bi-shield-check default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Reduces anxiety</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Rewards me">
+          <div class="circle">
+            <i class="bi bi-gift-fill default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Rewards me</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Nostalgia">
+          <div class="circle">
+            <i class="bi bi-clock-history default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Nostalgia</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Design/aesthetics">
+          <div class="circle">
+            <i class="bi bi-palette-fill default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Design/aesthetics</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Badge value">
+          <div class="circle">
+            <i class="bi bi-award-fill default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Badge value</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Wellness">
+          <div class="circle">
+            <i class="bi bi-heart-pulse-fill default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Wellness</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Therapeutic value">
+          <div class="circle">
+            <i class="bi bi-bandaid-fill default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Therapeutic value</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Fun/entertainment">
+          <div class="circle">
+            <i class="bi bi-emoji-laughing-fill default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Fun/entertainment</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Attractiveness">
+          <div class="circle">
+            <i class="bi bi-star-fill default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Attractiveness</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Provides access">
+          <div class="circle">
+            <i class="bi bi-key-fill default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Provides access</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+      </div>
+    </div>
+
+    <!-- FUNCTIONAL -->
+    <div class="layer">
+      <div class="layer-title">Functional</div>
+      <div class="values">
+        <div class="circle-container" data-name="Saves time">
+          <div class="circle">
+            <i class="bi bi-stopwatch-fill default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Saves time</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Simplifies">
+          <div class="circle">
+            <i class="bi bi-check-circle-fill default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Simplifies</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Makes money">
+          <div class="circle">
+            <i class="bi bi-currency-dollar default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Makes money</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Reduces risk">
+          <div class="circle">
+            <i class="bi bi-shield-fill-check default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Reduces risk</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Organizes">
+          <div class="circle">
+            <i class="bi bi-grid-3x3-gap-fill default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Organizes</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Integrates">
+          <div class="circle">
+            <i class="bi bi-link-45deg default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Integrates</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Connects">
+          <div class="circle">
+            <i class="bi bi-share-fill default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Connects</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Reduces effort">
+          <div class="circle">
+            <i class="bi bi-box-arrow-in-down-right default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Reduces effort</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Avoids hassles">
+          <div class="circle">
+            <i class="bi bi-toggle-on default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Avoids hassles</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Reduces cost">
+          <div class="circle">
+            <i class="bi bi-piggy-bank-fill default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Reduces cost</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Quality">
+          <div class="circle">
+            <i class="bi bi-patch-check-fill default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Quality</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Variety">
+          <div class="circle">
+            <i class="bi bi-collection-fill default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Variety</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Sensory appeal">
+          <div class="circle">
+            <i class="bi bi-eye-fill default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Sensory appeal</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+        <div class="circle-container" data-name="Informs">
+          <div class="circle">
+            <i class="bi bi-info-circle-fill default-icon"></i>
+            <img class="uploaded-image" src="" alt="">
+          </div>
+          <div class="circle-label">Informs</div>
+          <input type="file" class="hidden-input" accept="image/*">
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="instructions">
+    <h3>How to Use</h3>
+    <p>Click on any circle to upload an image, or drag and drop images directly onto the circles. Each circle represents a different value element that can be customized for your presentation.</p>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const containers = document.querySelectorAll('.circle-container');
+  
+  containers.forEach(container => {
+    const circle = container.querySelector('.circle');
+    const input = container.querySelector('input[type="file"]');
+    const img = circle.querySelector('.uploaded-image');
+    
+    // Click to upload
+    container.addEventListener('click', (e) => {
+      if (e.target !== input) {
+        input.click();
+      }
+    });
+    
+    // Handle image selection
+    input.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = evt => {
+        img.src = evt.target.result;
+        circle.classList.add('active');
+        container.classList.add('active');
+      };
+      reader.readAsDataURL(file);
+    });
+    
+    // Drag-and-drop support
+    container.addEventListener('dragover', e => {
+      e.preventDefault();
+      container.classList.add('dragging');
+    });
+    
+    container.addEventListener('dragleave', e => {
+      container.classList.remove('dragging');
+    });
+    
+    container.addEventListener('drop', e => {
+      e.preventDefault();
+      container.classList.remove('dragging');
+      
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = evt => {
+          img.src = evt.target.result;
+          circle.classList.add('active');
+          container.classList.add('active');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  });
+});
+</script>
+
+</body>
+</html>

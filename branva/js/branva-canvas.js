@@ -35,12 +35,43 @@ class BranvaCanvas {
         return 'elem_' + Math.random().toString(36).substr(2, 9);
     }
 
+    findElementById(elementId) {
+        const currentSlide = this.slides[this.currentSlideIndex];
+        if (!currentSlide) return null;
+
+        return currentSlide.elements.find(element => element.id === elementId);
+    }
+
+    updateElementProperty(elementId, property, value) {
+        const currentSlide = this.slides[this.currentSlideIndex];
+        if (!currentSlide) return;
+
+        const element = currentSlide.elements.find(el => el.id === elementId);
+        if (!element) return;
+
+        // Handle nested content properties
+        if (element.content && (property in element.content || property.startsWith('content'))) {
+            if (property.startsWith('content.')) {
+                const contentProp = property.replace('content.', '');
+                element.content[contentProp] = value;
+            } else {
+                element.content[property] = value;
+            }
+        } else {
+            // Handle top-level element properties
+            element[property] = value;
+        }
+
+        console.log(`🔧 Updated element ${elementId} property ${property}:`, value);
+    }
+
     bindEvents() {
         // Canvas events
         this.slideContent.addEventListener('click', (e) => this.handleCanvasClick(e));
         this.slideContent.addEventListener('mousedown', (e) => this.handleMouseDown(e));
-        this.slideContent.addEventListener('mousemove', (e) => this.handleMouseMove(e));
-        this.slideContent.addEventListener('mouseup', (e) => this.handleMouseUp(e));
+        // Bind mouse events to document to handle cases where mouse leaves canvas area
+        document.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+        document.addEventListener('mouseup', (e) => this.handleMouseUp(e));
         this.slideContent.addEventListener('dragover', (e) => this.handleDragOver(e));
         this.slideContent.addEventListener('drop', (e) => this.handleDrop(e));
 
@@ -163,6 +194,21 @@ class BranvaCanvas {
         elementDiv.classList.add('selected');
         this.selectedElements = [elementDiv];
         this.showResizeHandles(elementDiv);
+
+        // Integrate with property system
+        const elementId = elementDiv.dataset.elementId;
+        const elementData = this.findElementById(elementId);
+
+        if (elementData) {
+            // Dispatch event for property manager
+            const event = new CustomEvent('branva-element-selected', {
+                detail: {
+                    element: elementDiv,
+                    elementData: elementData
+                }
+            });
+            document.dispatchEvent(event);
+        }
     }
 
     clearSelection() {
@@ -171,6 +217,10 @@ class BranvaCanvas {
             this.hideResizeHandles(el);
         });
         this.selectedElements = [];
+
+        // Dispatch deselection event for property manager
+        const event = new CustomEvent('branva-element-deselected');
+        document.dispatchEvent(event);
     }
 
     showResizeHandles(element) {
@@ -211,7 +261,7 @@ class BranvaCanvas {
         });
 
         this.selectedElements = [];
-        this.showToast('Elements deleted', 'success');
+        // this.showToast('Elements deleted', 'success');
     }
 
     showGridLines() {
@@ -502,17 +552,17 @@ class BranvaCanvas {
             cursor: ${element.type === 'text' ? 'text' : 'move'};
         `;
 
-        console.log('🎯 ELEMENT RENDERED:', {
-            type: element.type,
-            id: element.id,
-            position: element.position,
-            computedStyle: {
-                left: element.position.x + '%',
-                top: element.position.y + '%',
-                width: element.position.width + '%',
-                height: element.position.height + '%'
-            }
-        });
+        // console.log('🎯 ELEMENT RENDERED:', {
+        //     type: element.type,
+        //     id: element.id,
+        //     position: element.position,
+        //     computedStyle: {
+        //         left: element.position.x + '%',
+        //         top: element.position.y + '%',
+        //         width: element.position.width + '%',
+        //         height: element.position.height + '%'
+        //     }
+        // });
 
         switch (element.type) {
             case 'text':
@@ -524,6 +574,9 @@ class BranvaCanvas {
             case 'insight':
                 this.renderInsightElement(div, element);
                 break;
+            case 'insight-tool':
+                this.renderInsightTool(element);
+                return; // Don't append to slideContent, it's handled differently
             case 'mockup':
                 this.renderMockupElement(div, element);
                 break;
@@ -617,7 +670,7 @@ class BranvaCanvas {
                     element.content.text = newText;
                     // Show save feedback
                     if (window.showToast) {
-                        window.showToast('Text updated successfully', 'success');
+                        // window.showToast('Text updated successfully', 'success');
                     }
                     console.log('📝 TEXT SAVED:', { id: element.id, oldText: oldText.substring(0, 30) + '...', newText: newText.substring(0, 30) + '...' });
                 }
@@ -1013,6 +1066,225 @@ class BranvaCanvas {
         });
     }
 
+    async renderInsightTool(element) {
+        const elementId = element.id;
+        const content = element.content;
+        const templateName = content.templateName || 'rituals-symbolism-ladder';
+
+        // Create a container div for the insight tool
+        const div = document.createElement('div');
+        div.className = 'canvas-element insight-tool-element';
+        div.dataset.elementId = elementId;
+        div.style.cssText = `
+            position: absolute;
+            left: ${element.position.x}%;
+            top: ${element.position.y}%;
+            width: ${element.size.width}%;
+            height: ${element.size.height}%;
+            z-index: ${element.zIndex || 1};
+            cursor: move;
+        `;
+
+        try {
+            // Load template HTML
+            const templateHTML = await this.loadInsightTemplate(templateName);
+
+            if (templateHTML) {
+                div.innerHTML = templateHTML;
+
+
+                // Load specific CSS and JS for this template
+                this.loadInsightCSS(templateName);
+                this.loadInsightJS(templateName);
+
+                // Initialize the interactive functionality immediately and also after timeout
+                // Immediate initialization for instant functionality
+                this.initializeSpecificInsightTool(div, templateName);
+
+                // Also set up with timeout in case scripts need time to load
+                setTimeout(() => {
+                    this.initializeSpecificInsightTool(div, templateName);
+                }, 200);
+            } else {
+                // Fallback content
+                div.innerHTML = `
+                    <div style="
+                        width: 100%;
+                        height: 100%;
+                        background: #f8fafc;
+                        border: 2px solid #e2e8f0;
+                        border-radius: 12px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: #64748b;
+                    ">
+                        <p>Insight Tool: ${content.insightName}</p>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Error loading insight template:', error);
+            // Fallback content
+            div.innerHTML = `
+                <div style="
+                    width: 100%;
+                    height: 100%;
+                    background: #f8fafc;
+                    border: 2px solid #e2e8f0;
+                    border-radius: 12px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #64748b;
+                ">
+                    <p>Error loading insight tool</p>
+                </div>
+            `;
+        }
+
+        // Add canvas event handlers
+        div.addEventListener('mousedown', (e) => this.handleMouseDown(e));
+
+        // Background click to open property panel - runs in bubble phase after circle handlers
+        div.addEventListener('click', (e) => {
+            // console.log('🔍 Canvas element clicked - checking for property panel');
+
+            // Check if click is NOT on a circle or circle-related element
+            const circleContainer = e.target.closest('.insight-circle-container');
+            const isCircleElement = e.target.classList.contains('insight-circle') ||
+                                   e.target.classList.contains('uploaded-image') ||
+                                   e.target.closest('.insight-circle');
+
+            if (!circleContainer && !isCircleElement) {
+                // console.log('✅ Opening property panel - click on pyramid background');
+                // Click is on tool background - open property panel
+                e.stopPropagation();
+                this.selectElement(div);
+            } else {
+                // console.log('❌ Not opening property panel - click on circle area');
+            }
+        }, { capture: false }); // Use bubble phase to run AFTER circle capture handlers
+
+        this.slideContent.appendChild(div);
+    }
+
+    async loadInsightTemplate(templateName) {
+        try {
+            const response = await fetch(`./insight-tools/${templateName}/template.html`);
+            if (response.ok) {
+                return await response.text();
+            }
+            return null;
+        } catch (error) {
+            console.error(`Failed to load template ${templateName}:`, error);
+            return null;
+        }
+    }
+
+    loadInsightCSS(templateName) {
+        // Check if CSS is already loaded for this template
+        const cssId = `insight-css-${templateName}`;
+        if (document.getElementById(cssId)) {
+            return;
+        }
+
+        const link = document.createElement('link');
+        link.id = cssId;
+        link.rel = 'stylesheet';
+        link.href = `./insight-tools/${templateName}/css/style.css`;
+        document.head.appendChild(link);
+    }
+
+    loadInsightJS(templateName) {
+        // Check if JS is already loaded for this template
+        const jsId = `insight-js-${templateName}`;
+        if (document.getElementById(jsId)) {
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.id = jsId;
+        script.src = `./insight-tools/${templateName}/js/script.js`;
+        document.head.appendChild(script);
+    }
+
+    initializeSpecificInsightTool(container, templateName) {
+        console.log('🔧 Initializing insight tool:', templateName);
+        console.log('🔧 RitualsSymbolismLadder available:', !!window.RitualsSymbolismLadder);
+
+        // Use specific tool class if available, otherwise fallback to generic
+        if (templateName === 'rituals-symbolism-ladder' && window.RitualsSymbolismLadder) {
+            console.log('✅ Using specific RitualsSymbolismLadder class');
+            new window.RitualsSymbolismLadder(container);
+        } else {
+            console.log('⚠️ Using generic initialization');
+            // Generic fallback initialization
+            this.initializeInsightTool(container);
+        }
+    }
+
+    initializeInsightTool(container) {
+        const containers = container.querySelectorAll('.insight-circle-container');
+
+        containers.forEach(circleContainer => {
+            const circle = circleContainer.querySelector('.insight-circle');
+            const input = circleContainer.querySelector('input[type="file"]');
+            const img = circle.querySelector('.uploaded-image');
+
+            if (!circle || !input || !img) return;
+
+            // Simple click to upload
+            circleContainer.addEventListener('click', (e) => {
+                console.log('🔍 Generic circle clicked:', circleContainer.dataset.name);
+
+                // Stop propagation to prevent property panel opening
+                e.stopPropagation();
+                e.preventDefault();
+
+                // Open file dialog
+                input.click();
+                console.log('📁 Opening file dialog for:', circleContainer.dataset.name);
+            });
+
+            // Handle image selection
+            input.addEventListener('change', e => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = evt => {
+                    img.src = evt.target.result;
+                    circle.classList.add('active');
+                    circleContainer.classList.add('active');
+                };
+                reader.readAsDataURL(file);
+            });
+
+            // Drag-and-drop support
+            circleContainer.addEventListener('dragover', e => {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+
+            circleContainer.addEventListener('drop', e => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = evt => {
+                        img.src = evt.target.result;
+                        circle.classList.add('active');
+                        circleContainer.classList.add('active');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+    }
+
     initializeMockupCanvas(element) {
         const elementId = element.id;
         const canvas = document.getElementById(`mockupCanvas-${elementId}`);
@@ -1032,7 +1304,7 @@ class BranvaCanvas {
             canvas.width = mockupImg.width;
             canvas.height = mockupImg.height;
 
-            console.log(`📐 Canvas initialized: ${canvas.width}x${canvas.height} for mockup: ${content.mockupName}`);
+            // console.log(`📐 Canvas initialized: ${canvas.width}x${canvas.height} for mockup: ${content.mockupName}`);
 
             // Draw the mockup template
             const ctx = canvas.getContext('2d');
@@ -1382,7 +1654,7 @@ class BranvaCanvas {
         if (this.slideContent.children.length === 0) {
             this.slideContent.innerHTML = `
                 <div class="welcome-message">
-                    <h2>Welcome to Branva</h2>
+                    <h2>Welcome to Brandva</h2>
                     <p>Select a solution template from the left panel to get started</p>
                 </div>
             `;

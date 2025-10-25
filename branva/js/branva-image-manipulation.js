@@ -8,7 +8,7 @@ class BranvaImageManipulation {
     }
 
     init() {
-        console.log('🖼️ Initializing Branva Image Manipulation...');
+        // console.log('🖼️ Initializing Branva Image Manipulation...');
     }
 
     // Update image placeholder with captured frame
@@ -133,7 +133,7 @@ class BranvaImageManipulation {
 
         console.log(`✅ Applied FIT mode for matrix ${matrixId}`);
         if (window.showToast) {
-            window.showToast('FIT mode: Complete original image displayed', 'success');
+            // window.showToast('FIT mode: Complete original image displayed', 'success');
         }
     }
 
@@ -185,7 +185,7 @@ class BranvaImageManipulation {
             img.dataset.cleanup = 'pan';
 
             if (window.showToast) {
-                window.showToast('PAN mode: Drag to focus on area', 'success');
+                // window.showToast('PAN mode: Drag to focus on area', 'success');
             }
         } catch (error) {
             console.error('❌ Error in pan mode:', error);
@@ -200,7 +200,7 @@ class BranvaImageManipulation {
         img.dataset.mode = 'move';
         this.enableColumnDrag(placeholder);
         if (window.showToast) {
-            window.showToast('MOVE mode: Drag to reposition within matrix', 'success');
+            // window.showToast('MOVE mode: Drag to reposition within matrix', 'success');
         }
     }
 
@@ -249,7 +249,7 @@ class BranvaImageManipulation {
                 placeholder.style.position = 'relative';
 
                 if (window.showToast) {
-                    window.showToast('Drag to reposition - drop on target', 'success');
+                    // window.showToast('Drag to reposition - drop on target', 'success');
                 }
             }
         });
@@ -336,7 +336,7 @@ class BranvaImageManipulation {
             // Perform the move
             this.moveImageToCell(draggedElement, targetCell, matrixId);
             if (window.showToast) {
-                window.showToast('Image moved to new position!', 'success');
+                // window.showToast('Image moved to new position!', 'success');
             }
         } else {
             if (window.showToast) {
@@ -432,4 +432,4 @@ window.BranvaImageManipulation = BranvaImageManipulation;
 // Initialize global instance
 window.branvaImageManipulation = new BranvaImageManipulation();
 
-console.log('🖼️ Branva Image Manipulation module loaded');
+// console.log('🖼️ Branva Image Manipulation module loaded');

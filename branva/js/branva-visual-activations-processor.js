@@ -277,7 +277,7 @@ function drawPlaceholderOverlay(ctx, detectedCorners) {
         const tiltFontSize = Math.max(dimFontSize * 0.8, 12);
         ctx.font = `500 ${tiltFontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif`;
         ctx.fillStyle = '#ffffff';
-        ctx.fillText(`(tilted ${tiltAngle.toFixed(1)}°)`, 0, fontSize * 0.7);
+        // ctx.fillText(`(tilted ${tiltAngle.toFixed(1)}°)`, 0, fontSize * 0.7);
     }
 
     ctx.shadowBlur = 10;
@@ -433,7 +433,7 @@ function startAIProcessingAnimation(containerId, detectedCorners, callback) {
 
     // Stop animation after 30 seconds (as requested)
     setTimeout(() => {
-        console.log('🎭 AI processing animation complete');
+        // console.log('🎭 AI processing animation complete');
 
         // Stop sparkles
         clearInterval(sparkleInterval);

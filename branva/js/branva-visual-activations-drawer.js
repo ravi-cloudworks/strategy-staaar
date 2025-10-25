@@ -108,10 +108,10 @@ class BranvaVisualActivationsDrawer {
         this.loadPersonas();
 
         if (window.showToast) {
-            window.showToast('Visual Activations drawer opened', 'success');
+            // window.showToast('Visual Activations drawer opened', 'success');
         }
 
-        console.log('📱 Visual Activations drawer opened');
+        // console.log('📱 Visual Activations drawer opened');
     }
 
     close() {
@@ -126,7 +126,7 @@ class BranvaVisualActivationsDrawer {
 
         this.isOpen = false;
 
-        console.log('📱 Visual Activations drawer closed');
+        // console.log('📱 Visual Activations drawer closed');
     }
 
     loadPersonas() {
@@ -181,13 +181,20 @@ class BranvaVisualActivationsDrawer {
         card.className = 'persona-card';
         card.dataset.personaId = persona.id;
 
+        card.className = 'bg-white border border-strategy-200 rounded-lg p-4 hover:shadow-md hover:border-strategy-300 transition-all duration-200 cursor-pointer group persona-card';
         card.innerHTML = `
-            <div class="persona-icon">${persona.icon}</div>
-            <h3 class="persona-title">${persona.name}</h3>
-            <p class="persona-description">${persona.description}</p>
-            <div class="persona-stats">
-                <span class="stat-item">${persona.locationCount} locations</span>
-                <span class="stat-item">${persona.mockupCount} templates</span>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg persona-icon bg-insight-100 text-insight-600">
+                    ${persona.icon}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h3 class="font-strategic text-base font-semibold text-strategy-800 persona-title">${persona.name}</h3>
+                    <p class="font-sans text-xs text-strategy-500 mt-1 line-clamp-2 persona-description">${persona.description}</p>
+                    <div class="persona-stats flex gap-3 mt-2">
+                        <span class="font-premium text-xs font-medium text-premium-500 stat-item">${persona.locationCount} locations</span>
+                        <span class="font-premium text-xs font-medium text-analysis-500 stat-item">${persona.mockupCount} templates</span>
+                    </div>
+                </div>
             </div>
         `;
 
@@ -221,8 +228,13 @@ class BranvaVisualActivationsDrawer {
             return;
         }
 
-        // Set modal title
-        modalTitle.textContent = `${persona.icon} ${persona.name} - Mockup Templates`;
+        // Set modal title and description
+        modalTitle.innerHTML = `${persona.icon} ${persona.name} - Mockup Templates`;
+
+        const modalDescription = document.getElementById('visualActivationsDescription');
+        if (modalDescription) {
+            modalDescription.textContent = persona.description || 'Select mockup templates to add to your presentation';
+        }
 
         // Generate mockup templates grid
         modalPreview.innerHTML = this.generateMockupTemplatesGrid(persona);
@@ -254,24 +266,27 @@ class BranvaVisualActivationsDrawer {
             location.mockups.forEach(mockup => {
                 const mockupId = `${location.id}-${mockup.id}`;
                 html += `
-                    <div class="mockup-template-card selectable" data-mockup-id="${mockupId}" data-mockup='${JSON.stringify({...mockup, locationName: location.name, audienceName: persona.name, audienceIcon: persona.icon})}'>
-                        <div class="selection-checkbox">
-                            <input type="checkbox" id="mockup-${mockupId}" class="mockup-checkbox">
-                            <label for="mockup-${mockupId}" class="checkbox-overlay"></label>
+                    <div class="border border-strategy-200 rounded-lg p-4 hover:shadow-md hover:border-analysis-300 transition-all duration-200 cursor-pointer mockup-template-card relative group" data-mockup-id="${mockupId}" data-mockup='${JSON.stringify({...mockup, locationName: location.name, audienceName: persona.name, audienceIcon: persona.icon})}'>
+                        <!-- Hidden checkbox for form data -->
+                        <input type="checkbox" id="mockup-${mockupId}" class="hidden mockup-checkbox">
+
+                        <!-- Hidden selection indicator - only shows when selected -->
+                        <div class="absolute top-3 right-3 w-5 h-5 border-2 border-analysis-500 bg-analysis-500 rounded-full flex items-center justify-center selection-indicator transition-all duration-200 opacity-0 scale-0">
+                            <i class="bi bi-check text-white text-sm"></i>
                         </div>
-                        <div class="mockup-preview-container">
-                            <img src="${mockup.image.replace('mockup-images/', 'mockup-images/')}" alt="${mockup.name}" class="mockup-preview-image"
-                                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDIwMCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTUwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjEwMCIgeT0iNzUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzZCNzI4MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk1vY2t1cCBQcmV2aWV3PC90ZXh0Pgo8L3N2Zz4='">
-                            <div class="orientation-badge ${mockup.orientation}">
-                                ${mockup.orientation === 'portrait' ? '📱' : '🖥️'} ${mockup.orientation}
+
+                        <div class="mockup-content pr-8">
+                            <div class="mockup-preview-container mb-3">
+                                <img src="${mockup.image.replace('mockup-images/', 'mockup-images/')}" alt="${mockup.name}" class="mockup-preview-image w-full h-32 object-cover rounded-lg"
+                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDIwMCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTUwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjEwMCIgeT0iNzUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzZCNzI4MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk1vY2t1cCBQcmV2aWV3PC90ZXh0Pgo8L3N2Zz4='">
+                                <div class="absolute top-2 left-2 px-2 py-1 bg-white/90 rounded text-xs font-medium text-strategy-600 orientation-badge">
+                                    <i class="bi ${mockup.orientation === 'portrait' ? 'bi-phone' : 'bi-display'}"></i> ${mockup.orientation}
+                                </div>
                             </div>
-                        </div>
-                        <div class="mockup-info">
-                            <div class="mockup-name">${mockup.name}</div>
-                            <div class="mockup-description">${mockup.description}</div>
-                        </div>
-                        <div class="selection-overlay">
-                            <i class="bi bi-check-circle-fill"></i>
+                            <div class="mockup-info">
+                                <h4 class="font-strategic text-base font-semibold text-strategy-800 mb-1 mockup-name">${mockup.name}</h4>
+                                <p class="font-sans text-sm text-strategy-600 mockup-description">${mockup.description}</p>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -301,27 +316,37 @@ class BranvaVisualActivationsDrawer {
             addButton.disabled = count === 0;
         };
 
-        // Individual checkbox handlers
-        document.querySelectorAll('.mockup-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('change', (e) => {
-                const card = e.target.closest('.mockup-template-card');
+        // Card click handlers for selection
+        document.querySelectorAll('.mockup-template-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                e.preventDefault();
+                const checkbox = card.querySelector('.mockup-checkbox');
+                const indicator = card.querySelector('.selection-indicator');
                 const mockupId = card.dataset.mockupId;
                 const mockupData = JSON.parse(card.dataset.mockup);
 
-                if (e.target.checked) {
+                // Toggle selection
+                checkbox.checked = !checkbox.checked;
+
+                if (checkbox.checked) {
+                    // Add to selection
                     this.selectedMockups.add({
                         id: mockupId,
                         data: mockupData,
                         persona: persona
                     });
-                    card.classList.add('selected');
+                    card.classList.add('selected', 'bg-analysis-50', 'border-analysis-500');
+                    indicator.classList.remove('opacity-0', 'scale-0');
+                    indicator.classList.add('opacity-100', 'scale-100');
                 } else {
-                    // Remove from set
+                    // Remove from selection
                     const toRemove = [...this.selectedMockups].find(m => m.id === mockupId);
                     if (toRemove) {
                         this.selectedMockups.delete(toRemove);
                     }
-                    card.classList.remove('selected');
+                    card.classList.remove('selected', 'bg-analysis-50', 'border-analysis-500');
+                    indicator.classList.add('opacity-0', 'scale-0');
+                    indicator.classList.remove('opacity-100', 'scale-100');
                 }
 
                 updateSelectionUI();
@@ -331,10 +356,10 @@ class BranvaVisualActivationsDrawer {
         // Select All button
         if (selectAllBtn) {
             selectAllBtn.addEventListener('click', () => {
-                document.querySelectorAll('.mockup-checkbox').forEach(checkbox => {
+                document.querySelectorAll('.mockup-template-card').forEach(card => {
+                    const checkbox = card.querySelector('.mockup-checkbox');
                     if (!checkbox.checked) {
-                        checkbox.checked = true;
-                        checkbox.dispatchEvent(new Event('change'));
+                        card.click();
                     }
                 });
             });
@@ -343,10 +368,10 @@ class BranvaVisualActivationsDrawer {
         // Clear All button
         if (clearAllBtn) {
             clearAllBtn.addEventListener('click', () => {
-                document.querySelectorAll('.mockup-checkbox').forEach(checkbox => {
+                document.querySelectorAll('.mockup-template-card').forEach(card => {
+                    const checkbox = card.querySelector('.mockup-checkbox');
                     if (checkbox.checked) {
-                        checkbox.checked = false;
-                        checkbox.dispatchEvent(new Event('change'));
+                        card.click();
                     }
                 });
             });
@@ -528,5 +553,5 @@ window.BranvaVisualActivationsDrawer = BranvaVisualActivationsDrawer;
 // Auto-initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     window.branvaVisualActivationsDrawer = new BranvaVisualActivationsDrawer();
-    console.log('📱 Branva Visual Activations Drawer initialized');
+    // console.log('📱 Branva Visual Activations Drawer initialized');
 });

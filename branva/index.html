@@ -19,6 +19,81 @@
     <!-- External Libraries -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://unpkg.com/@supabase/supabase-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+    <!-- Premium Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100;200;300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Geist', 'Inter', 'system-ui', 'sans-serif'],
+                        'serif': ['Playfair Display', 'Georgia', 'serif'],
+                        'strategic': ['Geist', 'Inter', 'system-ui', 'sans-serif'],
+                        'premium': ['Playfair Display', 'Georgia', 'serif']
+                    },
+                    colors: {
+                        'strategy': {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            300: '#cbd5e1',
+                            400: '#94a3b8',
+                            500: '#64748b',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a'
+                        },
+                        'premium': {
+                            50: '#fefbeb',
+                            100: '#fef3c7',
+                            200: '#fcd34d',
+                            300: '#f59e0b',
+                            400: '#d97706',
+                            500: '#b45309',
+                            600: '#92400e'
+                        },
+                        'insight': {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857'
+                        },
+                        'analysis': {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8'
+                        }
+                    },
+                    spacing: {
+                        '18': '4.5rem',
+                        '88': '22rem',
+                        '128': '32rem'
+                    },
+                    borderRadius: {
+                        'xl': '0.75rem',
+                        '2xl': '1rem',
+                        '3xl': '1.5rem'
+                    },
+                    boxShadow: {
+                        'premium': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                        'premium-lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                        'premium-xl': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+                    }
+                }
+            }
+        }
+    </script>
 
     <!-- Core Styles -->
     <link rel="stylesheet" href="css/main.css">
@@ -32,8 +107,8 @@
     <header class="branva-header">
         <div class="header-left">
             <div class="logo-section">
-                <h1 class="branva-logo">Branva.app</h1>
-                <span class="logo-tagline">Strategy Builder</span>
+                <h1 class="branva-logo">Brandva.app</h1>
+                <span class="logo-tagline">Canva for Strategy</span>
             </div>
             <nav class="header-nav">
                 <button class="nav-btn">File</button>
@@ -266,7 +341,7 @@
                     <div class="slide-content" id="slideContent">
                         <!-- Slide elements will be rendered here -->
                         <div class="welcome-message">
-                            <h2>Welcome to Branva</h2>
+                            <h2>Welcome to Brandva</h2>
                             <p>Select a solution template from the left panel to get started</p>
                         </div>
                     </div>
@@ -348,24 +423,29 @@
     <div class="modal-overlay" id="visualActivationsModal">
         <div class="modal-content visual-activations-modal-content">
             <div class="modal-header">
-                <h2 id="visualActivationsTitle">Mockup Templates</h2>
+                <div class="modal-title-section">
+                    <h2 id="visualActivationsTitle">Mockup Templates</h2>
+                    <p class="modal-description" id="visualActivationsDescription"></p>
+                </div>
                 <button class="modal-close" id="closeVisualActivationsModal">
                     <i class="bi bi-x"></i>
                 </button>
             </div>
             <div class="modal-body">
-                <div class="selection-controls">
-                    <button class="btn-secondary" id="selectAllMockupsBtn">Select All</button>
-                    <button class="btn-secondary" id="clearAllMockupsBtn">Clear All</button>
-                    <span class="selection-count" id="mockupSelectionCount">0 selected</span>
-                </div>
                 <div class="visual-activations-preview" id="visualActivationsPreview">
                     <!-- Mockup templates grid will be rendered here -->
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" id="cancelVisualActivationsBtn">Cancel</button>
-                <button class="btn-primary" id="addSelectedMockupsBtn" disabled>Select Templates</button>
+            <div class="bg-strategy-50 border-t border-strategy-200 px-6 py-4 flex items-center justify-between modal-footer">
+                <div class="text-sm text-strategy-600">
+                    <span id="mockupSelectionCount">0</span> templates selected
+                </div>
+                <div class="flex gap-3">
+                    <button class="px-4 py-2 text-sm font-medium text-strategy-600 hover:text-strategy-800 transition-colors" id="cancelVisualActivationsBtn">Cancel</button>
+                    <button class="px-6 py-2 bg-analysis-500 hover:bg-analysis-600 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed" id="addSelectedMockupsBtn" disabled>
+                        Create Templates
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -374,24 +454,88 @@
     <div class="modal-overlay" id="solutionsModal">
         <div class="modal-content solutions-modal-content">
             <div class="modal-header">
-                <h2 id="solutionsTitle">Strategy Solutions</h2>
+                <div class="modal-title-section">
+                    <h2 id="solutionsTitle">Strategy Solutions</h2>
+                    <p class="modal-description" id="solutionsDescription"></p>
+                </div>
                 <button class="modal-close" id="closeSolutionsModal">
                     <i class="bi bi-x"></i>
                 </button>
             </div>
             <div class="modal-body">
-                <div class="selection-controls">
-                    <button class="btn-secondary" id="selectAllStrategiesBtn">Select All</button>
-                    <button class="btn-secondary" id="clearAllStrategiesBtn">Clear All</button>
-                    <span class="selection-count" id="strategySelectionCount">0 selected</span>
-                </div>
                 <div class="solutions-preview" id="solutionsPreview">
                     <!-- Strategy templates grid will be rendered here -->
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" id="cancelSolutionsBtn">Cancel</button>
-                <button class="btn-primary" id="addSelectedStrategiesBtn" disabled>Select Strategies</button>
+            <div class="bg-strategy-50 border-t border-strategy-200 px-6 py-4 flex items-center justify-between modal-footer">
+                <div class="text-sm text-strategy-600">
+                    <span id="strategySelectionCount">0</span> strategies selected
+                </div>
+                <div class="flex gap-3">
+                    <button class="px-4 py-2 text-sm font-medium text-strategy-600 hover:text-strategy-800 transition-colors" id="cancelSolutionsBtn">Cancel</button>
+                    <button class="px-6 py-2 bg-analysis-500 hover:bg-analysis-600 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed" id="addSelectedStrategiesBtn" disabled>
+                        Create Strategies
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Consumer Insights Modal - EXACT COPY of Solutions Modal -->
+    <div class="modal-overlay" id="insightsCategoryModal">
+        <div class="modal-content solutions-modal-content">
+            <div class="modal-header">
+                <div class="modal-title-section">
+                    <h2 id="insightsCategoryTitle">Consumer Insights</h2>
+                    <p class="modal-description" id="insightsCategoryDescription"></p>
+                </div>
+                <button class="modal-close" id="closeInsightsCategoryModal">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="solutions-preview" id="insightsCategoryGrid">
+                    <!-- Insight templates grid will be rendered here -->
+                </div>
+            </div>
+            <div class="bg-strategy-50 border-t border-strategy-200 px-6 py-4 flex items-center justify-between modal-footer">
+                <div class="text-sm text-strategy-600">
+                    <span id="insightsSelectionCount">0</span> insights selected
+                </div>
+                <div class="flex gap-3">
+                    <button class="px-4 py-2 text-sm font-medium text-strategy-600 hover:text-strategy-800 transition-colors" id="cancelInsightsSelection">Cancel</button>
+                    <button class="px-6 py-2 bg-analysis-500 hover:bg-analysis-600 text-white text-sm font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed" id="createInsightsSlides" disabled>
+                        Create Insights
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Full-Screen Presentation Mode -->
+    <div class="presentation-overlay" id="presentationMode">
+        <div class="presentation-container">
+            <!-- Presentation Header -->
+            <div class="presentation-header">
+                <div class="presentation-controls">
+                    <button class="presentation-btn" id="prevSlide">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <span class="slide-counter" id="slideCounter">1 / 1</span>
+                    <button class="presentation-btn" id="nextSlide">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+                <button class="presentation-btn presentation-close" id="exitPresentation">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <!-- Presentation Content -->
+            <div class="presentation-content" id="presentationContent">
+                <div class="slide-container" id="slideContainer">
+                    <!-- Slides will be rendered here -->
+                </div>
             </div>
         </div>
     </div>
@@ -415,6 +559,16 @@
     <script src="js/branva-visual-activations-drawer.js"></script>
     <script src="js/branva-universal-drawers.js"></script>
     <script src="js/branva-canvas.js"></script>
+
+    <!-- Property System Scripts -->
+    <script src="js/format-property/property-manager.js"></script>
+    <script src="js/format-property/matrix-properties.js"></script>
+    <script src="js/format-property/text-properties.js"></script>
+    <script src="js/format-property/image-properties.js"></script>
+    <script src="js/format-property/mockup-properties.js"></script>
+    <script src="js/format-property/insight-properties.js"></script>
+
+    <script src="js/branva-presentation-canvas.js"></script>
     <script src="js/branva-panels.js"></script>
     <script src="js/branva-main.js"></script>
 </body>

@@ -84,10 +84,10 @@ class UniversalDrawer {
         this.isOpen = true;
 
         if (window.showToast) {
-            window.showToast(`${this.config.title} drawer opened`, 'success');
+            // window.showToast(`${this.config.title} drawer opened`, 'success');
         }
 
-        console.log(`📋 ${this.config.title} drawer opened`);
+        // console.log(`📋 ${this.config.title} drawer opened`);
     }
 
     close() {
@@ -102,7 +102,7 @@ class UniversalDrawer {
 
         this.isOpen = false;
 
-        console.log(`📋 ${this.config.title} drawer closed`);
+        // console.log(`📋 ${this.config.title} drawer closed`);
     }
 
     loadContent() {
@@ -378,5 +378,5 @@ document.addEventListener('DOMContentLoaded', () => {
     window.branvaBrandDrawer = new UniversalDrawer('brand', brandConfig);
     window.branvaToolsDrawer = new UniversalDrawer('tools', toolsConfig);
 
-    console.log('📋 Universal drawers initialized');
+    // console.log('📋 Universal drawers initialized');
 });
