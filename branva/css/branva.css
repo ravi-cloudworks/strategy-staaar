@@ -349,11 +349,7 @@
 }
 
 /* Insights Grid */
-.insights-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 12px;
-}
+/* Removed insights-grid - Consumer Insights now uses strategy-templates-grid */
 
 .insight-tool {
     display: flex;
@@ -1633,6 +1629,10 @@
     width: 800px;
 }
 
+.solutions-modal-content {
+    width: 800px;
+}
+
 .mockup-modal-content {
     width: 600px;
 }
@@ -2559,6 +2559,28 @@
     padding: 16px 0;
 }
 
+/* Insight Template Cards - Minimal CSS, let Tailwind handle styling */
+.insight-template-card {
+    /* Only essential styles that can't be done with Tailwind classes */
+}
+
+/* Old selection-checkbox rule removed - using Tailwind selection indicators now */
+
+.insight-template-card .insight-checkbox {
+    display: none !important;
+    opacity: 0 !important;
+    position: absolute !important;
+    width: 0 !important;
+    height: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Old checkbox-overlay rules removed - using Tailwind selection indicators now */
+
+/* Removed padding override - using Tailwind padding classes */
+
+/* All insight-template-card style overrides removed - using pure Tailwind classes */
+
 .strategy-template-card {
     position: relative;
     border: 1px solid #e2e8f0;
@@ -2733,4 +2755,650 @@
 .canvas-element.strategy-matrix.selected {
     border-color: #8B5CF6;
     box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}
+
+/* Property Panel System */
+.property-panel {
+    position: fixed;
+    right: -400px;
+    top: 0;
+    width: 400px;
+    height: 100vh;
+    background: white;
+    border-left: 1px solid #e2e8f0;
+    box-shadow: -4px 0 16px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transition: right 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.property-panel.open {
+    right: 0;
+}
+
+.property-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.property-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.property-close {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.property-close:hover {
+    background: #e2e8f0;
+}
+
+.property-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+}
+
+.no-selection-state {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Property Sections */
+.property-section {
+    border-bottom: 1px solid #f1f5f9;
+    padding: 20px;
+}
+
+.property-section:last-child {
+    border-bottom: none;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 16px 0;
+}
+
+.section-title i {
+    color: #8B5CF6;
+}
+
+.toggle-video-btn {
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.toggle-video-btn:hover {
+    background: #e5e7eb;
+}
+
+.toggle-video-btn[data-active="true"] {
+    background: #8B5CF6;
+    color: white;
+    border-color: #8B5CF6;
+}
+
+/* Property Groups and Items */
+.property-group {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.property-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.property-item label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.property-value {
+    font-size: 14px;
+    color: #374151;
+    padding: 8px 12px;
+    background: #f9fafb;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+}
+
+/* Property Inputs */
+.property-input {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.property-input:focus {
+    outline: none;
+    border-color: #8B5CF6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.color-input {
+    width: 60px;
+    height: 36px;
+    padding: 4px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.range-input {
+    width: 100%;
+}
+
+.input-with-unit {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.range-value {
+    font-size: 12px;
+    color: #6b7280;
+    min-width: 40px;
+    text-align: right;
+}
+
+.text-content-input {
+    min-height: 80px;
+    resize: vertical;
+    font-family: inherit;
+}
+
+/* Alignment Controls */
+.alignment-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+.alignment-btn {
+    padding: 8px;
+    border: 1px solid #d1d5db;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.alignment-btn:hover {
+    background: #f3f4f6;
+}
+
+.alignment-btn.active {
+    background: #8B5CF6;
+    color: white;
+    border-color: #8B5CF6;
+}
+
+/* Shadow Controls */
+.shadow-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.shadow-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.shadow-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+    background: #f9fafb;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+}
+
+.shadow-control {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.shadow-control label {
+    font-size: 11px;
+    color: #6b7280;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toggle-switch input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+}
+
+/* Full-Screen Presentation Mode */
+.presentation-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 10000;
+    display: none;
+    flex-direction: column;
+}
+
+.presentation-overlay.active {
+    display: flex;
+}
+
+.presentation-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.presentation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+}
+
+.presentation-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.presentation-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.presentation-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.presentation-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.presentation-close {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.presentation-close:hover {
+    background: rgba(239, 68, 68, 0.3);
+}
+
+.slide-counter {
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    min-width: 80px;
+    text-align: center;
+}
+
+.presentation-content {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.slide-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.presentation-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    overflow: hidden;
+}
+
+/* Property Buttons */
+.property-btn {
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid;
+}
+
+.property-btn.secondary {
+    background: white;
+    color: #374151;
+    border-color: #d1d5db;
+}
+
+.property-btn.secondary:hover {
+    background: #f9fafb;
+}
+
+.property-btn.danger {
+    background: #fee2e2;
+    color: #dc2626;
+    border-color: #fecaca;
+}
+
+.property-btn.danger:hover {
+    background: #fecaca;
+}
+
+.property-btn.small {
+    padding: 4px 8px;
+    font-size: 11px;
+}
+
+.property-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Property Actions */
+.property-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Urgency Badges */
+.urgency-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.urgency-badge.high {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.urgency-badge.medium {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.urgency-badge.low {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+/* Video Analysis in Property Panel */
+.video-selection-section {
+    margin-bottom: 16px;
+}
+
+.video-selection-section h5,
+.video-selection-section h6 {
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 8px 0;
+}
+
+.upload-option {
+    margin-bottom: 16px;
+}
+
+.upload-btn {
+    width: 100%;
+    padding: 12px;
+    border: 2px dashed #d1d5db;
+    background: #f9fafb;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.upload-btn:hover {
+    border-color: #8B5CF6;
+    background: #f0f4ff;
+    color: #8B5CF6;
+}
+
+.videos-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.video-item {
+    padding: 8px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+}
+
+.video-item:hover {
+    border-color: #8B5CF6;
+    background: #f0f4ff;
+}
+
+.video-item-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 2px;
+}
+
+.video-item-desc {
+    font-size: 11px;
+    color: #6b7280;
+}
+
+.capture-buttons-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.capture-row-btn {
+    width: 100%;
+    padding: 8px 12px;
+    background: #8B5CF6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 12px;
+}
+
+.capture-row-btn:hover {
+    background: #7c3aed;
+}
+
+/* Image Property Specific */
+.image-source-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.preset-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.preset-btn {
+    padding: 8px;
+    border: 1px solid #d1d5db;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    color: #374151;
+}
+
+.preset-btn:hover {
+    background: #f3f4f6;
+    border-color: #8B5CF6;
+}
+
+.preset-btn i {
+    font-size: 14px;
+}
+
+/* Mockup Property Specific */
+.upload-area {
+    text-align: center;
+}
+
+.upload-hint {
+    font-size: 11px;
+    color: #9ca3af;
+    margin-top: 4px;
+}
+
+.current-content-preview {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: #f9fafb;
+}
+
+.content-thumbnail {
+    width: 60px;
+    height: 40px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.content-thumbnail img,
+.content-thumbnail video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.no-content {
+    font-size: 10px;
+    color: #9ca3af;
+}
+
+.perspective-controls {
+    display: flex;
+    gap: 8px;
+}
+
+/* Canvas Area Adjustment */
+.canvas-area.with-property-panel {
+    margin-right: 400px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .property-panel {
+        width: 320px;
+    }
+
+    .canvas-area.with-property-panel {
+        margin-right: 320px;
+    }
 }
